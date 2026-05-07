@@ -2,6 +2,7 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from 'src/app/services/auth.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-welcome-modal',
@@ -19,123 +20,150 @@ export class WelcomeModalComponent {
   isNewUser: boolean = true;
   isLoading: boolean = false;
   isFetchingGst: boolean = false;
+  gstError: string = '';
 
-  // Company Data
   companyData: any = {
     gstin: '',
-    companyName: '',
+    company_name: '',
+    trade_name: '',
+    business_type: '',
     address: '',
-    contactNumber: '',
+    city: '',
+    state: '',
+    pincode: '',
+    countryCode: '+91',
+    phone: '',
     email: '',
-    logo: null,
-    logoPreview: ''
+    pan: '',
+    website: '',
+    logo_preview: ''
   };
 
-  // Owner Data
   ownerData: any = {
-    ownerName: '',
-    mobile: '',
-    email: '',
+    owner_name: '',
+    owner_mobile: '',
+    owner_email: '',
     designation: '',
-    authorisedSignatory: ''
+    signatory_name: '',
+    signatory_preview: ''
   };
 
-  constructor(private auth: AuthService) { }
+  constructor(private auth: AuthService, private http: HttpClient) { }
 
   ngOnInit() {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     this.userName = user?.name || 'User';
 
-    // Auto-fill contact and email from user data
+    // Auto-fill from user data
     if (user?.mobile) {
-      this.companyData.contactNumber = user.mobile;
-      this.ownerData.mobile = user.mobile;
+      this.companyData.phone = user.mobile;
+      this.ownerData.owner_mobile = user.mobile;
     }
     if (user?.email) {
       this.companyData.email = user.email;
-      this.ownerData.email = user.email;
+      this.ownerData.owner_email = user.email;
     }
 
-    const hasSetup = Number(user?.has_setup || 0);
-
-    // Agar has_setup = 1 hai to old user
-    // Agar has_setup = 0 hai to new user
-    this.isNewUser = hasSetup === 0;
+    const hasSetup = this.auth.getHasSetup();
+    this.isNewUser = !hasSetup;
     this.isLoading = false;
   }
 
-  // 🔥 FETCH GST DETAILS FROM API
-  async fetchGstDetails() {
-    const gstin = this.companyData.gstin;
+  checkGST(event: any) {
+    let gstNumber = event.target.value.toUpperCase().trim();
+    this.companyData.gstin = gstNumber;
+    this.gstError = '';
 
+    if (gstNumber.length === 15) {
+      this.fetchGstDetails();
+    }
+  }
+
+  fetchGstDetails() {
+    const gstin = this.companyData.gstin;
     if (!gstin || gstin.length !== 15) {
-      alert('Please enter valid 15-digit GSTIN number');
+      this.gstError = 'Please enter valid 15-digit GSTIN number';
       return;
     }
 
     this.isFetchingGst = true;
+    this.gstError = '';
 
-    try {
-      // FREE GST API (Replace with your actual API)
-      const response = await fetch(`https://api.gstins.in/verify?gstin=${gstin}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
+    this.http.get(`https://billsezy.com/Api/gst-fetch.php?gstin=${gstin}`).subscribe(
+      (res: any) => {
+        this.isFetchingGst = false;
+
+        if (res?.status === true && res?.data) {
+          const data = res.data;
+
+          if (data.tradeNam) {
+            this.companyData.company_name = data.tradeNam;
+            this.companyData.trade_name = data.tradeNam;
+          } else if (data.lgnm) {
+            this.companyData.company_name = data.lgnm;
+          }
+
+          if (data.nba && data.nba.length > 0) {
+            this.companyData.business_type = data.nba.join(', ');
+          }
+
+          if (data.pradr?.addr) {
+            const addr = data.pradr.addr;
+            let addressParts = [];
+            if (addr.bno && addr.bno !== '-') addressParts.push(addr.bno);
+            if (addr.bnm && addr.bnm !== '-') addressParts.push(addr.bnm);
+            if (addr.st && addr.st !== '-') addressParts.push(addr.st);
+            if (addr.loc && addr.loc !== '-') addressParts.push(addr.loc);
+
+            this.companyData.address = addressParts.join(', ');
+            this.companyData.city = addr.city || addr.loc || '';
+            this.companyData.state = addr.stcd || '';
+            this.companyData.pincode = addr.pncd || '';
+          }
+
+          this.gstError = '';
+          alert('GST details fetched successfully!');
+        } else {
+          this.gstError = res?.message || "Invalid GST Number";
         }
-      });
-
-      // Alternative FREE API: https://gst-verify-api.vercel.app/api/verify?gstin=...
-      // const response = await fetch(`https://gst-verify-api.vercel.app/api/verify?gstin=${gstin}`);
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('GST API Response:', data);
-
-        // Auto-fill company details from GST response
-        if (data.tradeName || data.businessName) {
-          this.companyData.companyName = data.tradeName || data.businessName || this.companyData.companyName;
-        }
-
-        if (data.address) {
-          const addr = data.address;
-          this.companyData.address = `${addr.buildingName || ''} ${addr.street || ''}, ${addr.city || ''}, ${addr.state || ''} - ${addr.pincode || ''}`;
-        }
-
-        alert('GST details fetched successfully!');
-      } else {
-        // Manual entry fallback
-        alert('Could not fetch GST details. Please enter manually.');
+      },
+      (error: any) => {
+        this.isFetchingGst = false;
+        this.gstError = "Failed to fetch GST details";
       }
-    } catch (error) {
-      console.error('GST API Error:', error);
-      alert('Unable to fetch GST details. Please enter manually or check your GSTIN.');
-    } finally {
-      this.isFetchingGst = false;
-    }
+    );
+  }
+
+  panToUpperCase(event: any) {
+    this.companyData.pan = event.target.value.toUpperCase();
   }
 
   startSetup() {
     this.step = 'step1';
+    this.gstError = '';
+    this.isFetchingGst = false;
   }
 
   nextStep() {
     if (this.validateStep1()) {
-      this.saveCompanyData();
       this.step = 'step2';
     }
   }
 
+  prevStep() {
+    this.step = 'step1';
+  }
+
   skipSetup() {
-    if (this.hasStep1Data()) {
-      this.saveCompanyData();
+    if (this.hasAnyData()) {
+      this.saveAllData();
     }
     this.goToDashboard();
   }
 
   completeSetup() {
-    if (this.validateStep2()) {
-      this.saveCompanyData();
-      this.saveOwnerData();
+    if (this.validateStep1() && this.validateStep2()) {
+      this.saveAllData();
       this.goToDashboard();
     }
   }
@@ -145,86 +173,129 @@ export class WelcomeModalComponent {
       alert('Please enter GSTIN Number');
       return false;
     }
-    if (!this.companyData.companyName) {
+    if (!this.companyData.company_name) {
       alert('Please enter Company Name');
+      return false;
+    }
+    if (!this.companyData.business_type) {
+      alert('Please enter Business Type');
       return false;
     }
     if (!this.companyData.address) {
       alert('Please enter Address');
       return false;
     }
-    if (!this.companyData.contactNumber) {
-      alert('Please enter Contact Number');
+    if (!this.companyData.city) {
+      alert('Please enter City');
+      return false;
+    }
+    if (!this.companyData.state) {
+      alert('Please enter State');
+      return false;
+    }
+    if (!this.companyData.pincode) {
+      alert('Please enter Pincode');
+      return false;
+    }
+    if (!this.companyData.phone) {
+      alert('Please enter Phone Number');
       return false;
     }
     if (!this.companyData.email) {
       alert('Please enter Email');
       return false;
     }
+    if (!this.companyData.pan) {
+      alert('Please enter PAN Number');
+      return false;
+    }
+    if (this.companyData.pan.length !== 10) {
+      alert('PAN Number should be 10 characters');
+      return false;
+    }
     return true;
   }
 
   validateStep2(): boolean {
-    if (!this.ownerData.ownerName) {
+    if (!this.ownerData.owner_name) {
       alert('Please enter Owner Name');
       return false;
     }
-    if (!this.ownerData.mobile) {
-      alert('Please enter Mobile Number');
+    if (!this.ownerData.owner_mobile) {
+      alert('Please enter Owner Mobile Number');
       return false;
     }
-    if (!this.ownerData.email) {
-      alert('Please enter Email ID');
+    if (!this.ownerData.owner_email) {
+      alert('Please enter Owner Email ID');
       return false;
     }
     if (!this.ownerData.designation) {
       alert('Please enter Designation');
       return false;
     }
-    if (!this.ownerData.authorisedSignatory) {
-      alert('Please enter Authorised Signatory');
+    if (!this.ownerData.signatory_name) {
+      alert('Please enter Authorised Signatory Name');
       return false;
     }
     return true;
   }
 
-  hasStep1Data(): boolean {
-    return !!(this.companyData.gstin || this.companyData.companyName ||
-      this.companyData.address || this.companyData.contactNumber ||
-      this.companyData.email);
+  hasAnyData(): boolean {
+    return !!(this.companyData.gstin || this.companyData.company_name);
   }
 
-  saveCompanyData() {
+  saveAllData() {
     const userId = this.auth.getUserId();
-    const companyInfo = {
+    const allData = {
       user_id: userId,
       gstin: this.companyData.gstin,
-      companyName: this.companyData.companyName,
+      company_name: this.companyData.company_name,
+      trade_name: this.companyData.trade_name,
+      business_type: this.companyData.business_type,
       address: this.companyData.address,
-      contactNumber: this.companyData.contactNumber,
+      city: this.companyData.city,
+      state: this.companyData.state,
+      pincode: this.companyData.pincode,
+      phone: this.companyData.countryCode + ' ' + this.companyData.phone,
       email: this.companyData.email,
-      logo: this.companyData.logoPreview || ''
-    };
-
-    localStorage.setItem('companyInfo', JSON.stringify(companyInfo));
-    console.log('Company Data Saved:', companyInfo);
-  }
-
-  saveOwnerData() {
-    const userId = this.auth.getUserId();
-    const ownerInfo = {
-      user_id: userId,
-      ownerName: this.ownerData.ownerName,
-      mobile: this.ownerData.mobile,
-      email: this.ownerData.email,
+      pan: this.companyData.pan,
+      website: this.companyData.website,
+      user_name: this.ownerData.owner_name,
+      mobile: this.ownerData.owner_mobile,
+      owner_email: this.ownerData.owner_email,
       designation: this.ownerData.designation,
-      authorisedSignatory: this.ownerData.authorisedSignatory
+      signatory_name: this.ownerData.signatory_name,
+      signatory_image: this.ownerData.signatory_preview || '',
+      logo: this.companyData.logo_preview || ''
     };
 
-    localStorage.setItem('ownerInfo', JSON.stringify(ownerInfo));
-    localStorage.setItem('setupCompleted', 'true');
-    this.auth.saveHasSetup(true);
-    console.log('Owner Data Saved:', ownerInfo);
+    this.isLoading = true;
+
+    this.http.post('https://billsezy.com/Api/setup.php', allData).subscribe(
+      (res: any) => {
+        this.isLoading = false;
+
+        if (res.status === true) {
+          localStorage.setItem('companyInfo', JSON.stringify(allData));
+
+          const user = JSON.parse(localStorage.getItem('user') || '{}');
+          user.name = this.ownerData.owner_name;
+          user.mobile = this.ownerData.owner_mobile;
+          user.email = this.ownerData.owner_email;
+          localStorage.setItem('user', JSON.stringify(user));
+
+          this.auth.saveHasSetup(true);
+          alert('Setup completed successfully!');
+          this.goToDashboard();
+        } else {
+          alert(res.message || 'Setup failed');
+        }
+      },
+      (error: any) => {
+        this.isLoading = false;
+        alert('Network error. Please try again.');
+      }
+    );
   }
 
   onLogoSelected(event: any) {
@@ -232,7 +303,7 @@ export class WelcomeModalComponent {
     if (file) {
       const reader = new FileReader();
       reader.onload = (e: any) => {
-        this.companyData.logoPreview = e.target.result;
+        this.companyData.logo_preview = e.target.result;
         this.companyData.logo = file;
       };
       reader.readAsDataURL(file);
@@ -241,15 +312,29 @@ export class WelcomeModalComponent {
 
   removeLogo(event: any) {
     event.stopPropagation();
-    this.companyData.logoPreview = '';
+    this.companyData.logo_preview = '';
     this.companyData.logo = null;
   }
 
-  goToDashboard() {
-    this.closeModal.emit();
+  onSignatorySelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.ownerData.signatory_preview = e.target.result;
+        this.ownerData.signatory_image = file;
+      };
+      reader.readAsDataURL(file);
+    }
   }
 
-  close() {
+  removeSignatory(event: any) {
+    event.stopPropagation();
+    this.ownerData.signatory_preview = '';
+    this.ownerData.signatory_image = null;
+  }
+
+  goToDashboard() {
     this.closeModal.emit();
   }
 }

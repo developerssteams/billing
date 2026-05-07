@@ -409,3 +409,51 @@ h2 {
     align-items: flex-start;
   }
 }
+.phone-input-wrapper {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.country-dropdown select {
+  padding: 8px 12px;
+  border: 1px solid #166534;
+  border-radius: 8px;
+  font-size: 13px;
+  background: #f0fdf4;
+  color: #1e293b;
+  cursor: pointer;
+  min-width: 100px;
+}
+
+.form-group.third {
+  flex: 1;
+}
+
+.fetching-text {
+  color: #22c55e;
+  display: block;
+  margin-top: 5px;
+  font-size: 11px;
+}
+
+.error-text {
+  color: #ef4444;
+  display: block;
+  margin-top: 5px;
+  font-size: 11px;
+}
+
+.back-btn {
+  background: #166534;
+  color: #bbf7d0;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.back-btn:hover {
+  background: #14532d;
+}
