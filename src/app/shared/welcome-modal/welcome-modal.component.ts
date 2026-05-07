@@ -35,17 +35,7 @@ export class WelcomeModalComponent {
     phone: '',
     email: '',
     pan: '',
-    website: '',
-    logo_preview: ''
-  };
-
-  ownerData: any = {
-    owner_name: '',
-    owner_mobile: '',
-    owner_email: '',
-    designation: '',
-    signatory_name: '',
-    signatory_preview: ''
+    website: ''
   };
 
   constructor(private auth: AuthService, private http: HttpClient) { }
@@ -54,14 +44,11 @@ export class WelcomeModalComponent {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     this.userName = user?.name || 'User';
 
-    // Auto-fill from user data
     if (user?.mobile) {
       this.companyData.phone = user.mobile;
-      this.ownerData.owner_mobile = user.mobile;
     }
     if (user?.email) {
       this.companyData.email = user.email;
-      this.ownerData.owner_email = user.email;
     }
 
     const hasSetup = this.auth.getHasSetup();
@@ -197,12 +184,16 @@ export class WelcomeModalComponent {
       alert('Please enter Pincode');
       return false;
     }
+    return true;
+  }
+
+  validateStep2(): boolean {
     if (!this.companyData.phone) {
       alert('Please enter Phone Number');
       return false;
     }
     if (!this.companyData.email) {
-      alert('Please enter Email');
+      alert('Please enter Email Address');
       return false;
     }
     if (!this.companyData.pan) {
@@ -211,30 +202,6 @@ export class WelcomeModalComponent {
     }
     if (this.companyData.pan.length !== 10) {
       alert('PAN Number should be 10 characters');
-      return false;
-    }
-    return true;
-  }
-
-  validateStep2(): boolean {
-    if (!this.ownerData.owner_name) {
-      alert('Please enter Owner Name');
-      return false;
-    }
-    if (!this.ownerData.owner_mobile) {
-      alert('Please enter Owner Mobile Number');
-      return false;
-    }
-    if (!this.ownerData.owner_email) {
-      alert('Please enter Owner Email ID');
-      return false;
-    }
-    if (!this.ownerData.designation) {
-      alert('Please enter Designation');
-      return false;
-    }
-    if (!this.ownerData.signatory_name) {
-      alert('Please enter Authorised Signatory Name');
       return false;
     }
     return true;
@@ -259,14 +226,7 @@ export class WelcomeModalComponent {
       phone: this.companyData.countryCode + ' ' + this.companyData.phone,
       email: this.companyData.email,
       pan: this.companyData.pan,
-      website: this.companyData.website,
-      user_name: this.ownerData.owner_name,
-      mobile: this.ownerData.owner_mobile,
-      owner_email: this.ownerData.owner_email,
-      designation: this.ownerData.designation,
-      signatory_name: this.ownerData.signatory_name,
-      signatory_image: this.ownerData.signatory_preview || '',
-      logo: this.companyData.logo_preview || ''
+      website: this.companyData.website
     };
 
     this.isLoading = true;
@@ -279,9 +239,9 @@ export class WelcomeModalComponent {
           localStorage.setItem('companyInfo', JSON.stringify(allData));
 
           const user = JSON.parse(localStorage.getItem('user') || '{}');
-          user.name = this.ownerData.owner_name;
-          user.mobile = this.ownerData.owner_mobile;
-          user.email = this.ownerData.owner_email;
+          user.name = this.companyData.company_name;
+          user.mobile = this.companyData.phone;
+          user.email = this.companyData.email;
           localStorage.setItem('user', JSON.stringify(user));
 
           this.auth.saveHasSetup(true);
@@ -296,42 +256,6 @@ export class WelcomeModalComponent {
         alert('Network error. Please try again.');
       }
     );
-  }
-
-  onLogoSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.companyData.logo_preview = e.target.result;
-        this.companyData.logo = file;
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-
-  removeLogo(event: any) {
-    event.stopPropagation();
-    this.companyData.logo_preview = '';
-    this.companyData.logo = null;
-  }
-
-  onSignatorySelected(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.ownerData.signatory_preview = e.target.result;
-        this.ownerData.signatory_image = file;
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-
-  removeSignatory(event: any) {
-    event.stopPropagation();
-    this.ownerData.signatory_preview = '';
-    this.ownerData.signatory_image = null;
   }
 
   goToDashboard() {
