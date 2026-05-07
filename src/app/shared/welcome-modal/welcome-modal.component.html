@@ -1,33 +1,21 @@
 <div class="modal-backdrop">
   <div class="modal-box" *ngIf="step === 'success' && !isLoading">
-
-    <!-- SUCCESS ICON -->
     <div class="success-icon">✓</div>
-
-    <!-- TITLE -->
     <h2>Login Successful</h2>
-
-    <!-- USER -->
     <p class="user">Welcome, {{ userName }}</p>
-
-    <!-- MESSAGE -->
     <p class="msg">You're now ready to manage your business smarter 🚀</p>
 
-    <!-- ACTION BUTTONS -->
     <div class="action-buttons" [class.single-btn]="!isNewUser">
       <ng-container *ngIf="!isNewUser">
         <button class="full-width" (click)="goToDashboard()">Go to Dashboard</button>
       </ng-container>
-
       <ng-container *ngIf="isNewUser">
         <button class="dashboard-btn" (click)="goToDashboard()">Go to Dashboard</button>
         <button class="setup-btn" (click)="startSetup()">Complete Setup</button>
       </ng-container>
     </div>
-
   </div>
 
-  <!-- Loading State -->
   <div class="modal-box" *ngIf="isLoading">
     <div class="success-icon">⟳</div>
     <h2>Loading...</h2>
@@ -35,165 +23,128 @@
   </div>
 
   <!-- STEP 1: COMPANY DETAILS -->
-  <!-- STEP 1 -->
   <div class="modal-box setup-modal" *ngIf="step === 'step1'">
-
     <div class="setup-header">
       <h2>Complete Your Setup</h2>
       <p>Step 1 of 2 | Company Details</p>
-
       <div class="progress-bar">
         <div class="progress" style="width: 50%"></div>
       </div>
     </div>
 
     <div class="setup-form">
-
-      <!-- GSTIN + COMPANY -->
+      <!-- GSTIN + COMPANY NAME -->
       <div class="form-row">
-
         <div class="form-group half">
           <label>GSTIN Number *</label>
-
           <div class="gst-input-wrapper">
-
-            <input type="text" [(ngModel)]="companyData.gstin" placeholder="Enter GSTIN Number" maxlength="15">
-
-            <button class="fetch-gst-btn" (click)="fetchGstDetails()">
-           G
+            <input type="text" [(ngModel)]="companyData.gstin" placeholder="Enter GSTIN Number" maxlength="15" 
+                   (input)="checkGST($event)" [disabled]="isFetchingGst">
+            <button class="fetch-gst-btn" (click)="fetchGstDetails()" [disabled]="!companyData.gstin || companyData.gstin.length !== 15 || isFetchingGst">
+              🔍
             </button>
-
           </div>
+          <small *ngIf="isFetchingGst" class="fetching-text">Fetching GST details...</small>
+          <small *ngIf="gstError" class="error-text">{{ gstError }}</small>
         </div>
-
         <div class="form-group half">
           <label>Company Name *</label>
-
           <input type="text" [(ngModel)]="companyData.companyName" placeholder="Enter Company Name">
         </div>
-
       </div>
 
       <!-- TRADE NAME + BUSINESS TYPE -->
       <div class="form-row">
-
         <div class="form-group half">
           <label>Trade Name</label>
-
           <input type="text" [(ngModel)]="companyData.tradeName" placeholder="Enter Trade Name">
         </div>
-
         <div class="form-group half">
           <label>Business Type</label>
-
-          <input type="text" [(ngModel)]="companyData.businessType" placeholder="Enter Business Type">
+          <input type="text" [(ngModel)]="companyData.businessType" placeholder="Auto-fills from GST">
         </div>
-
       </div>
 
       <!-- ADDRESS -->
       <div class="form-group full">
-
         <label>Address *</label>
-
         <textarea rows="3" [(ngModel)]="companyData.address" placeholder="Enter Address"></textarea>
-
       </div>
 
       <!-- CITY STATE PINCODE -->
       <div class="form-row">
-
         <div class="form-group third">
           <label>City</label>
-
           <input type="text" [(ngModel)]="companyData.city" placeholder="City">
         </div>
-
         <div class="form-group third">
           <label>State</label>
-
           <input type="text" [(ngModel)]="companyData.state" placeholder="State">
         </div>
-
         <div class="form-group third">
           <label>Pincode</label>
-
           <input type="text" [(ngModel)]="companyData.pincode" placeholder="Pincode">
         </div>
-
       </div>
-
     </div>
 
     <div class="setup-actions">
-      <button class="skip-btn" (click)="skipSetup()">
-        Skip
-      </button>
-
-      <button class="next-btn" (click)="nextStep()">
-        Next →
-      </button>
+      <button class="skip-btn" (click)="skipSetup()">Skip</button>
+      <button class="next-btn" (click)="nextStep()">Next →</button>
     </div>
-
   </div>
 
-  <!-- STEP 2: OWNER DETAILS -->
-  <!-- STEP 2 -->
+  <!-- STEP 2: CONTACT DETAILS -->
   <div class="modal-box setup-modal" *ngIf="step === 'step2'">
-
     <div class="setup-header">
       <h2>Complete Your Setup</h2>
-
       <p>Step 2 of 2 | Contact Details</p>
-
       <div class="progress-bar">
         <div class="progress" style="width: 100%"></div>
       </div>
     </div>
 
     <div class="setup-form">
-
       <!-- PHONE -->
       <div class="form-group full">
         <label>Phone Number *</label>
-
-        <input type="text" [(ngModel)]="ownerData.mobile" placeholder="Enter Phone Number">
+        <div class="phone-input-wrapper">
+          <div class="country-dropdown">
+            <select [(ngModel)]="ownerData.countryCode">
+              <option value="+91">+91 (India)</option>
+              <option value="+1">+1 (USA)</option>
+              <option value="+44">+44 (UK)</option>
+              <option value="+61">+61 (Australia)</option>
+            </select>
+          </div>
+          <input type="tel" [(ngModel)]="ownerData.mobile" placeholder="Enter Phone Number">
+        </div>
       </div>
 
       <!-- EMAIL -->
       <div class="form-group full">
         <label>Email ID *</label>
-
         <input type="email" [(ngModel)]="ownerData.email" placeholder="Enter Email ID">
       </div>
 
       <!-- PAN -->
       <div class="form-group full">
-        <label>PAN Number</label>
-
-        <input type="text" [(ngModel)]="ownerData.panNumber" placeholder="Enter PAN Number">
+        <label>PAN Number *</label>
+        <input type="text" [(ngModel)]="ownerData.panNumber" placeholder="ABCDE1234F" maxlength="10" (input)="panToUpperCase($event)">
+        <small *ngIf="panError" class="error-text">{{ panError }}</small>
       </div>
 
       <!-- WEBSITE -->
       <div class="form-group full">
         <label>Website</label>
-
-        <input type="text" [(ngModel)]="ownerData.website" placeholder="Enter Website">
+        <input type="url" [(ngModel)]="ownerData.website" placeholder="https://example.com">
       </div>
-
     </div>
 
     <div class="setup-actions">
-
-      <button class="back-btn" (click)="step='step1'">
-        ← Back
-      </button>
-
-      <button class="complete-btn" (click)="completeSetup()">
-        Complete Setup →
-      </button>
-
+      <button class="back-btn" (click)="step='step1'">← Back</button>
+      <button class="skip-btn" (click)="skipSetup()">Skip →</button>
+      <button class="complete-btn" (click)="completeSetup()">Complete Setup →</button>
     </div>
-
   </div>
 </div>
