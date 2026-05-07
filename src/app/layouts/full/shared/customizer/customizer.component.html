@@ -1,0 +1,174 @@
+<div class="customizerNav">
+  <ng-scrollbar class="relative" style="height: calc(100vh - 85px)">
+    <div class="p-6 text-left rtl:text-right">
+      <h6 class="text-base font-semibold mb-4! rtl:text-right">Theme Option</h6>
+      <mat-button-toggle-group #group="matButtonToggleGroup" [(ngModel)]="options.theme" (change)="setDark()"
+        class="customizer-button-group gap-4" [hideSingleSelectionIndicator]="hideSingleSelectionIndicator()">
+        <mat-button-toggle [value]="'light'">
+          <div class="flex items-center gap-2">
+            <i class="iconify text-xl flex" data-icon="solar:sun-bold-duotone"></i>
+            Light
+          </div>
+        </mat-button-toggle>
+        <mat-button-toggle [value]="'dark'">
+          <div class="flex items-center gap-2">
+            <i class="iconify text-xl flex" data-icon="solar:moon-bold-duotone"></i>
+            Dark
+          </div>
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+
+      <div>
+        <h6 class="text-base font-semibold mb-4! mt-6! pt-4 rtl:text-right">
+          Theme Colors
+        </h6>
+        <mat-button-toggle-group #group="matButtonToggleGroup" [(ngModel)]="options.activeTheme"
+          (change)="setColor($event.value)"
+          class="customizer-button-group theme-colors two-row grid! grid-cols-12 gap-3"
+          [hideSingleSelectionIndicator]="hideSingleSelectionIndicator()">
+          <mat-button-toggle class="col-span-4 m-0!" [value]="'green_theme'">
+            <span class="theme-circle green_theme" matTooltip="green_theme" matTooltipClass="uppercase"
+              matTooltipPosition="above">
+              <i-tabler name="check" class="size-4! theme-icon"></i-tabler>
+            </span>
+          </mat-button-toggle>
+          <mat-button-toggle class="col-span-4 m-0!" [value]="'yellow_theme'">
+            <span class="theme-circle yellow_theme" matTooltip="yellow_theme" matTooltipClass="uppercase"
+              matTooltipPosition="above">
+              <i-tabler name="check" class="size-4! theme-icon"></i-tabler>
+            </span>
+          </mat-button-toggle>
+          <mat-button-toggle class="col-span-4 m-0!" [value]="'violet_theme'">
+            <span class="theme-circle violet_theme" matTooltip="violet_theme" matTooltipClass="uppercase"
+              matTooltipPosition="above">
+              <i-tabler name="check" class="size-4! theme-icon"></i-tabler>
+            </span>
+          </mat-button-toggle>
+
+          <mat-button-toggle class="col-span-4 m-0!" [value]="'blue_theme'">
+            <span class="theme-circle blue_theme" matTooltip="blue_theme" matTooltipClass="uppercase"
+              matTooltipPosition="above">
+              <i-tabler name="check" class="size-4! theme-icon"></i-tabler>
+            </span>
+          </mat-button-toggle>
+          <mat-button-toggle class="col-span-4 m-0!" [value]="'teal_theme'">
+            <span class="theme-circle teal_theme" matTooltip="teal_theme" matTooltipClass="uppercase"
+              matTooltipPosition="above">
+              <i-tabler name="check" class="size-4! theme-icon"></i-tabler>
+            </span>
+          </mat-button-toggle>
+          <mat-button-toggle class="col-span-4 m-0!" [value]="'lavender_theme'">
+            <span class="theme-circle lavender_theme" matTooltip="lavender_theme" matTooltipClass="uppercase"
+              matTooltipPosition="above">
+              <i-tabler name="check" class="size-4! theme-icon"></i-tabler>
+            </span>
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+
+      <h6 class="text-base font-semibold mb-4! mt-6! rtl:text-right">
+        Theme Direction
+      </h6>
+
+      <mat-button-toggle-group #group="matButtonToggleGroup" [(ngModel)]="options.dir" (change)="setDir($event.value)"
+        class="customizer-button-group gap-4" [hideSingleSelectionIndicator]="hideSingleSelectionIndicator()">
+        <mat-button-toggle [value]="'ltr'">
+          <div class="flex items-center gap-2">
+            <i class="iconify text-xl flex" data-icon="solar:align-left-line-duotone"></i>
+            LTR
+          </div>
+        </mat-button-toggle>
+        <mat-button-toggle [value]="'rtl'">
+          <div class="flex items-center gap-2">
+            <i class="iconify text-xl flex" data-icon="solar:align-right-line-duotone"></i>
+            RTL
+          </div>
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+
+      @if(!options.horizontal){
+      <div>
+        <h6 class="text-base font-semibold mb-4! mt-6! pt-4 rtl:text-right">
+          Sidebar type
+        </h6>
+
+        <mat-button-toggle-group #group="matButtonToggleGroup" [(ngModel)]="options.sidenavCollapsed"
+          (change)="setSidebar($event.value)" class="customizer-button-group gap-4"
+          [hideSingleSelectionIndicator]="hideSingleSelectionIndicator()">
+          <mat-button-toggle [value]="false">
+            <div class="flex items-center gap-2">
+              <i class="iconify text-xl flex" data-icon="solar:mirror-left-line-duotone"></i>
+              Full
+            </div>
+          </mat-button-toggle>
+          <mat-button-toggle [value]="true">
+            <div class="flex items-center gap-2">
+              <i class="iconify text-xl flex" data-icon="solar:mirror-right-line-duotone"></i>
+              Minisidebar
+            </div>
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+      }
+      <h6 class="text-base font-semibold mb-4! mt-6! pt-4 rtl:text-right">
+        Layout type
+      </h6>
+
+      <mat-button-toggle-group #group="matButtonToggleGroup" [(ngModel)]="options.horizontal"
+        class="customizer-button-group gap-4" [hideSingleSelectionIndicator]="hideSingleSelectionIndicator()">
+        <mat-button-toggle [value]="false">
+          <div class="flex items-center gap-2">
+            <i class="iconify text-xl flex" data-icon="solar:slider-vertical-line-duotone"></i>
+            Vertical
+          </div>
+        </mat-button-toggle>
+        <mat-button-toggle [value]="true">
+          <div class="flex items-center gap-2">
+            <i class="iconify text-xl flex" data-icon="solar:slider-horizontal-line-duotone"></i>
+            Horizontal
+          </div>
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+
+      <h6 class="text-base font-semibold mb-4! mt-6! pt-4 rtl:text-right">
+        Card with
+      </h6>
+
+      <mat-button-toggle-group #group="matButtonToggleGroup" [(ngModel)]="options.cardBorder"
+        class="customizer-button-group gap-4" [hideSingleSelectionIndicator]="hideSingleSelectionIndicator()">
+        <mat-button-toggle [value]="false">
+          <div class="flex items-center gap-2">
+            <i class="iconify text-xl flex" data-icon="solar:three-squares-line-duotone"></i>
+            Shadow
+          </div>
+        </mat-button-toggle>
+        <mat-button-toggle [value]="true">
+          <div class="flex items-center gap-2">
+            <i class="iconify text-xl flex" data-icon="solar:three-squares-bold-duotone"></i>
+            Border
+          </div>
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+
+      <h6 class="text-base font-semibold mb-4! mt-6! pt-4 rtl:text-right">
+        Container Option
+      </h6>
+
+      <mat-button-toggle-group #group="matButtonToggleGroup" [(ngModel)]="options.boxed"
+        class="customizer-button-group gap-4" [hideSingleSelectionIndicator]="hideSingleSelectionIndicator()">
+        <mat-button-toggle [value]="false">
+          <div class="flex items-center gap-2">
+            <i class="iconify text-xl flex" data-icon="solar:full-screen-square-line-duotone"></i>
+            Full
+          </div>
+        </mat-button-toggle>
+        <mat-button-toggle [value]="true">
+          <div class="flex items-center gap-2">
+            <i class="iconify text-xl flex" data-icon="solar:quit-full-screen-square-line-duotone"></i>
+            Boxed
+          </div>
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+  </ng-scrollbar>
+</div>

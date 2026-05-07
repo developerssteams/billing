@@ -1,0 +1,332 @@
+// Theme Colors
+$primary-color: #2b5d57;
+$primary-light: #3a7a73;
+$primary-dark: #1f4540;
+$primary-gradient: linear-gradient(135deg, #2b5d57 0%, #3a7a73 100%);
+$bg-white: #ffffff;
+$text-dark: #2c3e3f;
+$text-light: #6c8a87;
+$border-color: #e0eceb;
+
+.eway-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Hero Section */
+.eway-hero {
+    overflow: hidden;
+    background: $bg-white;
+    border-radius: 24px;
+    padding: 40px;
+    text-align: center;
+    margin-bottom: 40px;
+    box-shadow: 0 4px 20px rgba(43, 93, 87, 0.08);
+    border: 1px solid $border-color;
+}
+
+.eway-hero-content h1 {
+    font-size: 32px;
+    margin: 20px 0 10px;
+    font-weight: 700;
+    color: $primary-color;
+    letter-spacing: -0.5px;
+}
+
+.eway-hero-content p {
+    font-size: 16px;
+    color: $text-light;
+    margin-bottom: 20px;
+}
+
+.eway-icon {
+    display: inline-block;
+    background: $primary-gradient;
+    padding: 16px;
+    border-radius: 60px;
+    color: white;
+    box-shadow: 0 8px 20px rgba(43, 93, 87, 0.25);
+}
+
+/* Conditions Table */
+.conditions-table {
+    margin: 40px 0;
+    text-align: left;
+}
+
+.conditions-table h3 {
+    font-size: 22px;
+    color: $primary-color;
+    margin-bottom: 24px;
+    text-align: left;
+    font-weight: 600;
+    display: inline-block;
+    border-left: 4px solid $primary-color;
+    padding-left: 15px;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    border-radius: 16px;
+    background: $bg-white;
+    border: 1px solid $border-color;
+}
+
+.eway-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: $bg-white;
+    min-width: 600px;
+}
+
+.eway-table thead {
+    background: $primary-gradient;
+    color: white;
+}
+
+.eway-table th {
+    padding: 16px 20px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+}
+
+.eway-table td {
+    padding: 14px 20px;
+    border-bottom: 1px solid $border-color;
+    color: $text-dark;
+    font-size: 14px;
+}
+
+.eway-table tbody tr {
+    transition: all 0.3s ease;
+}
+
+.eway-table tbody tr:hover {
+    background: #f5f8f7;
+}
+
+.eway-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* S.No column */
+.eway-table td.sno {
+    font-weight: 600;
+    color: $primary-color;
+    width: 70px;
+}
+
+/* Scenario column */
+.eway-table td.scenario {
+    font-weight: 500;
+}
+
+/* Condition column */
+.eway-table td.condition {
+    color: $text-light;
+}
+
+/* Badges */
+.badge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.badge.mandatory {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+}
+
+.badge.optional {
+    background: #fff8e1;
+    color: #f57c00;
+    border: 1px solid #ffe0b2;
+}
+
+.badge.exempted {
+    background: #fce4ec;
+    color: #c62828;
+    border: 1px solid #f8bbd0;
+}
+
+/* Button Wrapper */
+.button-wrapper {
+    margin: 40px 0 20px;
+}
+
+/* Create Button */
+.create-eway-btn {
+    background: $primary-gradient;
+    color: white;
+    border: none;
+    padding: 14px 36px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 12px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(43, 93, 87, 0.3);
+    margin: 0 auto;
+}
+
+.create-eway-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(43, 93, 87, 0.4);
+    background: $primary-dark;
+}
+
+
+
+/* Portal Note */
+.portal-note {
+    font-size: 12px;
+    color: $text-light;
+    margin-top: 16px;
+}
+
+/* Footer Notes */
+.footer-notes {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 1px solid $border-color;
+}
+
+.footer-note {
+    background: #f0f6f5;
+    padding: 16px 24px;
+    border-radius: 14px;
+    color: $primary-color;
+    font-size: 14px;
+    text-align: left;
+    border-left: 4px solid $primary-color;
+    margin-bottom: 24px;
+}
+
+.footer-note strong {
+    color: $primary-dark;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+}
+
+.footer-links a {
+    color: $primary-color;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 10px;
+    background: #f5f8f7;
+}
+
+.footer-links a:hover {
+    color: white;
+    background: $primary-gradient;
+    transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .eway-container {
+        padding: 16px;
+    }
+
+    .eway-hero {
+        padding: 28px 20px;
+    }
+
+    .eway-hero-content h1 {
+        font-size: 24px;
+    }
+
+    .eway-hero-content p {
+        font-size: 14px;
+    }
+
+    .conditions-table h3 {
+        font-size: 18px;
+    }
+
+    .eway-table th,
+    .eway-table td {
+        padding: 12px 16px;
+        font-size: 13px;
+    }
+
+    .create-eway-btn {
+        padding: 12px 28px;
+        font-size: 14px;
+    }
+
+}
+
+@media (max-width: 480px) {
+    .table-wrapper {
+        border-radius: 12px;
+    }
+
+    .eway-table th,
+    .eway-table td {
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+
+    .badge {
+        padding: 4px 10px;
+        font-size: 10px;
+    }
+
+    .eway-icon svg {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* Animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.eway-hero,
+.conditions-table,
+.button-wrapper,
+.footer-notes {
+    animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.conditions-table {
+    animation-delay: 0.1s;
+}
+
+.button-wrapper {
+    animation-delay: 0.2s;
+}
+
+.footer-notes {
+    animation-delay: 0.3s;
+}

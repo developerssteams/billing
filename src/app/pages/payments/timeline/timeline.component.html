@@ -1,0 +1,109 @@
+<app-page-header title="Timeline"></app-page-header>
+<div class="payment-container">
+
+    <!-- Top -->
+    <div class="payment-top-bar">
+        <div class="payment-title-section">
+            <h2>Payments Timeline</h2>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="payment-tabs">
+        <span *ngFor="let tab of tabs" [class.active]="selectedTab === tab" (click)="filterData(tab)">
+            {{tab}}
+        </span>
+    </div>
+
+    <!-- Search + Filter -->
+    <div class="search-filter-row">
+
+        <!-- Left Side -->
+        <div class="left-side">
+
+            <div class="search-box">
+                <input type="text" placeholder="Search transaction..." [(ngModel)]="searchText"
+                    (input)="searchPayments()" />
+            </div>
+
+        </div>
+
+        <!-- Right Side Action Dropdown -->
+        <div class="action-box">
+            <select [(ngModel)]="selectedAction" (change)="handleAction()">
+                <option value="">Actions</option>
+                <option value="export">Export</option>
+                <option value="delete">Delete</option>
+                <option value="print">Print</option>
+            </select>
+        </div>
+
+    </div>
+
+    <!-- Table -->
+    <div class="payment-table">
+        <div class="table-header">
+            <span>Amount</span>
+            <span>Status</span>
+            <span>Mode</span>
+            <span>Bill #</span>
+            <span>Customer</span>
+            <span>Date</span>
+           
+        </div>
+
+        <div class="table-row" *ngFor="let item of paginatedData">
+            <span>₹{{item.amount}}</span>
+            <span>
+                <label class="status-badge" [ngClass]="item.status.toLowerCase()">
+                    {{item.status}}
+                </label>
+            </span>
+            <span>{{item.mode}}</span>
+            <span>{{item.billNo}}</span>
+            <span>{{item.customer}}</span>
+            <span>{{item.date}}</span>
+        </div>
+
+        <!-- No Data -->
+        <div class="no-data" *ngIf="paginatedData.length === 0">
+            No transactions found
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="payment-footer">
+
+        <div class="summary-boxes">
+            <div class="total-box">
+                Total ₹{{getTotalAmount()}}
+            </div>
+
+            <div class="paid-box">
+                Paid ₹{{getPaidAmount()}}
+            </div>
+
+            <div class="pending-box">
+                Pending ₹{{getPendingAmount()}}
+            </div>
+        </div>
+
+        <div class="pagination">
+
+            <button (click)="prevPage()" [disabled]="currentPage === 1">
+                Prev
+            </button>
+
+            <span>
+                Page {{currentPage}} of {{totalPages()}}
+            </span>
+
+            <button (click)="nextPage()" [disabled]="currentPage === totalPages()">
+                Next
+            </button>
+
+        </div>
+
+    </div>
+
+</div>

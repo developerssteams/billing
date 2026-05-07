@@ -1,0 +1,42 @@
+<mat-card class="cardWithShadow mb-0!">
+  <mat-card-content class="pb-0!">
+    <div class="flex flex-auto flex-col self-stretch items-start gap-4">
+      <div class="flex gap-4 flex-row items-center self-stretch justify-between flex-wrap">
+        <div class="flex flex-auto flex-col self-stretch gap-2">
+          <mat-card-title class="text-lg">Website Visits</mat-card-title>
+          <div class="flex flex-row items-center self-stretch gap-2">
+            <h4 class="text-2xl">$395.7k</h4>
+            <span class="badge bg-light-success px-2 py-0.5 rounded-full text-success text-xs font-medium">+18%</span>
+            <span class="text-muted text-xs">than last year</span>
+          </div>
+        </div>
+        <div class="flex flex-row items-center self-stretch gap-6">
+          <div class="flex flex-row items-center self-stretch gap-4">
+            <div class="flex flex-row items-center self-stretch gap-2"><span
+                class="size-2! rounded-full bg-primary"></span><span class="text-sm">Site
+                A</span></div>
+            <div class="flex flex-row items-center self-stretch gap-2"><span
+                class="size-2! rounded-full bg-secondary"></span><span class="text-sm">Site
+                B</span></div>
+          </div>
+          <mat-form-field class="theme-select hide-hint" appearance="outline">
+            <mat-select value="mar">
+              @for(month of months; track month.viewValue ) {
+              <mat-option [value]="month.value">
+                {{ month.viewValue }}
+              </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+      <apx-chart class="w-full" [series]="WebsiteVisitsChart.series" [chart]="WebsiteVisitsChart.chart"
+        [colors]="WebsiteVisitsChart.colors" [dataLabels]="WebsiteVisitsChart.dataLabels"
+        [legend]="WebsiteVisitsChart.legend" [tooltip]="WebsiteVisitsChart.tooltip"
+        [plotOptions]="WebsiteVisitsChart.plotOptions" [grid]="WebsiteVisitsChart.grid"
+        [xaxis]="WebsiteVisitsChart.xaxis" [yaxis]="WebsiteVisitsChart.yaxis" [labels]="WebsiteVisitsChart.labels"
+        [stroke]="WebsiteVisitsChart.stroke">
+      </apx-chart>
+    </div>
+  </mat-card-content>
+</mat-card>

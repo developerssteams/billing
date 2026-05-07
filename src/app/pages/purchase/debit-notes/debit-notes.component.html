@@ -1,0 +1,114 @@
+<app-page-header title="Debit Notes"></app-page-header>
+
+<div class="sales-container">
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-overlay">
+        <div class="spinner"></div>
+        <span>Loading...</span>
+    </div>
+
+    <!-- Top -->
+    <div class="sales-top-bar">
+        <div class="sales-title-section">
+            <h2>Debit Notes</h2>
+        </div>
+
+        <div class="sales-actions">
+            <button class="invoice-btn" (click)="goToCreateDebitNotePage()">+ Create Debit Note</button>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="sales-tabs">
+        <span *ngFor="let tab of tabs" 
+              [class.active]="selectedTab === tab" 
+              (click)="filterData(tab)">
+            {{tab}}
+        </span>
+    </div>
+
+    <!-- Search + Filter -->
+    <div class="search-filter-row">
+        <div class="left-side">
+            <div class="search-box">
+                <input type="text" 
+                       placeholder="Search by Bill No or Vendor..." 
+                       [(ngModel)]="searchText"
+                       (input)="searchSales()" />
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="sales-table">
+        <div class="table-header">
+            <span>Bill No</span>
+            <span>Vendor Name</span>
+            <span>Amount</span>
+            <span>Status</span>
+            <span>Remaining</span>
+            <span>Action</span>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="paginatedDebitNotes.length === 0 && !isLoading" class="empty-state">
+            <span>No debit notes found</span>
+        </div>
+
+        <!-- Table Rows -->
+        <div class="table-row" *ngFor="let item of paginatedDebitNotes">
+            <span class="bill-no">{{item.Bill_no}}</span>
+            <span class="vendor-name">{{item.Vendor_Name}}</span>
+            <span class="amount">{{formatAmount(item.Selling_Price)}}</span>
+            <span>
+                <label class="status-badge" [ngClass]="getStatusClass(item.Status)">
+                    {{item.Status}}
+                </label>
+            </span>
+            <span class="remaining">{{formatAmount(item.Remaining_Amount)}}</span>
+            <span class="action-buttons">
+                <button (click)="openInvoiceForm(item)" class="view-btn edit">Edit</button>
+                <button (click)="deleteDebitNote(item.ID, item.Bill_no)" class="delete">Delete</button>
+            </span>
+        </div>
+
+        <!-- Invoice Form Component -->
+        <app-invoice-form [isVisible]="selectedInvoice != null" 
+                          [invoiceData]="selectedInvoice"
+                          (formClosed)="closeInvoiceForm()">
+        </app-invoice-form>
+    </div>
+
+    <!-- Footer -->
+    <div class="sales-footer">
+        <div class="summary-boxes">
+            <div class="total-box">
+                Total {{formatAmount(getTotalAmount())}}
+            </div>
+
+            <div class="paid-box">
+                Paid {{formatAmount(getPaidAmount())}}
+            </div>
+
+            <div class="pending-box">
+                Pending {{formatAmount(getPendingAmount())}}
+            </div>
+        </div>
+
+        <div class="pagination" *ngIf="totalPages() > 1">
+            <button (click)="prevPage()" [disabled]="currentPage === 1">
+                Prev
+            </button>
+
+            <span>
+                Page {{currentPage}} of {{totalPages()}}
+            </span>
+
+            <button (click)="nextPage()" [disabled]="currentPage === totalPages()">
+                Next
+            </button>
+        </div>
+    </div>
+
+</div>

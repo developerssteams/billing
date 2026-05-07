@@ -1,0 +1,49 @@
+.page-header {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 22px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  box-shadow: 0px 2px 8px rgba(0,0,0,0.05);
+}
+
+.left-title h3 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 600;
+  color: #111;
+}
+
+.right-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.home-text {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.dot {
+  font-size: 20px;
+}
+
+.title-badge {
+  background: #d8e5e1;
+  color: #2b5d57;
+  padding: 5px 10px;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    text-align: center;
+  }
+}

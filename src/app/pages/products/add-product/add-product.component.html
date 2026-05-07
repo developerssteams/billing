@@ -1,0 +1,272 @@
+<div class="ps-card">
+
+  <!-- HEADER -->
+  <div class="ps-header">
+    <div class="ps-title">Products & Services</div>
+  </div>
+
+  <!-- FILTER -->
+  <div class="ps-filter">
+
+    <div class="ps-filter-left">
+      <input class="ps-input" type="text" placeholder="Search products..." [(ngModel)]="searchText"
+        (input)="applyFilters()">
+
+      <select class="ps-select" [(ngModel)]="selectedCategoryFilter" (change)="applyFilters()">
+        <option value="">All Category</option>
+
+        <option *ngFor="let cat of categoryList" [value]="cat.name">
+          {{ cat.name }}
+        </option>
+      </select>
+    </div>
+
+    <div class="ps-filter-right">
+      <button class="ps-btn ps-btn-light">Actions</button>
+      <button class="ps-btn ps-btn-primary" (click)="openForm()">
+        + New Item
+      </button>
+    </div>
+
+  </div>
+
+  <!-- TABLE -->
+  <div class="ps-table">
+
+    <!-- HEADER -->
+    <div class="ps-row ps-head">
+      <div>Item</div>
+      <div>Qty</div>
+      <div>Selling Price</div>
+      <div>Purchase Price</div>
+      <div>Category</div>
+      <div>Action</div>
+    </div>
+
+    <!-- DATA -->
+    <div class="ps-row" *ngFor="let item of paginatedData">
+
+      <!-- ITEM -->
+      <div class="ps-item">
+        <div class="ps-avatar">
+          {{ item.name ? item.name.substring(0,2).toUpperCase() : 'NA' }}
+        </div>
+
+        <div>
+          <div class="ps-name">{{ item.name }}</div>
+          <div class="ps-sub">
+            {{ item.unit || '-' }} | {{ item.hsn || '-' }}
+          </div>
+        </div>
+      </div>
+
+      <!-- QTY -->
+      <div [ngClass]="item.qty < 0 ? 'ps-negative' : ''">
+        {{ item.qty || 0 }}
+      </div>
+
+      <!-- SELL -->
+      <div>₹ {{ item.sell || 0 }}</div>
+
+      <!-- PURCHASE -->
+      <div>₹ {{ item.purchase || 0 }}</div>
+
+      <!-- CATEGORY -->
+      <div>{{ item.category || '-' }}</div>
+
+
+      <!-- ACTION -->
+      <div class="ps-action-wrap">
+        <button class="ps-icon-btn ps-edit" (click)="openForm(item)">Edit</button>
+        <button class="ps-icon-btn ps-btn-light ps-delete" (click)="deleteProduct(item.id, item.name)">Delete</button>
+      </div>
+
+    </div>
+
+    <!-- NO RESULT -->
+    <div class="no-result" *ngIf="paginatedData.length === 0">
+      No Result Found
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="ps-footer">
+    <div class="ps-pagination">
+
+      <button class="ps-page-btn" (click)="prevPage()" [disabled]="currentPage === 1">
+        Previous
+      </button>
+
+      <div class="ps-page-info">
+        Page {{currentPage}} of {{totalPages()}}
+      </div>
+
+      <button class="ps-page-btn" (click)="nextPage()" [disabled]="currentPage === totalPages()">
+        Next
+      </button>
+
+    </div>
+  </div>
+
+</div>
+
+<div class="overlay" *ngIf="showForm" (click)="closeForm()"></div>
+<form (ngSubmit)="addProduct()">
+
+  <div class="ps-form" [class.open]="showForm">
+
+    <!-- HEADER -->
+    <div class="ps-form-header">
+      <h3>{{ isEditMode ? 'Edit Product' : 'Add Product' }}</h3>
+
+      <button type="submit" class="ps-btn ps-btn-primary">
+        {{ isEditMode ? 'Update' : 'Save' }}
+      </button>
+    </div>
+
+    <!-- BODY -->
+    <div class="ps-form-body">
+
+      <div class="ps-form-card">
+
+        <!-- TITLE -->
+        <div class="ps-form-title">Details</div>
+
+        <div class="ps-form-clean">
+
+          <!-- Product Name -->
+          <div class="form-group">
+            <label class="required">Product Name</label>
+            <input type="text" name="name" placeholder="Enter Item Name" [(ngModel)]="newProduct.name" required>
+          </div>
+
+          <!-- Row -->
+          <div class="form-row">
+
+            <!-- Selling Price -->
+            <div class="form-col">
+              <label>Selling Price</label>
+              <input type="number" name="sell" placeholder="₹ Enter Selling Price" [(ngModel)]="newProduct.sell">
+            </div>
+
+            <!-- Unit -->
+            <div class="form-col">
+              <label>Unit</label>
+              <select name="unit" [(ngModel)]="newProduct.unit">
+                <option value="">Select Unit</option>
+                <option value="pcs">Pieces</option>
+                <option value="kg">Kilogram (kg)</option>
+                <option value="g">Gram (g)</option>
+                <option value="ltr">Liter (ltr)</option>
+                <option value="box">Box</option>
+                <option value="dozen">Dozen</option>
+              </select>
+            </div>
+
+          </div>
+
+          <!-- SECOND ROW -->
+          <div class="form-row">
+
+            <!-- HSN -->
+            <div class="form-col">
+              <label>HSN/SAC</label>
+              <input type="text" name="hsn" placeholder="HSN/SAC" [(ngModel)]="newProduct.hsn">
+              <div class="hsn-link">
+                <a href="https://services.gst.gov.in/services/searchhsnsac" target="_blank" class="hsn-help-link">
+                  Find Your HSN/SAC Code Here
+                </a>
+              </div>
+            </div>
+
+            <!-- Purchase -->
+            <div class="form-col">
+              <label>Purchase Price</label>
+
+              <div class="input-group">
+                <input type="number" name="purchase" placeholder="Enter Purchase Price"
+                  [(ngModel)]="newProduct.purchase">
+
+                <select name="taxType" [(ngModel)]="newProduct.taxType">
+                  <option value="with">with Tax</option>
+                  <option value="without">without Tax</option>
+                </select>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Category & GST Rate - Row -->
+          <div class="form-row">
+
+            <!-- CATEGORY -->
+            <div class="form-col">
+              <label>Category</label>
+
+              <div class="cat-dropdown">
+
+                <!-- Selected -->
+                <div class="cat-selected" (click)="toggleDropdown($event)">
+                  {{ selectedCategory || 'Select Category' }}
+                  <span class="arrow">▼</span>
+                </div>
+
+                <!-- DROPDOWN -->
+                <div class="cat-dropdown-menu" *ngIf="showDropdown">
+
+                  <!-- INPUT -->
+                  <input class="cat-input" name="categoryInput" placeholder="Type category..."
+                    [(ngModel)]="categoryInput" (click)="$event.stopPropagation()"
+                    (keydown.enter)="addCategoryFromInput($event); $event.preventDefault()">
+
+                  <!-- NO DATA -->
+                  <div *ngIf="categoryList.length === 0" class="cat-empty">
+                    <div class="cat-icon">📦</div>
+                    <div>No data</div>
+                  </div>
+
+                  <!-- LIST -->
+                  <div class="cat-item" *ngFor="let cat of categoryList" (click)="selectCategory(cat.name, $event)">
+                    {{ cat.name }}
+                  </div>
+
+                  <!-- ADD -->
+                  <div class="cat-add" *ngIf="categoryInput" (click)="addCategoryFromInput($event)">
+                    + Add "{{ categoryInput }}"
+                  </div>
+
+                </div>
+
+              </div>
+            </div>
+
+            <!-- ✅ GST Rate Dropdown -->
+            <div class="form-col">
+              <label>GST Rate (%)</label>
+              <select name="gstRate" [(ngModel)]="newProduct.gstRate">
+                <option value="">Select GST Rate</option>
+                <option value="0">0% (Nil Rated)</option>
+                <option value="5">5%</option>
+                <option value="12">12%</option>
+                <option value="18">18%</option>
+                <option value="28">28%</option>
+              </select>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="ps-form-footer">
+      <button type="submit" class="ps-btn ps-btn-primary">{{ isEditMode ? 'Update' : 'Save' }}</button>
+      <button type="button" class="ps-btn ps-btn-light" (click)="closeForm()">Cancel</button>
+    </div>
+
+  </div>
+
+</form>

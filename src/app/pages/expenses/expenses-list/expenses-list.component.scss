@@ -1,0 +1,617 @@
+/* BASE */
+.exp-container {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+/* HEADER */
+.exp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.exp-title {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.exp-btn-primary {
+  background: #3b5bdb;
+  color: #fff;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+}
+
+/* TABS */
+.exp-tabs {
+  display: flex;
+  gap: 20px;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 15px;
+}
+
+.exp-tab {
+  padding-bottom: 8px;
+  cursor: pointer;
+  color: #777;
+}
+
+.exp-tab.active {
+  color: #3b5bdb;
+  border-bottom: 2px solid #3b5bdb;
+  font-weight: 600;
+}
+
+/* FILTER BAR */
+.exp-filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+
+.exp-input,
+.exp-select,
+.exp-date {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+/* TABLE */
+.exp-table {
+  width: 100%;
+}
+
+.exp-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1.5fr;
+  padding: 14px;
+  border-bottom: 1px solid #eee;
+  align-items: center;
+}
+
+.exp-head {
+  font-weight: 600;
+  color: #777;
+}
+
+/* BADGES */
+.exp-badge {
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.exp-paid {
+  background: #d4edda;
+}
+
+.exp-pending {
+  background: #fde8e8;
+}
+
+.exp-cancelled {
+  background: #eee;
+}
+
+.exp-cash {
+  background: #d1e7dd;
+}
+
+/* TEXT */
+.exp-small {
+  font-size: 12px;
+  color: #777;
+}
+
+/* ACTION BUTTONS */
+.exp-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.exp-btn {
+  padding: 10px 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.exp-view {
+  background: #e9ecef;
+}
+
+.exp-edit {
+  background: #fef3c7;
+}
+
+.exp-delete {
+  background: #eee;
+}
+
+/* FOOTER */
+.exp-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.exp-summary {
+  display: flex;
+  gap: 10px;
+}
+
+.exp-box {
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.exp-total {
+  background: #e9ecef;
+}
+
+.exp-paid-box {
+  background: #e6f4ea;
+}
+
+.exp-pending-box {
+  background: #fde8e8;
+}
+
+/* Pagination */
+.exp-pagination {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.exp-pagination button {
+  background: #eee;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.3s ease;
+}
+
+.exp-pagination button:hover {
+  background: #dcdcdc;
+}
+
+.exp-pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Page text */
+.exp-pagination span {
+  font-weight: 500;
+  color: #555;
+}
+
+.no-result {
+  text-align: center;
+  padding: 30px;
+  font-size: 18px;
+  font-weight: 500;
+  color: #888;
+}
+
+/* RESPONSIVE */
+@media(max-width:900px) {
+  .exp-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+/* Expense Form Container */
+.expense-form {
+  position: fixed;
+  top: 0;
+  right: -40%;
+  width: 40%;
+  height: 100vh;
+  background: #f5f6f8;
+  display: flex;
+  flex-direction: column;
+  transition: 0.3s;
+  z-index: 1000;
+}
+
+.expense-form.open {
+  right: 0;
+}
+
+/* Expense Form Header */
+.expense-form-header {
+  background: #fff;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #eee;
+}
+
+/* Expense Form Body */
+.expense-form-body {
+  padding: 20px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Expense Form Footer */
+.expense-form-footer {
+  padding: 15px;
+  background: #fff;
+  display: flex;
+  gap: 10px;
+}
+
+/* Overlay */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* Save Button */
+.expense-save-btn {
+  width: auto;
+  /* 🔥 change */
+  padding: 0 20px;
+  /* button size */
+  height: 42px;
+  /* thoda compact */
+  border-radius: 10px;
+  background: linear-gradient(90deg, #1a00ff, #0000cc);
+  color: #fff;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* Cancel Button */
+.expense-cancel-btn {
+  padding: 10px 18px;
+  border-radius: 8px;
+  background: #f3f4f6;
+  color: #333;
+  border: 1px solid #ddd;
+  cursor: pointer;
+}
+
+/* Hover effect for Cancel Button */
+.expense-cancel-btn:hover {
+  background: #e5e7eb;
+}
+
+.expense-body {
+  padding: 20px;
+  flex: 1;
+  /* 🔥 CHANGE */
+  display: flex;
+  flex-direction: column;
+  overflow-y: scroll;
+  /* 🔥 ADD */
+}
+
+.expense-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+/* Card Container */
+.expense-card {
+  width: 100%;
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Input Fields */
+.expense-group {
+  margin-bottom: 20px;
+}
+
+.expense-required {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.expense-group input,
+.expense-group select,
+.expense-group textarea {
+  width: 100%;
+  padding: 12px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.expense-group input[type="text"],
+.expense-group input[type="date"] {
+  max-width: 100%;
+}
+
+/* Notes Area */
+.expense-group textarea {
+  min-height: 120px;
+}
+
+/* Container for the file upload */
+.file-upload-container {
+  position: relative;
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+  padding: 30px 20px;
+  text-align: center;
+  cursor: pointer;
+  background-color: #f9f9f9;
+  transition: background-color 0.3s ease;
+}
+
+.file-upload-container:hover {
+  background-color: #f1f1f1;
+}
+
+.file-upload-label {
+  font-size: 16px;
+  color: #2b84ff;
+  cursor: pointer;
+}
+
+.file-upload-icon {
+  font-size: 30px;
+  color: #2b84ff;
+  display: block;
+  margin-bottom: 10px;
+}
+
+/* Display info about selected files */
+.file-info {
+  font-size: 14px;
+  margin-top: 10px;
+  color: #333;
+}
+
+.file-info span {
+  display: block;
+  margin-top: 5px;
+  font-weight: 500;
+}
+
+/* File input */
+.file-upload-input {
+  display: none;
+}
+
+/* Limit file type info */
+small {
+  color: #888;
+  font-size: 12px;
+  margin-top: 5px;
+}
+/* ========================= */
+/* 🔹 CATEGORY DROPDOWN */
+/* ========================= */
+
+.cat-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+/* Selected Box */
+.cat-selected {
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.cat-selected:hover {
+  border-color: #3b5bdb;
+}
+
+.cat-selected .arrow {
+  font-size: 12px;
+  color: #666;
+}
+
+/* ========================= */
+/* 🔹 DROPDOWN BOX */
+/* ========================= */
+
+.cat-dropdown-menu {
+  position: absolute;
+  top: 105%;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+  z-index: 999;
+  padding: 10px;
+  animation: fadeIn 0.2s ease;
+}
+
+/* animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========================= */
+/* 🔹 INPUT (TYPE FIELD) */
+/* ========================= */
+
+.cat-input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  outline: none;
+  font-size: 14px;
+  margin-bottom: 10px;
+  transition: 0.2s;
+}
+
+.cat-input:focus {
+  border-color: #3b5bdb;
+}
+
+/* ========================= */
+/* 🔹 CATEGORY LIST */
+/* ========================= */
+
+.cat-item {
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.cat-item:hover {
+  background: #f5f7ff;
+}
+
+/* ========================= */
+/* 🔹 ADD NEW BUTTON */
+/* ========================= */
+
+.cat-add {
+  margin-top: 8px;
+  padding: 12px;
+  border-top: 1px solid #eee;
+  font-weight: 500;
+  cursor: pointer;
+  color: #3b5bdb;
+  border-radius: 10px;
+  transition: 0.2s;
+}
+
+.cat-add:hover {
+  background: #f5f7ff;
+}
+
+/* ========================= */
+/* 🔹 NO DATA DESIGN */
+/* ========================= */
+
+.cat-empty {
+  text-align: center;
+  padding: 20px;
+  color: #888;
+}
+
+.cat-icon {
+  font-size: 28px;
+  margin-bottom: 6px;
+}
+
+/* ========================= */
+/* 🔹 SCROLL (if many items) */
+/* ========================= */
+
+.cat-dropdown-menu {
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+/* custom scrollbar */
+.cat-dropdown-menu::-webkit-scrollbar {
+  width: 5px;
+}
+
+.cat-dropdown-menu::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+}
+
+
+
+
+.payment-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.mark-paid-btn {
+  background: #2f54eb;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 30px;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.payment-box {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 15px;
+  border: 1px solid #eee;
+}
+
+.payment-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.payment-type-section {
+  margin-top: 20px;
+}
+
+.payment-type-section label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.payment-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.payment-chip {
+  border: 1px solid #ddd;
+  background: #f8f8f8;
+  padding: 10px 20px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.payment-chip.active {
+  background: #d8f5e3;
+  color: #0f7a42;
+  border-color: #b4e6ca;
+  font-weight: 600;
+}

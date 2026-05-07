@@ -1,0 +1,46 @@
+<mat-card class="cardWithShadow mb-0!">
+  <mat-card-content>
+    <div class="flex flex-auto flex-col self-stretch items-start gap-5">
+      <mat-card-title class="text-lg">Current Visits</mat-card-title>
+      <apx-chart class="w-full" [series]="CurrentVisitsChart.series" [chart]="CurrentVisitsChart.chart"
+        [colors]="CurrentVisitsChart.colors" [dataLabels]="CurrentVisitsChart.dataLabels"
+        [legend]="CurrentVisitsChart.legend" [tooltip]="CurrentVisitsChart.tooltip"
+        [plotOptions]="CurrentVisitsChart.plotOptions" [grid]="CurrentVisitsChart.grid"
+        [xaxis]="CurrentVisitsChart.xaxis" [yaxis]="CurrentVisitsChart.yaxis" [labels]="CurrentVisitsChart.labels"
+        [stroke]="CurrentVisitsChart.stroke">
+      </apx-chart>
+      <div class="flex flex-auto flex-col self-stretch gap-3.5">
+        <div class="flex flex-row items-center self-stretch justify-between">
+          <div class="flex flex-row items-center self-stretch gap-2">
+            <span class="block bg-primary size-2.5! rounded-full"></span>
+            <h6 class="text-sm">America</h6>
+          </div>
+          <div class="flex flex-row items-center self-stretch gap-2">
+            <h6 class="text-sm">1650</h6>
+            <span class="badge bg-light-success px-2 py-1 rounded-full text-success text-xs font-medium">+4.7%</span>
+          </div>
+        </div>
+        <div class="flex flex-row items-center self-stretch justify-between">
+          <div class="flex flex-row items-center self-stretch gap-2">
+            <span class="block bg-warning size-2.5! rounded-full"></span>
+            <h6 class="text-sm">Asia</h6>
+          </div>
+          <div class="flex flex-row items-center self-stretch gap-2">
+            <h6 class="text-sm">350</h6>
+            <span class="badge bg-light-success px-2 py-1 rounded-full text-success text-xs font-medium">+2.1%</span>
+          </div>
+        </div>
+        <div class="flex flex-row items-center self-stretch justify-between">
+          <div class="flex flex-row items-center self-stretch gap-2">
+            <span class="block bg-secondary size-2.5! rounded-full"></span>
+            <h6 class="text-sm">Europe</h6>
+          </div>
+          <div class="flex flex-row items-center self-stretch gap-2">
+            <h6 class="text-sm">498</h6>
+            <span class="badge bg-light-error px-2 py-1 rounded-full text-error text-xs font-medium">-1.7%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

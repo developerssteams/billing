@@ -1,0 +1,27 @@
+<div class="app-overlay" (click)="close()">
+  <div class="upgrade-modal-horizontal" (click)="$event.stopPropagation()">
+
+    <!-- LEFT -->
+    <div class="left-content">
+      <span class="tag">⚡ TIME TO UPGRADE</span>
+
+      <h2>You’ve Reached Your Limit</h2>
+
+      <p>
+        You only have one flow left. Upgrade your plan to  
+        increase your limit and unlock more features.
+      </p>
+
+      <div class="actions">
+        <button class="upgrade-btn">Upgrade Now 🚀</button>
+        <button class="cancel-btn" (click)="close()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right-image">
+      <img src="assets/images/Rocket.jpg" alt="upgrade" />
+    </div>
+
+  </div>
+</div>

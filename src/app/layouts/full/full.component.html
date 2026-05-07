@@ -1,0 +1,92 @@
+<app-welcome-modal *ngIf="showWelcome" (closeModal)="showWelcome = false">
+</app-welcome-modal>
+<app-upgrade-modal *ngIf="showUpgradeModal" (closeModal)="closeUpgradeModal()">
+</app-upgrade-modal>
+<mat-sidenav-container class="mainWrapper" autosize autoFocus [ngClass]="{
+    'sidebarNav-mini': options.sidenavCollapsed && options.navPos !== 'top' &&  !resView,
+    'sidebarNav-horizontal': options.horizontal,
+    cardBorder: options.cardBorder,
+  }" [dir]="options.dir!">
+
+  <!-- ============================================================== -->
+  <!-- Vertical Sidebar -->
+  <!-- ============================================================== -->
+  @if (!options.horizontal) {
+  <mat-sidenav #leftsidenav [mode]="isOver ? 'over' : 'side'" [opened]="
+      options.navPos === 'side' && options.sidenavOpened && !isOver && !resView
+    " (openedChange)="onSidenavOpenedChange($event)" (closedStart)="onSidenavClosedStart()" class="sidebarNav">
+    <div class="flex-layout flex flex-col h-screen">
+      <app-sidebar [items]="filteredNavItems" (toggleMobileNav)="sidenav.toggle()" (upgradeClick)="openUpgradeModal()"
+        [showToggle]="isOver">
+      </app-sidebar>
+    </div>
+  </mat-sidenav>
+  }
+
+  <!-- ============================================================== -->
+  <!-- Horizontal Sidebar -->
+  <!-- ============================================================== -->
+  @if (resView) {
+  <mat-sidenav #leftsidenav [mode]="'over'" [opened]="options.sidenavOpened && !isTablet"
+    (openedChange)="onSidenavOpenedChange($event)" (closedStart)="onSidenavClosedStart()" class="sidebarNav">
+    <app-sidebar></app-sidebar>
+    <ng-scrollbar class="relative" style="height: 100%">
+      <mat-nav-list class="sidebar-list">
+        <!-- Update here -->
+        <ng-container *ngFor="let item of filteredNavItems">
+          <app-nav-item [item]="item" (notify)="sidenav.toggle()">
+          </app-nav-item>
+        </ng-container>
+      </mat-nav-list>
+    </ng-scrollbar>
+  </mat-sidenav>
+  }
+
+  <!-- ============================================================== -->
+  <!-- Main Content -->
+  <!-- ============================================================== -->
+  <mat-sidenav-content class="contentWrapper" #content>
+    <!-- ============================================================== -->
+    <!-- VerticalHeader -->
+    <!-- ============================================================== -->
+    @if (!options.horizontal || resView) {
+    <app-header [showToggle]="!isOver" (toggleCollapsed)="toggleCollapsed()" (toggleMobileNav)="sidenav.toggle()"
+      (optionsChange)="receiveOptions($event)"></app-header>
+    } @else {
+    <!-- horizontal header -->
+    <app-horizontal-header (toggleMobileNav)="sidenav.toggle()"
+      (optionsChange)="receiveOptions($event)"></app-horizontal-header>
+    }
+
+    @if(options.horizontal) {
+    <app-horizontal-sidebar></app-horizontal-sidebar>
+    }
+
+    <div class="body-wrapper">
+      <main class="pageWrapper" [ngClass]="{
+          maxWidth: options.boxed
+        }">
+        <app-breadcrumb></app-breadcrumb>
+        <!-- ============================================================== -->
+        <!-- Outlet -->
+        <!-- ============================================================== -->
+        <router-outlet></router-outlet>
+      </main>
+    </div>
+
+    <app-footer></app-footer>
+  </mat-sidenav-content>
+
+  <mat-sidenav #customizerRight mode="over" position="end" class="customizerNav">
+    <div class="px-4 py-5 flex! items-center justify-between border-b border-border">
+      <h3 class="text-xl font-semibold">Settings</h3>
+
+      <a mat-icon-button (click)="customizerRight.toggle()" class="flex justify-center">
+        <mat-icon>close</mat-icon>
+      </a>
+    </div>
+
+    <app-customizer (optionsChange)="receiveOptions($event)"></app-customizer>
+  </mat-sidenav>
+
+</mat-sidenav-container>

@@ -1,0 +1,24 @@
+<div class="invoice-form-container" *ngIf="isVisible">
+  <div class="invoice-form">
+    <div class="invoice-form-header">
+      <h3>Invoice Details</h3>
+      <button (click)="closeForm()">Close</button>
+    </div>
+
+    <!-- Invoice Form Fields -->
+    <form (ngSubmit)="onSubmit()">
+      <label>Amount</label>
+      <input [(ngModel)]="invoiceData.amount" name="amount" />
+
+      <label>Status</label>
+      <input [(ngModel)]="invoiceData.status" name="status" />
+
+      <label>Customer</label>
+      <input [(ngModel)]="invoiceData.customer" name="customer" />
+
+      <!-- Add any other required fields here -->
+
+      <button type="submit">Save</button>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,33 @@
+@use "../variables" as *;
+@use "sass:map";
+@use "@angular/material" as mat;
+
+@include mat.progress-bar-overrides((track-height: 8px,
+    active-indicator-height: 8px,
+  ));
+
+html {
+  .mat-secondary {
+    .mdc-linear-progress__bar-inner {
+      border-color: var(--mat-sys-secondary);
+    }
+  }
+
+  .mat-warning {
+    .mdc-linear-progress__bar-inner {
+      border-color: $warning;
+    }
+  }
+
+  .mat-error {
+    .mdc-linear-progress__bar-inner {
+      border-color: var(--mat-sys-error);
+    }
+  }
+
+  // style
+
+  .mat-mdc-progress-bar {
+    border-radius: var(--mat-sys-corner-small);
+  }
+}

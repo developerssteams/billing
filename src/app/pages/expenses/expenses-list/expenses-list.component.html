@@ -1,0 +1,249 @@
+<app-page-header title="Expenses"></app-page-header>
+<div class="exp-container">
+
+    <!-- HEADER -->
+    <div class="exp-header">
+        <div class="exp-title">Expenses</div>
+        <div>
+            <button class="exp-btn-primary" (click)="openForm()">+ Create Expense</button>
+        </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="exp-tabs">
+        <div class="exp-tab" [class.active]="activeTab === 'all'" (click)="switchTab('all')">All Transactions</div>
+        <div class="exp-tab" [class.active]="activeTab === 'pending'" (click)="switchTab('pending')">Pending</div>
+        <div class="exp-tab" [class.active]="activeTab === 'paid'" (click)="switchTab('paid')">Paid</div>
+    </div>
+
+    <!-- FILTER BAR -->
+    <div class="exp-filters">
+        <input class="exp-input" placeholder="Search with Category, Description, Mode" [(ngModel)]="searchText"
+            (input)="searchExpense()">
+    </div>
+
+    <!-- TABLE -->
+    <div class="exp-table">
+
+        <!-- Table Header -->
+        <div class="exp-row exp-head">
+            <div>Description</div>
+            <div>Amount</div>
+            <div>Date</div>
+            <div>Status</div>
+            <div>Mode</div>
+            <div>Actions</div>
+        </div>
+
+        <!-- Table Data -->
+        <div class="exp-row" *ngFor="let item of paginatedData">
+
+            <!-- Description -->
+            <div>
+                {{item.category}}
+                <div class="exp-small">{{item.notes || '-'}}</div>
+            </div>
+
+            <!-- Amount -->
+            <div>
+                ₹ {{item.amount}}
+            </div>
+
+            <!-- Date -->
+            <div>
+                {{item.expense_date | date:'dd/MM/yyyy'}}
+            </div>
+
+            <!-- Status -->
+            <div>
+                <span class="exp-badge" [ngClass]="'exp-' + item.status">
+                    {{item.status}}
+                </span>
+            </div>
+
+            <!-- Mode -->
+            <div>
+                <span class="exp-badge exp-cash" [ngClass]="'exp-' + item.mode">
+                    {{item.mode || '-'}}
+                </span>
+            </div>
+
+            <!-- Actions -->
+            <div class="exp-actions">
+                <button class="exp-btn exp-edit" (click)="openForm(item)">Edit</button>
+                <button class="exp-btn exp-delete" (click)="deleteExpense(item.id, item.category)">Delete</button>
+            </div>
+
+        </div>
+
+        <!-- No Data -->
+        <div class="no-result" *ngIf="filteredData.length === 0">
+            No Result Found
+        </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="exp-footer">
+        <div class="exp-summary">
+            <div class="exp-box exp-paid-box">
+                Paid ₹ {{ getPaidAmount() }}
+            </div>
+
+            <div class="exp-box exp-pending-box">
+                Pending ₹ {{ getPendingAmount() }}
+            </div>
+        </div>
+        <div class="exp-pagination">
+            <button (click)="prevPage()" [disabled]="currentPage === 1">Previous</button>
+            <span>Page {{currentPage}} of {{totalPages()}}</span>
+            <button (click)="nextPage()" [disabled]="currentPage === totalPages()">Next</button>
+        </div>
+    </div>
+
+    <div class="overlay" *ngIf="showForm" (click)="closeForm()"></div>
+    <form (ngSubmit)="addExpense()">
+        <div class="expense-form" [class.open]="showForm">
+            <!-- HEADER -->
+            <div class="expense-form-header">
+                <h3>{{ isEditMode ? 'Edit Expense' : 'Add Expense' }}</h3>
+                <button type="submit" class="expense-save-btn">
+                    {{ isEditMode ? 'Update' : 'Save' }}
+                </button>
+            </div>
+
+            <!-- BODY -->
+            <div class="expense-body">
+
+                <!-- ========================= -->
+                <!-- 🔹 BASIC DETAILS -->
+                <!-- ========================= -->
+                <h4 class="expense-title">Basic Details</h4>
+
+                <div class="expense-card">
+
+                    <!-- Expense Amount -->
+                    <div class="expense-group">
+                        <label class="expense-required">Expense Amount</label>
+                        <input type="number" placeholder="₹ Enter amount" [(ngModel)]="expense.amount" name="amount"
+                            required>
+                    </div>
+
+                    <!-- Expense Date -->
+                    <div class="expense-group">
+                        <label class="expense-required">Expense Date</label>
+                        <input type="date" [(ngModel)]="expense.expense_date" name="expense_date" required>
+                    </div>
+
+                    <!-- Category -->
+                    <div class="expense-group">
+                        <label>Category</label>
+                        <div class="cat-dropdown">
+                            <!-- Selected Category -->
+                            <div class="cat-selected" (click)="toggleDropdown($event)">
+                                {{ selectedCategory || 'Select Category' }}
+                                <span class="arrow">▼</span>
+                            </div>
+
+                            <!-- DROPDOWN -->
+                            <div class="cat-dropdown-menu" *ngIf="showDropdown">
+
+                                <!-- INPUT -->
+                                <input class="cat-input" name="categoryInput" placeholder="Type category..."
+                                    [(ngModel)]="categoryInput" (click)="$event.stopPropagation()"
+                                    (keydown.enter)="addCategoryFromInput($event); $event.preventDefault()">
+
+                                <!-- NO DATA -->
+                                <div *ngIf="categoryList.length === 0" class="cat-empty">
+                                    <div class="cat-icon">📦</div>
+                                    <div>No data</div>
+                                </div>
+
+                                <!-- LIST -->
+                                <div class="cat-item" *ngFor="let cat of categoryList"
+                                    (click)="selectCategory(cat.name, $event)">
+                                    {{ cat.name }}
+                                </div>
+
+                                <!-- ADD CATEGORY -->
+                                <div class="cat-add" *ngIf="categoryInput" (click)="addCategoryFromInput($event)">
+                                    + Add "{{ categoryInput }}"
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="expense-group">
+                        <label>Notes</label>
+                        <textarea placeholder="Notes" [(ngModel)]="expense.notes" name="notes"></textarea>
+                    </div>
+
+                    <!-- Attachments -->
+                    <div class="expense-group">
+                        <label>Attachments</label>
+                        <div class="file-upload-container">
+                            <input type="file" (change)="onFileSelect($event)" multiple id="fileUpload"
+                                class="file-upload-input">
+                            <label for="fileUpload" class="file-upload-label">
+                                <i class="file-upload-icon"></i> Click or drag files to attach
+                            </label>
+                            <div *ngIf="files.length > 0" class="file-info">
+                                <span *ngFor="let file of files">{{file.name}}</span>
+                            </div>
+                        </div>
+                        <small>PDF, PNG, JPEG, Excel – up to 25 MB – Max 3 files</small>
+                    </div>
+
+                </div>
+                <!-- Payments Section -->
+                <div class="expense-group">
+
+                    <h4 class="payment-title">Payments</h4>
+
+                    <!-- Mark Paid Button -->
+                    <button type="button" class="mark-paid-btn" (click)="togglePaymentFields()">
+
+                        {{ showPaymentFields ? '✖ Unmark Payment' : '✔ Mark as Paid' }}
+
+                    </button>
+
+                    <!-- Payment Fields -->
+                    <div class="payment-box" *ngIf="showPaymentFields">
+
+                        <div class="payment-grid">
+
+                            <!-- Payment Date -->
+                            <div class="expense-group">
+                                <label>Payment Date</label>
+                                <input type="date" [(ngModel)]="expense.payment_date" name="payment_date">
+                            </div>
+
+                        </div>
+
+                        <!-- Payment Type -->
+                        <div class="payment-type-section">
+                            <label>Payment Type</label>
+
+                            <div class="payment-types">
+
+                                <button type="button" *ngFor="let type of paymentTypes" class="payment-chip"
+                                    [class.active]="expense.mode === type" (click)="selectPaymentType(type)">
+                                    {{type}}
+                                </button>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <!-- FOOTER -->
+            <div class="expense-form-footer">
+                <button type="submit" class="expense-save-btn">{{ isEditMode ? 'Update' : 'Save' }}</button>
+                <button type="button" class="expense-cancel-btn" (click)="closeForm()">Cancel</button>
+            </div>
+        </div>
+    </form>
+</div>

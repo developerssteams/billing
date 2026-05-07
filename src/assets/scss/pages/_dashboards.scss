@@ -1,0 +1,109 @@
+@use "../variables" as *;
+
+.list-unstyled {
+  padding-left: 0;
+  list-style: none;
+}
+
+// theme select
+.theme-select {
+  width: 120px;
+}
+
+.rounded-bars .apexcharts-bar-series.apexcharts-plot-series .apexcharts-series path {
+  clip-path: inset(0 0 5% 0 round 20px);
+}
+
+.rounded-full-bars .apexcharts-rangebar-area {
+  clip-path: inset(9% 0 11% round 24px);
+}
+
+// expansion panel
+
+html .mat-expansion-panel:not([class*="mat-elevation-z"]) {
+  box-shadow: var(--mat-sys-level2);
+}
+
+.most-visit-chart {
+  .apexcharts-bar-series.apexcharts-plot-series .apexcharts-series path {
+    clip-path: inset(0 0 5% 0 round 20px);
+  }
+}
+
+.timeline {
+  .timeline-item {
+    .point {
+      .timeline-badge {
+
+        &.border-primary {
+          border: 2px solid var(--mat-sys-primary) !important;
+        }
+
+        &.border-accent {
+          border: 2px solid var(--mat-sys-secondary) !important;
+        }
+
+        &.border-success {
+          border: 2px solid $success !important;
+        }
+
+        &.border-warning {
+          border: 2px solid $warning !important;
+        }
+
+        &.border-error {
+          border: 2px solid var(--mat-sys-error) !important;
+        }
+      }
+    }
+
+    &:last-child {
+      .timeline-border {
+        display: none !important;
+      }
+    }
+
+    &:last-child {
+      height: auto;
+    }
+  }
+}
+
+// Dashboard
+
+.laptop-desk .swiper-slide::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  background: linear-gradient(180deg, rgba(0, 0, 0, .2) 6.58%, rgba(0, 0, 0, 0) 37.62%, #000 80.7%);
+}
+
+.laptop-desk swiper-container {
+  width: 100%;
+  height: 340px;
+  display: block;
+}
+
+.laptop-desk {
+  swiper-slide {
+    height: 340px;
+    overflow: hidden;
+
+    .slide-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+    }
+  }
+}

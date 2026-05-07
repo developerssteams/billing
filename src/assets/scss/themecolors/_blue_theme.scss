@@ -1,0 +1,9 @@
+@use "sass:map";
+@use "@angular/material" as mat;
+
+html.blue_theme {
+  --mat-sys-primary: rgb(5, 71, 107);
+  --mat-sys-primary-fixed-dim: rgba(5, 71, 107, 0.15);
+  --mat-sys-secondary: rgb(110, 231, 255);
+  --mat-sys-secondary-fixed-dim: rgba(110, 231, 255, 0.15);
+}

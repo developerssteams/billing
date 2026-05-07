@@ -1,0 +1,35 @@
+<mat-card class="shadow-none! bg-primary relative overflow-hidden mb-0!">
+    <mat-card-content>
+        <div class="grid grid-cols-12 gap-6 justify-between">
+            <div class="col-span-12 lg:col-span-7 xl:col-span-6">
+                <div class="flex flex-auto flex-col self-stretch items-start gap-6 py-1">
+                    <div class="flex flex-col gap-4">
+                        <!-- Greeting -->
+                        <h4 class="text-2xl text-white inline-flex gap-2 items-center">
+                            <span>{{ greeting }}</span>
+                            Cameron
+                            <i class="iconify text-xl" [attr.data-icon]="greetingIcon" [ngClass]="iconClass"></i>
+                        </h4>
+                        <p class="my-0 text-white text-sm">Stay updated with your store’s performance
+                            today.
+                            Get a
+                            quick snapshot of key statistics.
+                        </p>
+                    </div>
+                    <a matButton="filled" [routerLink]="['/dashboards/dashboard2']" class="bg-secondary">
+                        <span class="flex flex-row items-center self-stretch gap-2">
+                            View Full Report
+                            <i class="iconify text-xl" data-icon="solar:arrow-right-line-duotone"></i>
+                        </span>
+                    </a>
+                </div>
+            </div>
+            <div class="col-span-12 lg:col-span-5 hidden lg:block">
+                <div class="chasing-good-grades absolute right-0 rtl:left-0 rtl:-scale-x-100 rtl:right-auto">
+                    <img src="/assets/images/backgrounds/chasing-good-grades.webp" width="276" height="200"
+                        alt="chasing-good-grades" class="object-contain" />
+                </div>
+            </div>
+        </div>
+    </mat-card-content>
+</mat-card>

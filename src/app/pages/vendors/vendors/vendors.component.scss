@@ -1,0 +1,647 @@
+.container {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.header {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.tabs {
+  display: flex;
+  gap: 20px;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 15px;
+}
+
+.tab {
+  padding-bottom: 8px;
+  cursor: pointer;
+  color: gray;
+}
+
+.tab.active {
+  color: blue;
+  border-bottom: 2px solid blue;
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* dropdown container */
+.action-box {
+  position: relative;
+}
+
+/* dropdown styling */
+.action-dropdown {
+  padding: 12px 40px 12px 16px;
+  border: none;
+  border-radius: 10px;
+  background: #f3f3f3;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  outline: none;
+
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+/* icon right side */
+.dropdown-icon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  color: #555;
+  pointer-events: none;
+}
+
+/* hover effect */
+.action-dropdown:hover {
+  background: #e5e5e5;
+}
+
+.search {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  width: 280px;
+}
+
+.no-data {
+  text-align: center;
+  padding: 30px;
+  font-size: 18px;
+  font-weight: 500;
+  color: #999;
+}
+
+.btn {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+
+
+.btn-primary {
+  background: blue;
+  color: white;
+}
+
+.table {
+  width: 100%;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1.5fr 2fr;
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  align-items: center;
+}
+
+.header-row {
+  font-weight: 600;
+  color: gray;
+}
+
+.user {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: lightgreen;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.contact small {
+  display: block;
+  color: gray;
+}
+
+.balance {
+  color: red;
+  font-weight: bold;
+}
+
+.note-btn {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+.ledger {
+  background: #eee;
+}
+
+.edit {
+  background: #fef3c7;
+}
+
+.more {
+  background: #eee;
+}
+
+.bottom {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.summary {
+  display: flex;
+  gap: 10px;
+}
+
+.badge {
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.pay {
+  background: #e6f4ea;
+}
+
+.collect {
+  background: #fde8e8;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.pagination button {
+  padding: 8px 18px;
+  border: none;
+  background: #f3f3f3;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ========================= */
+/* 🔹 SIDEBAR FORM */
+/* ========================= */
+.vendor-form {
+  position: fixed;
+  top: 0;
+  right: -40%;
+  width: 40%;
+  height: 100vh;
+  /* 🔥 CHANGE THIS */
+  display: flex;
+  /* 🔥 ADD */
+  flex-direction: column;
+  /* 🔥 ADD */
+  background: #f5f6f8;
+  z-index: 1000;
+  transition: right 0.3s ease;
+  box-shadow: -8px 0 25px rgba(0, 0, 0, 0.2);
+}
+
+.vendor-form.open {
+  right: 0;
+}
+
+/* ========================= */
+/* 🔹 HEADER */
+/* ========================= */
+.vendor-header {
+  background: #fff;
+  padding: 16px 20px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.vendor-header h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.vendor-close-btn {
+  border: none;
+  background: none;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* ========================= */
+/* 🔹 BODY */
+/* ========================= */
+/* Body full height */
+.vendor-body {
+  padding: 20px;
+  flex: 1;
+  /* 🔥 CHANGE */
+  display: flex;
+  flex-direction: column;
+  overflow-y: scroll;
+  /* 🔥 ADD */
+}
+
+/* Scroll area */
+.vendor-content {
+  flex: 1;
+  overflow-y: auto;
+  /* 🔥 SCROLL YAHI AAYEGA */
+  padding: 20px;
+}
+
+.vendor-footer {
+  padding: 15px 20px;
+  background: #fff;
+  border-top: 1px solid #eee;
+  flex-shrink: 0;
+  display: flex;
+  gap: 20px;
+  /* 🔥 IMPORTANT */
+}
+
+
+/* ========================= */
+/* 🔹 TITLE */
+/* ========================= */
+.vendor-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+/* ========================= */
+/* 🔹 CARD */
+/* ========================= */
+.vendor-card {
+  background: #fff;
+  padding: 22px;
+  border-radius: 14px;
+  border: 1px solid #eee;
+}
+
+/* ========================= */
+/* 🔹 FORM GROUP */
+/* ========================= */
+.vendor-group {
+  margin-bottom: 15px;
+}
+
+/* ========================= */
+/* 🔹 LABEL */
+/* ========================= */
+.vendor-form label {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 6px;
+}
+
+.vendor-required::before {
+  content: "* ";
+  color: red;
+}
+
+/* ========================= */
+/* 🔹 INPUT */
+/* ========================= */
+.vendor-form input {
+  width: 100%;
+  height: 42px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 14px;
+  background: #fff;
+}
+
+.vendor-form input:focus {
+  border-color: #0d6efd;
+  outline: none;
+}
+
+/* ========================= */
+/* 🔹 ROW */
+/* ========================= */
+.vendor-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.vendor-col {
+  flex: 1;
+}
+
+/* ========================= */
+/* 🔹 PHONE */
+/* ========================= */
+.vendor-phone-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+/* +91 box */
+.vendor-prefix {
+  height: 42px;
+  padding: 0 12px;
+  background: #f3f3f3;
+  border: 1px solid #ddd;
+  border-right: none;
+  border-radius: 10px 0 0 10px;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+/* input */
+.vendor-phone-input {
+  border-radius: 0 10px 10px 0 !important;
+  border-left: none;
+  flex: 1;
+}
+
+
+/* ========================= */
+/* 🔹 NG-SELECT FIX */
+/* ========================= */
+.vendor-form ::ng-deep .ng-select-container {
+  height: 42px !important;
+  border-radius: 10px !important;
+  border: 1px solid #ddd !important;
+  padding: 0 8px;
+}
+
+.vendor-form ::ng-deep .ng-select-container:hover {
+  border-color: #0d6efd !important;
+}
+
+.vendor-form ::ng-deep .ng-dropdown-panel {
+  border-radius: 10px !important;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.vendor-form ::ng-deep .ng-option {
+  padding: 10px !important;
+}
+
+.vendor-form ::ng-deep .ng-option:hover {
+  background: #f5f5f5 !important;
+}
+
+/* ========================= */
+/* 🔹 BUTTON */
+/* ========================= */
+
+.vendor-save-btn {
+  width: auto;
+  /* 🔥 change */
+  padding: 0 20px;
+  /* button size */
+  height: 42px;
+  /* thoda compact */
+  border-radius: 10px;
+  background: linear-gradient(90deg, #1a00ff, #0000cc);
+  color: #fff;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* Cancel */
+.vendor-cancel-btn {
+  padding: 10px 18px;
+  border-radius: 8px;
+  background: #f3f4f6;
+  color: #333;
+  border: 1px solid #ddd;
+  cursor: pointer;
+}
+
+/* hover */
+.vendor-cancel-btn:hover {
+  background: #e5e7eb;
+}
+
+/* GST wrapper */
+.vendor-gstin-wrapper {
+  display: flex;
+  gap: 10px;
+}
+
+.vendor-gstin-wrapper input {
+  flex: 1;
+}
+
+
+/* Sub title */
+.vendor-sub-title {
+  margin: 15px 0 10px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* label */
+.label-title {
+  font-size: 14px;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* group */
+.radio-group {
+  display: flex;
+  gap: 20px;
+  margin: 10px 0;
+}
+
+/* label */
+.custom-radio {
+  display: inline-flex;
+  /* 🔥 flex use kar */
+  align-items: center;
+  /* 🔥 vertical center */
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* hide default radio */
+.custom-radio input {
+  display: none;
+}
+
+/* outer circle */
+.radio-circle {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #cbd5e1;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+}
+
+/* inner dot */
+.radio-circle::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  background: #2563eb;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: 0.2s ease;
+}
+
+/* checked state */
+.custom-radio input:checked+.radio-circle {
+  border-color: #2563eb;
+}
+
+.custom-radio input:checked+.radio-circle::after {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* input */
+.input-box {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.input-box input {
+  width: 100%;
+  height: 42px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 0 12px;
+  padding-right: 170px;
+}
+
+/* right text */
+.balance-text {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.red {
+  color: red;
+}
+
+.green {
+  color: green;
+}
+
+/* section */
+.section {
+  margin-top: 20px;
+}
+
+/* toggle box */
+.toggle {
+  width: 70px;
+  height: 32px;
+  background: #d1d5db;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+  cursor: pointer;
+  position: relative;
+  font-size: 12px;
+  color: #555;
+}
+
+/* text */
+.toggle span {
+  flex: 1;
+  text-align: right;
+  /* default right (No state) */
+  padding-right: 6px;
+}
+
+/* active (Yes state) */
+.toggle.active {
+  background: #2563eb;
+  color: #fff;
+}
+
+/* move text left when active */
+.toggle.active span {
+  text-align: left;
+  padding-left: 6px;
+}
+
+/* circle */
+.circle {
+  width: 22px;
+  height: 22px;
+  background: #fff;
+  border-radius: 50%;
+  position: absolute;
+  left: 4px;
+  transition: 0.3s;
+}
+
+/* move circle to right when active */
+.toggle.active .circle {
+  left: calc(100% - 26px);
+}
+
+/* dropdown */
+.dropdown select {
+  width: 100%;
+  height: 40px;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  padding: 0 10px;
+}
+
+.error-text {
+  color: #ef4444;
+  font-size: 12px;
+  margin-top: 6px;
+}

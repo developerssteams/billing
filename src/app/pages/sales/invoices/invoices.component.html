@@ -1,0 +1,120 @@
+<app-page-header title="Invoice"></app-page-header>
+
+<div class="sales-container">
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-overlay">
+        <div class="spinner"></div>
+        <span>Loading...</span>
+    </div>
+
+    <!-- Top -->
+    <div class="sales-top-bar">
+        <div class="sales-title-section">
+            <h2>Invoice</h2>
+        </div>
+
+        <div class="sales-actions">
+            <button class="invoice-btn" (click)="goToCreateInvoice()">+ Create Invoice</button>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="sales-tabs">
+        <span *ngFor="let tab of tabs" [class.active]="selectedTab === tab" (click)="filterData(tab)">
+            {{tab}}
+        </span>
+    </div>
+
+    <!-- Search + Filter -->
+    <div class="search-filter-row">
+        <div class="left-side">
+            <div class="search-box">
+                <input type="text" placeholder="Search by Bill No or Customer..." 
+                       [(ngModel)]="searchText" (input)="searchSales()" />
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="sales-table">
+        <div class="table-header">
+            <span>Bill No</span>
+            <span>Customer Name</span>
+            <span>Total Amount (₹)</span>
+            <span>Status</span>
+            <span>Pending (₹)</span>
+            <span>Action</span>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="paginatedInvoices.length === 0 && !isLoading" class="empty-state">
+            <span>No invoices found</span>
+        </div>
+
+        <!-- Table Rows -->
+        <div class="table-row" *ngFor="let item of paginatedInvoices">
+            <span class="bill-no">{{item.Bill_no}}</span>
+            <span class="customer-name">{{item.Customer_Name}}</span>
+            <span class="amount">{{formatAmount(item.Grand_Total)}}</span>
+            <span>
+                <label class="status-badge" [ngClass]="getStatusClass(item.Status)">
+                    {{item.Status}}
+                </label>
+            </span>
+            <span class="remaining">{{formatAmount(item.Remaining_Amount)}}</span>
+            <span class="action-buttons">
+                <!-- View Button - Redirect to View Page -->
+                <button (click)="viewInvoice(item.ID)" class="view-btn">View</button>
+                <!-- Edit Button -->
+                <button (click)="editInvoice(item.ID)" class="edit-btn">Edit</button>
+                <!-- Cancel Button -->
+                <button 
+                    class="cancel-btn" 
+                    [class.disabled]="isCancelDisabled(item.Status)"
+                    [disabled]="isCancelDisabled(item.Status)"
+                    (click)="updateInvoiceStatus(item.ID, item.Bill_no, item.Status)">
+                    Cancel
+                </button>
+            </span>
+        </div>
+
+        <!-- Invoice Form Component -->
+        <app-invoice-form [isVisible]="selectedInvoice != null" 
+                          [invoiceData]="selectedInvoice"
+                          (formClosed)="closeInvoiceForm()">
+        </app-invoice-form>
+    </div>
+
+    <!-- Footer -->
+    <div class="sales-footer">
+        <div class="summary-boxes">
+            <div class="total-box">
+                Total {{formatAmount(getTotalAmount())}}
+            </div>
+
+            <div class="paid-box">
+                Recieved {{formatAmount(getPaidAmount())}}
+            </div>
+
+            <div class="pending-box">
+                Pending {{formatAmount(getPendingAmount())}}
+            </div>
+        </div>
+
+        <div class="pagination" *ngIf="totalPages() > 1">
+            <button (click)="prevPage()" [disabled]="currentPage === 1">
+                Prev
+            </button>
+
+            <span>
+                Page {{currentPage}} of {{totalPages()}}
+            </span>
+
+            <button (click)="nextPage()" [disabled]="currentPage === totalPages()">
+                Next
+            </button>
+        </div>
+    </div>
+
+</div>

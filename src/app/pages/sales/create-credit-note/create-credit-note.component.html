@@ -1,0 +1,339 @@
+<!-- Header -->
+<div class="create-debit-note-container">
+
+    <div class="header">
+
+        <!-- Left -->
+        <div class="left-box">
+            <button class="back-btn" (click)="goBack()">
+                <span class="iconify" data-icon="ic:baseline-arrow-back" style="font-size: 24px;">
+                </span>
+            </button>
+
+            <h2>Create Credit Note</h2>
+        </div>
+
+        <!-- Right -->
+        <div class="right-box-actions">
+            <button class="cancel-btn" (click)="cancel()">
+                Cancel
+            </button>
+
+            <button class="save-btn" (click)="save()">
+                Save
+            </button>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- Vendor + Dates -->
+<div class="create-debit-container">
+
+    <div class="form-row">
+
+        <!-- Vendor Section -->
+        <div class="vendor-selection">
+
+            <label>Select Customer</label>
+
+            <div class="input-wrapper">
+
+                <input type="text" placeholder="Search customers by name, company, GSTIN..." [(ngModel)]="searchText"
+                    (focus)="openDropdown()" (input)="searchVendor()" />
+
+                <!-- Clear Vendor -->
+                <span class="clear-btn" *ngIf="selectedVendor" (click)="clearVendor()">
+                    ✖
+                </span>
+
+                <!-- Vendor Dropdown -->
+                <div class="dropdown" *ngIf="showDropdown">
+
+                    <div class="vendor-item" *ngFor="let vendor of filteredVendors" (click)="selectVendor(vendor)">
+
+                        <!-- Avatar -->
+                        <div class="avatar green">
+                            {{
+                            vendor.company_name
+                            ?.split(' ')
+                            .map(word => word.charAt(0))
+                            .join('')
+                            .substring(0,2)
+                            .toUpperCase()
+                            }}
+                        </div>
+
+                        <!-- Info -->
+                        <div class="vendor-info">
+
+                            <div class="vendor-name">
+                                {{ vendor.company_name }}
+                            </div>
+
+                            <div class="vendor-sub">
+                                {{ vendor.name }}
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- No Vendor -->
+                    <div class="not-found" *ngIf="filteredVendors.length === 0">
+                        Customer not found
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- Dates -->
+        <div class="right-box">
+
+            <div class="form-field">
+                <label>Credit Note Date</label>
+                <input type="date" [(ngModel)]="creditNoteDate">
+            </div>
+
+            <div class="form-field">
+                <label>Due Date</label>
+                <input type="date" [(ngModel)]="dueDate">
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<div class="product-container-main">
+    <!-- Product Section -->
+    <div class="product-container">
+
+        <!-- Category -->
+        <div class="category-box">
+            <select [(ngModel)]="selectedCategory" (change)="filterProductsByCategory()">
+                <option value="">All Categories</option>
+                <option *ngFor="let category of categories" [value]="category.name">{{ category.name }}</option>
+            </select>
+        </div>
+
+        <!-- Product Search -->
+        <div class="product-search-box">
+            <div class="product-input-wrapper">
+                <input type="text" placeholder="Search Product" [(ngModel)]="productSearchText"
+                    (focus)="openProductDropdown()" (input)="searchProducts()" />
+                <span class="clear-btn" *ngIf="selectedProduct" (click)="clearProduct()">✖</span>
+                <div class="dropdown" *ngIf="showProductDropdown">
+                    <div class="vendor-item" *ngFor="let product of filteredProducts" (click)="selectProduct(product)">
+                        <div class="avatar green">{{ product.name?.split(' ').map(word =>
+                            word.charAt(0)).join('').substring(0,2).toUpperCase() }}</div>
+                        <div class="vendor-info">
+                            <div class="vendor-name">{{ product.name }}</div>
+                            <div class="vendor-sub">{{ product.category }}</div>
+                        </div>
+                        <div class="product-prices">
+                            <span class="sell-price">₹ {{ product.sell }}</span>
+                        </div>
+                    </div>
+                    <div class="not-found" *ngIf="filteredProducts.length === 0">Product not found</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Qty -->
+        <div class="qty-box">
+            <input type="number" [(ngModel)]="selectedQty" placeholder="Qty" />
+        </div>
+
+        <!-- Add Button -->
+        <div class="add-btn-box">
+            <button (click)="addToBill()">+ Add to Credit Note</button>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Quantity</th>
+                    <th>Unit Price (₹)</th>
+                    <th>Discount (%)</th>
+                    <th>Total Amount (₹)</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Jab table me koi item ho -->
+                <tr *ngFor="let item of billItems">
+                    <td class="product-name-cell">{{ item.productName }}</td>
+                    <td class="quantity-cell">
+                        <div class="quantity-controls">
+                            <button class="qty-btn" (click)="updateQuantity(item, item.quantity - 1)">
+                                <span class="iconify" data-icon="mdi:minus"></span>
+                            </button>
+                            <input type="number" class="qty-input" [(ngModel)]="item.quantity"
+                                (change)="updateQuantity(item, item.quantity)" min="1" />
+                            <button class="qty-btn" (click)="updateQuantity(item, item.quantity + 1)">
+                                <span class="iconify" data-icon="mdi:plus"></span>
+                            </button>
+                        </div>
+                    </td>
+                    <!-- Unit Price - READONLY INPUT -->
+                    <td>
+                        <input type="text" class="price-input readonly-input" [value]="item.unitPrice" readonly />
+                    </td>
+                    <!-- Discount - Real-time Validation Input -->
+                    <td>
+                        <input type="text" class="discount-input" [ngModel]="item.discount"
+                            (ngModelChange)="item.discount = $event; onDiscountPercentChange(item)"
+                            (input)="onDiscountInput($event, item)"
+                            style="width: 80px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; text-align: center;" />
+                    </td>
+                    <!-- Total Amount - READONLY INPUT with 2 decimal places -->
+                    <td>
+                        <input type="text" class="price-input readonly-input total-input"
+                            [value]="item.totalAmount.toFixed(2)" readonly />
+                    </td>
+                    <td>
+                        <button class="remove-btn" (click)="removeItem(item.id)">
+                            <span class="iconify" data-icon="mdi:trash-can-outline"></span>
+                        </button>
+                    </td>
+                </tr>
+
+                <!-- Jab table khali ho - EMPTY STATE -->
+                <tr *ngIf="billItems.length === 0">
+                    <td colspan="6" class="empty-table">
+                        <div class="empty-state">
+                            <span class="iconify" data-icon="mdi:package-variant-closed"
+                                style="font-size: 48px; color: #9ca3af;"></span>
+                            <p>No Product Added</p>
+                            <span class="empty-subtext">Add products using the form above</span>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- Grand Total Row with 2 decimal places -->
+                <tr *ngIf="billItems.length > 0" class="grand-total-row">
+                    <td colspan="4" class="total-label">Grand Total</td>
+                    <td colspan="2" class="grand-total-value">
+                        <input type="text" class="grand-total-input" [value]="getGrandTotal().toFixed(2)" readonly />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- Total Bill Section (Right Side) -->
+    <div class="total-bill-container">
+
+        <!-- Subtotal -->
+        <div class="bill-row">
+            <span class="label">Subtotal</span>
+            <span class="amount-input">₹ {{ getSubTotal().toFixed(2) }}</span>
+        </div>
+
+        <!-- Item-wise Discount -->
+        <div class="bill-row">
+            <span class="label discount-label">
+                Item Discount
+                <span class="info-icon">i
+                    <span class="tooltip">
+                        <div *ngFor="let item of billItems" class="tooltip-item">
+                            {{ item.productName }}: {{ item.discount }}% (₹{{ item.discountAmount.toFixed(2) }})
+                        </div>
+                        <div *ngIf="billItems.length === 0" class="tooltip-item">
+                            No products added
+                        </div>
+                        <div class="tooltip-divider" *ngIf="billItems.length > 0"></div>
+                        <div class="tooltip-total" *ngIf="billItems.length > 0">
+                            <strong>Total: ₹{{ getTotalItemDiscount().toFixed(2) }}</strong>
+                        </div>
+                    </span>
+                </span>
+            </span>
+            <span class="negative amount-input">- ₹ {{ getTotalItemDiscount().toFixed(2) }}</span>
+        </div>
+
+        <!-- Additional Charges -->
+        <div class="bill-row">
+            <span class="label">Additional Charges</span>
+            <input type="number" [(ngModel)]="additionalCharges" (ngModelChange)="onAdditionalChargesChange()"
+                placeholder="0.00" class="amount-input" step="any" min="0">
+        </div>
+
+        <!-- Total After Additional Charges -->
+        <div class="bill-row">
+            <span class="label">Total (After Charges)</span>
+            <span class="amount-input">₹ {{ getTotalAfterAdditionalCharges().toFixed(2) }}</span>
+        </div>
+
+        <!-- Round Off -->
+        <div class="bill-row">
+            <span class="label">Round Off</span>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <label class="switch">
+                    <input type="checkbox" (change)="onRoundOffToggle($event)">
+                    <span class="slider"></span>
+                </label>
+                <span *ngIf="roundOff" class="round-off-value" [class.positive]="calculateRoundOff() >= 0"
+                    [class.negative]="calculateRoundOff() < 0">
+                    ({{ calculateRoundOff() >= 0 ? '+' : '' }}{{ calculateRoundOff().toFixed(2) }})
+                </span>
+            </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="divider"></div>
+
+        <!-- Final Total -->
+        <div class="bill-total">
+            <span>Total Amount</span>
+            <span class="total-amount">₹ {{ getFinalTotalWithRoundOff().toFixed(2) }}</span>
+        </div>
+
+    </div>
+
+    <div class="payable-container">
+
+        <!-- Options -->
+        <div class="payable-option">
+            <label class="radio-card">
+                <input type="radio" name="paymentOption" value="full" (change)="onPaymentOptionChange('full')" checked>
+                <span class="radio-custom"></span>
+                Receive Full Amount
+            </label>
+        </div>
+
+        <div class="payable-option">
+            <label class="radio-card">
+                <input type="radio" name="paymentOption" value="custom" (change)="onPaymentOptionChange('custom')">
+                <span class="radio-custom"></span>
+                Receive Custom Amount
+            </label>
+        </div>
+
+        <!-- Divider -->
+        <div class="divider"></div>
+
+        <!-- Bottom Row (Input + Save) -->
+        <div class="payable-bottom-row">
+
+            <!-- Left -->
+            <div class="payable-left">
+                <span class="payable-label">Receivable Amount</span>
+                <input type="number" class="payable-input" [(ngModel)]="payableAmount"
+                    [readonly]="isPayableReadonly" (input)="onPayableAmountChange()" placeholder="Enter amount"
+                    step="any">
+            </div>
+
+            <!-- Right -->
+            <button class="payable-save-btn" (click)="save()">Save</button>
+
+        </div>
+
+    </div>
+</div>

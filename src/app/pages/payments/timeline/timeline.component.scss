@@ -1,0 +1,284 @@
+.payment-container {
+  background: #fff;
+  border-radius: 20px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.payment-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.payment-title-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.payment-title-section h2 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.payment-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.invoice-btn {
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  background: #2b5d57;
+  color: white;
+  transition: all 0.3s;
+
+  &:hover {
+    background: #1f4540;
+  }
+}
+
+.payment-tabs {
+  display: flex;
+  gap: 30px;
+  margin: 25px 0;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+
+  span {
+    cursor: pointer;
+    font-size: 16px;
+    color: #666;
+    transition: all 0.3s;
+
+    &:hover {
+      color: #2b5d57;
+    }
+  }
+
+  .active {
+    color: #2b5d57;
+    border-bottom: 3px solid #2b5d57;
+    padding-bottom: 10px;
+  }
+}
+
+.search-filter-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.left-side {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.search-box input {
+  width: 350px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  outline: none;
+  background: #f8f8f8;
+
+  &:focus {
+    border-color: #2b5d57;
+  }
+}
+
+.year-box select,
+.action-box select {
+  padding: 12px 18px;
+  border: none;
+  border-radius: 10px;
+  background: #f3f3f3;
+  cursor: pointer;
+  font-weight: 500;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.payment-table {
+  width: 100%;
+}
+
+.table-header,
+.table-row {
+  display: grid;
+  grid-template-columns: repeat(6   , 1fr);
+  padding: 15px;
+  align-items: center;
+}
+
+.table-header {
+  background: #f5f5f5;
+  font-weight: bold;
+  border-radius: 10px;
+}
+
+.table-row {
+  border-bottom: 1px solid #eee;
+  transition: background 0.3s;
+
+  &:hover {
+    background: #f9f9f9;
+  }
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  display: inline-block;
+}
+
+.status-badge.paid {
+  background: #d4edda;
+  color: green;
+}
+
+.status-badge.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.cancelled {
+  background: #f8d7da;
+  color: red;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.action-buttons button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #e0e0e0;
+  transition: all 0.3s;
+
+  &:hover {
+    background: #2b5d57;
+    color: white;
+  }
+}
+
+.no-data {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+  font-size: 16px;
+}
+
+.payment-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.summary-boxes {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.summary-boxes div {
+  padding: 8px 18px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.total-box {
+  background: #e8edf3;
+  color: #2d3748;
+}
+
+.paid-box {
+  background: #dff5e8;
+  color: #15803d;
+}
+
+.pending-box {
+  background: #fdf1df;
+  color: #b45309;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.pagination button {
+  padding: 8px 18px;
+  border: none;
+  background: #f3f3f3;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+
+  &:hover:not(:disabled) {
+    background: #2b5d57;
+    color: white;
+  }
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .payment-container {
+    padding: 15px;
+  }
+
+  .table-header,
+  .table-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .table-header span,
+  .table-row span {
+    flex: 1 1 30%;
+    min-width: 100px;
+  }
+
+  .search-box input {
+    width: 100%;
+  }
+
+  .payment-tabs {
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+
+  .summary-boxes {
+    margin-bottom: 15px;
+  }
+
+  .payment-footer {
+    flex-direction: column;
+    align-items: center;
+  }
+}

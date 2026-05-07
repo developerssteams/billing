@@ -1,0 +1,25 @@
+<!-- 🔹 HEADER -->
+<div class="flex items-center justify-between">
+  <div class="branding">
+    <app-branding></app-branding>
+  </div>
+</div>
+
+<!-- 🔥 MENU -->
+<ng-scrollbar class="relative" style="height: 100%">
+
+  <mat-nav-list class="sidebar-list">
+
+    <ng-container *ngFor="let item of items">
+
+      <!-- 🔴 Main Module -->
+      <app-nav-item [item]="item" class="top-parent" [ngClass]="{ 'locked': isLocked(item) }"
+        (upgradeClick)="upgradeClick.emit()">
+      </app-nav-item>
+
+
+    </ng-container>
+
+  </mat-nav-list>
+
+</ng-scrollbar>

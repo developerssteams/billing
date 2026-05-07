@@ -1,0 +1,10 @@
+@use "sass:map";
+@use "@angular/material" as mat;
+
+html.lavender_theme {
+  --mat-sys-primary: rgb(11, 21, 73);
+  --mat-sys-primary-fixed-dim: rgba(11, 21, 73, 0.15);
+  --mat-sys-secondary: rgb(185, 203, 255);
+  --mat-sys-secondary-fixed-dim: rgba(185, 203, 255, 0.15);
+  --mat-sys-tertiary: rgb(185, 203, 255);
+}

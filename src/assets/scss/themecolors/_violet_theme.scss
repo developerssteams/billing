@@ -1,0 +1,10 @@
+@use "sass:map";
+@use "@angular/material" as mat;
+
+html.violet_theme {
+  --mat-sys-primary: rgb(58, 25, 87);
+  --mat-sys-primary-fixed-dim: rgba(58, 25, 87, 0.15);
+  --mat-sys-secondary: rgb(194, 180, 248);
+  --mat-sys-secondary-fixed-dim: rgba(194, 180, 248, 0.15);
+  --mat-sys-error-fixed-dim: rgba(239, 68, 68, 0.15);
+}

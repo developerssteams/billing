@@ -1,0 +1,16 @@
+@if(mobileQuery.matches) {
+<div class="horizontal-sidebar py-2">
+  <div class="container">
+    <div>
+      <div class="horizontal-navbar flex flex-row gap-4 items-center">
+      @for(item of filteredNavItems; track item){
+        <app-horizontal-nav-item [item]="item" class="parentBox {{ item.ddType }}" [ngClass]="{
+            pactive: item.route == parentActive ? 'pactive' : ''
+          }">
+        </app-horizontal-nav-item>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+}

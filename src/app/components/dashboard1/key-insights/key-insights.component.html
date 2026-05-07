@@ -1,0 +1,46 @@
+<mat-card class="cardWithShadow mb-0!">
+  <mat-card-content>
+    <div class="flex flex-auto flex-col self-stretch items-start gap-2">
+      <div class="flex flex-row items-center self-stretch justify-between">
+        <mat-card-title class="text-lg">Key Insights</mat-card-title>
+        <button mat-icon-button [matMenuTriggerFor]="menu">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu" xPosition="before">
+          <button mat-menu-item>2026</button>
+          <button mat-menu-item>2025</button>
+          <button mat-menu-item>2024</button>
+        </mat-menu>
+      </div>
+      <div class="flex flex-auto flex-col self-stretch items-start gap-1.5">
+        <div class="flex flex-auto flex-col self-stretch gap-1">
+          <p class="my-0 text-base text-muted">All-time Revenue</p>
+          <div class="flex flex-row items-center self-stretch gap-2">
+            <h4 class="text-2xl">$395.7k</h4>
+            <span class="badge bg-light-success px-2 py-1 rounded-full text-success text-xs font-medium">+2.7%</span>
+          </div>
+        </div>
+        <apx-chart class="w-full" [series]="keyinsightsChart.series" [chart]="keyinsightsChart.chart"
+          [colors]="keyinsightsChart.colors" [dataLabels]="keyinsightsChart.dataLabels"
+          [legend]="keyinsightsChart.legend" [tooltip]="keyinsightsChart.tooltip"
+          [plotOptions]="keyinsightsChart.plotOptions" [grid]="keyinsightsChart.grid" [xaxis]="keyinsightsChart.xaxis"
+          [yaxis]="keyinsightsChart.yaxis" [labels]="keyinsightsChart.labels" [stroke]="keyinsightsChart.stroke">
+        </apx-chart>
+        <div class="flex flex-row items-center self-stretch gap-4">
+          <div class="flex flex-row items-center self-stretch gap-2">
+            <span class="size-2! rounded-full bg-primary"></span>
+            <span class="text-xs">Asia</span>
+          </div>
+          <div class="flex flex-row items-center self-stretch gap-2">
+            <span class="size-2! rounded-full bg-warning"></span>
+            <span class="text-xs">USA</span>
+          </div>
+          <div class="flex flex-row items-center self-stretch gap-2">
+            <span class="size-2! rounded-full bg-secondary"></span>
+            <span class="text-xs">Europe</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

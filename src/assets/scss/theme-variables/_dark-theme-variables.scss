@@ -1,0 +1,34 @@
+@use "@angular/material" as mat;
+
+html.dark-theme {
+  color-scheme: dark;
+  --mat-sys-corner-small: 8px;
+  --mat-sys-corner-medium: 16px;
+  --mat-sys-background: #141a18;
+  --mat-sys-on-background: #fff;
+  --mat-sys-on-primary: #fff;
+  --mat-sys-surface-bright: #ffffff05;
+  --mat-sys-surface: #030e09;
+  --mat-sys-surface-container: #030e09;
+  --mat-sys-surface-container-low: #1f2a3d;
+  --mat-sys-outline-variant: #1c2622;
+  --mat-sys-outline: #1c2622;
+  --mat-form-field-outlined-hover-outline-color: var(--mat-sys-primary);
+  --mat-checkbox-unselected-hover-state-layer-color: var(--mat-sys-primary-fixed-dim);
+  --mat-menu-item-hover-state-layer-color: var(--mat-sys-primary-fixed-dim);
+  --mat-button-toggle-state-layer-color: var(--mat-sys-primary-fixed-dim);
+  --mat-option-focus-state-layer-color: var(--mat-sys-primary-fixed-dim);
+  --mat-option-hover-state-layer-color: var(--mat-sys-primary-fixed-dim);
+  --mat-slide-toggle-unselected-track-color: var(--mat-sys-primary-fixed-dim);
+  --mat-stepper-header-focus-state-layer-color: var(--mat-sys-primary-fixed-dim);
+  --mat-stepper-header-hover-state-layer-color: var(--mat-sys-primary-fixed-dim);
+  --mat-expansion-header-hover-state-layer-color: var(--mat-sys-primary-fixed-dim);
+  @include mat.card-overrides((elevated-container-color: #030e09,
+      elevated-container-elevation: 'rgb(145 158 171 / 30%) 0px 0px 2px 0px, rgb(145 158 171 / 2%) 0px 12px 24px -4px',
+      subtitle-text-color: rgba(255, 255, 255, 0.67),
+    ));
+  @include mat.theme-overrides((level1: 0px 12px 24px -4px rgba(143, 176, 210, 0.02),
+      level2: 0px 12px 24px -4px rgba(143, 176, 210, 0.02),
+      level3: 0px 12px 24px -4px rgba(143, 176, 210, 0.02),
+    ));
+}

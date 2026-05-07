@@ -1,0 +1,32 @@
+<mat-card class="cardWithShadow mb-0!">
+  <mat-card-content>
+    <div class="flex flex-row items-center self-stretch justify-between mb-2">
+      <mat-card-title class="text-lg">Campaign Performance</mat-card-title>
+      <button mat-icon-button [matMenuTriggerFor]="menu">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu" xPosition="before">
+        <button mat-menu-item>Export data</button>
+      </mat-menu>
+    </div>
+
+    @for(stat of stats; track stat.color) {
+    <ul class="list-unstyled m-0 p-0">
+      <li class="flex flex-row items-center self-stretch justify-between py-4 border-b border-border">
+        <div class="flex flex-row items-center self-stretch gap-4">
+          <i class="iconify text-[40px]" [attr.data-icon]="stat.icon"></i>
+          <div>
+            <h6 class="text-base">{{ stat.title }}</h6>
+            <p class="text-muted my-0 text-sm">
+              {{ stat.subtitle }}
+            </p>
+          </div>
+        </div>
+        <span class="text-{{ stat.color }} bg-light-{{ stat.color }} text-xs font-medium px-2 py-1 rounded-full">
+          {{ stat.badge }}
+        </span>
+      </li>
+    </ul>
+    }
+  </mat-card-content>
+</mat-card>

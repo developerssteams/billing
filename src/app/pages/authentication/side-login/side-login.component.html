@@ -1,0 +1,123 @@
+<div class="gap-2 flex flex-auto flex-col self-stretch justify-between min-h-full">
+  <div class="min-h-[calc(100vh-70px)] flex flex-auto flex-col self-stretch justify-center p-2">
+    <div class="w-full max-w-5xl flex justify-center mx-auto">
+      <mat-card class="relative w-full overflow-hidden mb-0!">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2">
+
+          <!-- 🔥 LEFT SIDE - LOGIN FORM -->
+          <div class="relative p-7.5 flex flex-auto flex-col self-stretch justify-center gap-5">
+
+            <!-- <app-branding></app-branding> -->
+
+            <div class="flex flex-col text-center">
+              <h1 class="font-bold mb-3" style="font-size: 1.8rem;">Welcome to BillsEzy</h1>
+              <p class="text-sm text-muted m-0">Your Admin Dashboard</p>
+            </div>
+
+            <!-- 🔥 USERS IMAGES -->
+            <div class="users-images-row">
+              <div class="user-avatar-item">
+                <div class="avatar-wrapper">
+                  <img src="../../../../assets/images/login-user/user1.jpeg" alt="User" class="user-avatar" />
+                </div>
+              </div>
+              <div class="user-avatar-item">
+                <div class="avatar-wrapper">
+                  <img src="../../../../assets/images/login-user/user2.jpeg" alt="User" class="user-avatar" />
+                </div>
+              </div>
+              <div class="user-avatar-item">
+                <div class="avatar-wrapper">
+                  <img src="../../../../assets/images/login-user/user3.jpeg" alt="User" class="user-avatar" />
+                </div>
+              </div>
+              <div class="user-avatar-item">
+                <div class="avatar-wrapper">
+                  <img src="../../../../assets/images/login-user/user4.jpeg" alt="User" class="user-avatar" />
+                </div>
+              </div>
+            </div>
+
+            <!-- 🔥 20 Lakh+ Businesses BADGE -->
+            <div class="stats-badge-container">
+              <div class="stats-badge">
+                <span class="stats-text">20 Lakh+ Businesses Join With Us</span>
+              </div>
+            </div>
+
+            <!-- 🔥 MOBILE NUMBER + OTP SECTION (Combined) -->
+            <div class="login-section">
+              <label class="text-sm font-semibold mb-2 block">Mobile Number</label>
+
+              <div class="mobile-input-wrapper">
+                <div class="country-code">+91</div>
+                <input type="tel" class="mobile-input" [(ngModel)]="mobileNumber" placeholder="10 digit mobile number"
+                  maxlength="10" [disabled]="otpSent" />
+              </div>
+
+              <!-- 🔥 OTP INPUT (Shows when OTP is sent) -->
+              <div *ngIf="otpSent" class="otp-input-wrapper">
+                <label class="text-sm font-semibold mb-2 block mt-3">Enter OTP</label>
+                <div class="otp-inputs">
+                  <input *ngFor="let i of [0,1,2,3,4,5]" type="text" maxlength="1" class="otp-digit"
+                    [(ngModel)]="otpDigits[i]" (input)="onOtpInput(i, $event)" (keydown)="onOtpKeydown(i, $event)" />
+                </div>
+              </div>
+
+              <!-- 🔥 SINGLE BUTTON - Changes based on state -->
+              <button class="login-btn" (click)="handleLoginClick()" 
+                [disabled]="isLoadingOTP || isLoadingVerify || (otpSent && !isOtpComplete)">
+                <span *ngIf="!isLoadingOTP && !isLoadingVerify && !otpSent">Continue with Mobile Number </span>
+                <span *ngIf="isLoadingOTP && !otpSent">Sending OTP...</span>
+                <span *ngIf="otpSent && !isLoadingVerify">Verify & Login</span>
+                <span *ngIf="isLoadingVerify">Verifying...</span>
+              </button>
+
+              <!-- 🔥 RESEND OTP LINK (Shows only after OTP sent) -->
+              <div *ngIf="otpSent" class="resend-section text-center mt-3">
+                <span class="text-muted">Didn't receive OTP? </span>
+                <a href="javascript:void(0)" (click)="resendOTP()" [class.disabled]="timer > 0" class="resend-link">
+                  <span *ngIf="timer > 0">Resend in {{ timer }}s</span>
+                  <span *ngIf="timer === 0">Resend OTP</span>
+                </a>
+              </div>
+
+              <div *ngIf="mobileNumber && !isValidMobile && !otpSent" class="text-error mt-2">
+                Please enter a valid 10 digit mobile number
+              </div>
+            </div>
+
+            <!-- 🔥 DIVIDER -->
+            <div class="or-divider">
+              <span>or</span>
+            </div>
+
+            <!-- 🔥 GOOGLE LOGIN -->
+            <div class="google-login-section">
+              <button mat-stroked-button class="w-full" (click)="googleLogin()" [disabled]="isLoading">
+                <div class="flex items-center gap-2 justify-center">
+                  <i class="iconify text-xl" data-icon="devicon:google"></i>
+                  <span>{{ isLoading ? 'Signing in...' : 'Sign In with Google' }}</span>
+                </div>
+              </button>
+            </div>
+
+            <!-- Error Message -->
+            <div *ngIf="errorMsg.otp" class="text-error text-center mt-2">
+              {{ errorMsg.otp }}
+            </div>
+
+          </div>
+
+          <!-- 🔥 RIGHT SIDE IMAGE -->
+          <div class="hidden lg:flex items-center justify-center relative overflow-hidden">
+            <img src="/assets/images/backgrounds/login-bg.webp" alt="login-side-img"
+              class="object-cover w-full h-full" />
+          </div>
+
+        </div>
+      </mat-card>
+    </div>
+  </div>
+</div>

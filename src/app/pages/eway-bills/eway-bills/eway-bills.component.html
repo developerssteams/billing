@@ -1,0 +1,66 @@
+<app-page-header title="E-WAY BILLS"></app-page-header>
+
+<div class="eway-container">
+
+    <!-- Hero Section -->
+    <div class="eway-hero">
+        <div class="eway-hero-content">
+            <div class="eway-icon">
+                <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M3 6h18M3 12h18M3 18h18M8 3v3M16 3v3" />
+                    <rect x="6" y="9" width="12" height="10" rx="1" />
+                </svg>
+            </div>
+            <h1>E-Way Bill Management</h1>
+            <p>Generate and manage electronic way bills for goods transportation</p>
+        </div>
+
+        <!-- Conditions Table -->
+        <div class="conditions-table">
+            <h3>When is E-Way Bill Required?</h3>
+            <div class="table-wrapper">
+                <table class="eway-table">
+                    <thead>
+                        <tr>
+                            <th>S.No</th>
+                            <th>Transaction Type</th>
+                            <th>Condition</th>
+                            <th>Applicability</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let condition of ewayConditions; let i = index">
+                            <td class="sno">{{ i + 1 }}</td>
+                            <td class="scenario">{{ condition.scenario }}</td>
+                            <td class="condition">{{ condition.condition }}</td>
+                            <td>
+                                <span [class]="getBadgeClass(condition.applicability)">
+                                    {{ getBadgeText(condition.applicability) }}
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Create Button -->
+        <div class="button-wrapper">
+            <button class="create-eway-btn" (click)="openGSTPortal()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M5 12h14" />
+                </svg>
+                <span>Create E-Way Bill</span>
+            </button>
+            <p class="portal-note">Clicking will redirect to official GST E-Way Bill Portal</p>
+        </div>
+        
+        <!-- Footer Notes -->
+        <div class="footer-notes">
+            <div class="footer-note">
+                <strong> Note:</strong> E-Way bill is mandatory under GST law. Always carry a valid E-Way bill during goods transportation.
+            </div>
+           
+        </div>
+    </div>
+</div>

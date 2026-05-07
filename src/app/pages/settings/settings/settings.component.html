@@ -1,0 +1,167 @@
+<div class="form-wrapper">
+    <div class="header">Company Details</div>
+
+    <!-- Logo -->
+    <div class="form-row logo-row">
+        <div class="label-col">
+            <label>Company Logo :</label>
+        </div>
+        <div class="input-col logo-box">
+            <div class="upload-box" (click)="fileInput.click()">
+                <ng-container *ngIf="!logoPreview">
+                    <div class="plus">+</div>
+                    <span>Upload</span>
+                </ng-container>
+                <img *ngIf="logoPreview" [src]="logoPreview" (error)="logoPreview = null">
+            </div>
+            <input type="file" hidden #fileInput (change)="onFileChange($event)" accept="image/*">
+        </div>
+    </div>
+
+    <!-- Trade -->
+    <div class="form-row">
+        <div class="label-col">
+            <label><span class="req">*</span>Trade/Brand Name :</label>
+        </div>
+        <div class="input-col">
+            <input type="text" class="form-control" [(ngModel)]="company.trade_name" (input)="syncCompanyName()"
+                required>
+        </div>
+    </div>
+
+    <!-- Company -->
+    <div class="form-row">
+        <div class="label-col">
+            <label><span class="req">*</span>Company Name :</label>
+        </div>
+        <div class="input-col">
+            <input type="text" class="form-control" [(ngModel)]="company.company_name" required>
+        </div>
+    </div>
+
+    <!-- Phone -->
+    <div class="form-row">
+        <div class="label-col">
+            <label><span class="req">*</span>Company Phone :</label>
+        </div>
+        <div class="input-col phone-group">
+            <select class="form-select country-code" [(ngModel)]="company.country_code">
+                <option value="+91">+91 (India)</option>
+                <option value="+1">+1 (USA)</option>
+                <option value="+44">+44 (UK)</option>
+                <option value="+61">+61 (Australia)</option>
+                <option value="+971">+971 (UAE)</option>
+                <option value="+65">+65 (Singapore)</option>
+            </select>
+            <input type="text" class="form-control" [(ngModel)]="company.phone" placeholder="Company Phone Number"
+                required>
+        </div>
+    </div>
+
+    <!-- Email -->
+    <div class="form-row">
+        <div class="label-col">
+            <label><span class="req">*</span>Company Email :</label>
+        </div>
+        <div class="input-col">
+            <input type="email" class="form-control" [(ngModel)]="company.email" placeholder="Company Email Address"
+                required>
+        </div>
+    </div>
+
+    <!-- GST -->
+    <div class="form-row">
+        <div class="label-col">
+            <label><span class="req">*</span>GSTIN :</label>
+        </div>
+        <div class="input-col gst-group">
+            <input type="text" class="form-control" placeholder="Enter GSTIN Number" [(ngModel)]="company.gstin"
+                maxlength="15" style="text-transform: uppercase;" required>
+            <button class="fetch-btn" (click)="fetchGSTDetails(company.gstin)" [disabled]="gstLoading">
+                {{ gstLoading ? 'Fetching...' : 'Fetch Details' }}
+            </button>
+        </div>
+        <small *ngIf="gstLoading" style="color: blue;">Fetching GST details...</small>
+        <small *ngIf="gstError" style="color:red">{{ gstError }}</small>
+    </div>
+
+    <!-- Business Type -->
+    <div class="form-row">
+        <div class="label-col">
+            <label><span class="req">*</span>Business Type :</label>
+        </div>
+        <div class="input-col">
+            <input type="text" class="form-control" [(ngModel)]="company.business_type">
+        </div>
+    </div>
+
+    <!-- Website -->
+    <div class="form-row">
+        <div class="label-col">
+            <label>Website :</label>
+        </div>
+        <div class="input-col">
+            <input type="text" class="form-control" [(ngModel)]="company.website" placeholder="Website">
+        </div>
+    </div>
+
+    <!-- PAN -->
+    <div class="form-row">
+        <div class="label-col">
+            <label><span class="req">*</span>PAN Number :</label>
+        </div>
+        <div class="input-col">
+            <input type="text" class="form-control" [(ngModel)]="company.pan" placeholder="PAN Number" required>
+        </div>
+    </div>
+
+    <!-- Address (Combined from address_line1 and address_line2) -->
+    <div class="form-row">
+        <div class="label-col">
+            <label>Address :</label>
+        </div>
+        <div class="input-col">
+            <textarea class="form-control" [(ngModel)]="company.address" placeholder="Company Address (Line1, Line2)" rows="3"></textarea>
+        </div>
+    </div>
+
+    <!-- City -->
+    <div class="form-row">
+        <div class="label-col">
+            <label>City :</label>
+        </div>
+        <div class="input-col">
+            <input type="text" class="form-control" [(ngModel)]="company.city" placeholder="City">
+        </div>
+    </div>
+
+    <!-- State -->
+    <div class="form-row">
+        <div class="label-col">
+            <label>State :</label>
+        </div>
+        <div class="input-col">
+            <input type="text" class="form-control" [(ngModel)]="company.state" placeholder="State">
+        </div>
+    </div>
+
+    <!-- Pincode -->
+    <div class="form-row">
+        <div class="label-col">
+            <label>Pincode :</label>
+        </div>
+        <div class="input-col">
+            <input type="text" class="form-control" [(ngModel)]="company.pincode" placeholder="Pincode">
+        </div>
+    </div>
+
+    <!-- Action Button -->
+    <div class="form-row action-row">
+        <div class="label-col"></div>
+        <div class="input-col">
+            <button class="save-btn" (click)="saveCompany()" [disabled]="isLoading">
+                {{ isLoading ? 'Saving...' : 'Save & Update' }}
+            </button>
+        </div>
+    </div>
+</div>

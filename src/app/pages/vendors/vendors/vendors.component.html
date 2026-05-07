@@ -1,0 +1,325 @@
+<app-page-header title="Vendors"></app-page-header>
+<div class="container">
+
+  <div class="header">Vendors</div>
+
+  <!-- Actions -->
+  <div class="actions">
+
+    <!-- Search -->
+    <input class="search" placeholder="Search Vendors..." [(ngModel)]="searchText" (input)="searchVendor()" />
+
+    <!-- Buttons -->
+    <div class="action-buttons">
+
+      <button class="btn btn-primary" (click)="openForm()">
+        + New Vendor
+      </button>
+
+    </div>
+  </div>
+
+  <div class="table">
+
+    <div class="row header-row">
+      <div>Name</div>
+      <div>Contact Info</div>
+      <div>Closing Balance</div>
+      <div>Action</div>
+    </div>
+
+    <div class="row" *ngFor="let vendor of paginatedData">
+
+      <!-- Name -->
+      <div class="user">
+        <div class="avatar">
+          {{ vendor.name ? vendor.name.charAt(0) : 'V' }}
+        </div>
+
+        <div>
+          <div>{{ vendor.name }}</div>
+          <small>{{ vendor.company_name || 'No Company' }}</small>
+        </div>
+      </div>
+
+      <!-- Contact -->
+      <div class="contact">
+        {{ vendor.phone || '-' }}
+        <small>{{ vendor.email || '-' }}</small>
+      </div>
+
+      <!-- Balance -->
+      <div>
+        <div class="balance">₹ {{ vendor.opening_balance || 0 }}</div>
+
+        <small>
+          {{ vendor.balance_type === 'credit'
+          ? 'You Pay ↑'
+          : 'You Collect ↓' }}
+        </small>
+      </div>
+
+      <!-- Notes -->
+      <div>
+        <button class="note-btn edit" (click)="openForm(vendor)">Edit</button>
+      <button class="note-btn more delete-btn" (click)="deleteVendor(vendor.id, vendor.name)">Delete</button>
+      </div>
+
+    </div>
+
+    <!-- No Data -->
+    <div class="no-data" *ngIf="paginatedData.length === 0">
+      No Vendors Found
+    </div>
+
+  </div>
+
+  <!-- Bottom -->
+  <div class="bottom">
+    <div class="summary">
+      <div class="badge pay">
+        You Pay ₹ {{ getTotalPay() }}
+      </div>
+
+      <div class="badge collect">
+        You Collect ₹ {{ getTotalCollect() }}
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+
+      <button (click)="prevPage()" [disabled]="currentPage === 1">
+        Prev
+      </button>
+
+      <span>
+        Page {{ currentPage }} of {{ totalPages() }}
+      </span>
+
+      <button (click)="nextPage()" [disabled]="currentPage === totalPages()">
+        Next
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+<div class="overlay" *ngIf="showForm" (click)="closeForm()"></div>
+<form (ngSubmit)="addVendor()">
+  <div class="side-form vendor-form" [class.open]="showForm">
+
+    <div class="vendor-header">
+      <h3>{{ isEditMode ? 'Edit Vendor' : 'Add Vendor' }}</h3>
+      <button class="vendor-save-btn header-save-btn" type="submit">
+        {{ isEditMode ? 'Update Vendor' : 'Save Vendor' }}
+      </button>
+    </div>
+
+    <div class="vendor-body">
+
+      <!-- Title -->
+      <h4 class="vendor-title">Basic Details</h4>
+
+      <!-- Card -->
+      <div class="vendor-card">
+
+        <!-- Name -->
+        <div class="vendor-group">
+          <label class="vendor-required">Name</label>
+          <input type="text" placeholder="Ratan TATA" [(ngModel)]="newVendor.name" name="name" required>
+        </div>
+
+        <!-- Row -->
+        <div class="vendor-row">
+
+
+          <!-- Phone -->
+          <div class="vendor-col">
+            <label>Phone</label>
+
+            <div class="vendor-phone-wrapper">
+
+              <!-- Fixed +91 -->
+              <div class="vendor-prefix">+91</div>
+
+              <!-- Phone Input -->
+              <input type="tel" maxlength="10" [(ngModel)]="newVendor.phone" name="phone" required
+                (input)="onlyNumber($event)">
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="vendor-col">
+            <label>Email</label>
+            <input type="email" placeholder="Enter email" [(ngModel)]="newVendor.email" name="email">
+          </div>
+
+        </div>
+
+      </div>
+      <!-- Company Details -->
+      <h4 class="vendor-title mt-2">Company Details</h4>
+
+      <div class="vendor-card">
+
+        <!-- Row 1 -->
+        <div class="vendor-row">
+
+          <div class="vendor-col">
+            <label>Company</label>
+            <input type="text" placeholder="Company Name" [(ngModel)]="newVendor.company_name" name="company_name">
+          </div>
+
+          <div class="vendor-col">
+            <label>GSTIN</label>
+
+            <div class="vendor-gstin-wrapper">
+              <input type="text" placeholder="29AABCT1332L000" [(ngModel)]="newVendor.gstin" name="gstin" maxlength="15"
+                (input)="checkGST($event)">
+            </div>
+
+            <small *ngIf="gstLoading" style="color: blue;">
+              Fetching GST details...
+            </small>
+
+            <small *ngIf="gstError" style="color: red;">
+              {{ gstError }}
+            </small>
+          </div>
+
+        </div>
+
+        <!-- Billing Address -->
+        <h5 class="vendor-sub-title">Billing Address</h5>
+
+        <!-- Row -->
+        <div class="vendor-row">
+          <div class="vendor-col">
+            <input type="text" placeholder="Address Line 1" [(ngModel)]="newVendor.address_line1" name="address_line1">
+          </div>
+          <div class="vendor-col">
+            <input type="text" placeholder="Address Line 2" [(ngModel)]="newVendor.address_line2" name="address_line2">
+          </div>
+        </div>
+
+        <div class="vendor-row">
+          <div class="vendor-col">
+            <input type="text" placeholder="Pincode" [(ngModel)]="newVendor.pincode" name="pincode">
+          </div>
+          <div class="vendor-col">
+            <input type="text" placeholder="Select State" [(ngModel)]="newVendor.state" name="state">
+          </div>
+        </div>
+
+        <div class="vendor-row">
+          <div class="vendor-col">
+            <input type="text" placeholder="City" [(ngModel)]="newVendor.city" name="city">
+          </div>
+          <div class="vendor-col">
+            <input type="text" value="India" disabled>
+          </div>
+        </div>
+
+      </div>
+      <!-- Button -->
+      <h4 class="vendor-title">Optional Details</h4>
+
+      <div class="vendor-card">
+
+        <!-- Opening Balance -->
+        <label class="label-title">Opening Balance</label>
+
+        <div class="radio-group">
+
+          <label class="custom-radio">
+            <input type="radio" value="debit" [(ngModel)]="newVendor.balance_type" name="balance_type">
+            <span class="radio-circle"></span>
+            Debit
+          </label>
+
+          <label class="custom-radio">
+            <input type="radio" value="credit" [(ngModel)]="newVendor.balance_type" name="balance_type">
+            <span class="radio-circle"></span>
+            Credit
+          </label>
+
+        </div>
+
+        <!-- Input -->
+        <div class="input-box">
+          <input type="number" placeholder="Enter Debit Amount" [(ngModel)]="newVendor.opening_balance"
+            name="opening_balance">
+
+          <span class="balance-text" [ngClass]="newVendor.balance_type === 'debit' ? 'red' : 'green'">
+
+            {{ newVendor.balance_type === 'debit'
+            ? 'Vendor Pays You ₹'
+            : 'You Pay Vendor ₹' }}
+
+          </span>
+        </div>
+
+        <!-- ================= -->
+        <!-- TDS -->
+        <!-- ================= -->
+        <div class="section">
+          <label class="label-title">TDS</label>
+
+          <div class="toggle" [class.active]="tdsEnabled" (click)="toggleTDS()">
+
+            <div class="circle"></div>
+            <span>{{ tdsEnabled ? 'Yes' : 'No' }}</span>
+          </div>
+          <!-- ❌ ERROR -->
+          <div class="error-text" *ngIf="tdsError">
+            {{ tdsError }}
+          </div>
+
+          <div class="dropdown" *ngIf="tdsEnabled">
+            <select [(ngModel)]="newVendor.tds" name="tds">
+              <option value="">TDS Percentage</option>
+              <option>10% 393(1) Interest (Banks)</option>
+              <option>2% GST TDS</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- ================= -->
+        <!-- TCS -->
+        <!-- ================= -->
+        <div class="section">
+          <label class="label-title">TCS</label>
+
+          <div class="toggle" [class.active]="tcsEnabled" (click)="toggleTCS()">
+
+            <div class="circle"></div>
+            <span>{{ tcsEnabled ? 'Yes' : 'No' }}</span>
+          </div>
+          <!-- ❌ ERROR -->
+          <div class="error-text" *ngIf="tcsError">
+            {{ tcsError }}
+          </div>
+          <div class="dropdown" *ngIf="tcsEnabled">
+            <select [(ngModel)]="newVendor.tcs" name="tcs">
+              <option value="">TCS Percentage</option>
+              <option>0.1% Goods</option>
+              <option>1% Scrap</option>
+            </select>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="vendor-footer">
+      <button class="vendor-save-btn" type="submit">
+        {{ isEditMode ? 'Update Vendor' : 'Save Vendor' }}
+      </button>
+      <button class="vendor-cancel-btn" type="button" (click)="closeForm()">
+        Cancel
+      </button>
+    </div>
+  </div>
+</form>

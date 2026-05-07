@@ -1,0 +1,116 @@
+@use "../variables" as *;
+
+.customizer-button-group {
+  &.two-row {
+    display: inline-block;
+
+    &.theme-colors {
+      .mat-button-toggle-appearance-standard {
+        margin-left: 16px;
+
+        &:first-child {
+          margin-left: 0;
+        }
+      }
+    }
+
+    .mat-button-toggle-appearance-standard {
+      width: 80px;
+      height: 65px;
+      float: left;
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+
+      .mat-button-toggle-button {
+        display: flex;
+        justify-content: center;
+      }
+
+      &:nth-child(4) {
+        margin-left: 0;
+      }
+
+      &.mat-button-toggle-checked {
+        .theme-circle {
+          .theme-icon {
+            display: flex;
+            color: $black;
+          }
+        }
+      }
+
+      .theme-circle {
+        width: 25px;
+        height: 25px;
+        border-radius: var(--mat-sys-corner-full);
+        color: $white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .theme-icon {
+          display: none;
+        }
+
+        &.green_theme {
+          background-color: #C2FD75;
+        }
+
+        &.yellow_theme {
+          background-color: #FF9F1C;
+        }
+
+        &.violet_theme {
+          background-color: #C2B4F8;
+        }
+
+        &.blue_theme {
+          background-color: #6EE7FF;
+        }
+
+        &.teal_theme {
+          background-color: #73FBD3;
+        }
+
+        &.lavender_theme {
+          background-color: #b9cbff;
+        }
+      }
+    }
+  }
+
+  .mat-button-toggle-appearance-standard {
+    padding: 9px;
+    border: 1px solid var(--mat-sys-outline-variant) !important;
+    box-shadow: none;
+    border-radius: var(--mat-sys-corner-small);
+    color: var(--bs-body-color);
+    box-shadow: rgba(0, 0, 0, 0.05) 0 9px 17.5px !important;
+    display: flex;
+    align-items: center;
+    transition: 0.1s ease-in;
+    min-width: 80px;
+
+    &:hover {
+      color: var(--mat-sys-primary);
+      transform: scale(1.05);
+    }
+
+    &.mat-button-toggle-checked {
+      color: var(--mat-sys-primary);
+      background-color: var(--mat-sys-primary-fixed-dim);
+
+    }
+  }
+
+  &.mat-button-toggle-group {
+    overflow: unset;
+    border-radius: 0;
+  }
+
+  .mat-button-toggle-standalone.mat-button-toggle-appearance-standard,
+  &.mat-button-toggle-group-appearance-standard {
+    border: 0 !important;
+  }
+}

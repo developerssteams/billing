@@ -1,0 +1,201 @@
+<!-- Header -->
+<div class="header">
+    <!-- Left -->
+    <div class="left-box">
+        <button class="back-btn" (click)="goBack()">
+            <span class="iconify" data-icon="ic:baseline-arrow-back" style="font-size: 24px;"></span>
+        </button>
+        <h2>Create Invoice</h2>
+    </div>
+
+    <!-- Right -->
+    <div class="right-box-actions">
+        <button class="cancel-btn" (click)="cancel()">Cancel</button>
+        <button class="save-btn" (click)="save()">Save</button>
+    </div>
+</div>
+
+<!-- Invoice Container -->
+<div class="invoice-container">
+    <!-- Invoice Header - Left & Right Side -->
+    <div class="invoice-header-wrapper">
+        <!-- Left Side - Company Info -->
+        <div class="invoice-left">
+            <div class="company-logo">
+                <h2>INVOICE</h2>
+            </div>
+            <div class="company-details">
+                <h3>Your Company Name</h3>
+                <p>123 Business Street, City - 123456</p>
+                <p>GST: 27AAACA1234E1ZR</p>
+                <p>Phone: +91 98765 43210</p>
+                <p>Email: info@company.com</p>
+            </div>
+        </div>
+
+        <!-- Right Side - Invoice Details -->
+        <div class="invoice-right">
+            <div class="invoice-number">
+                <span class="label">Invoice No:</span>
+                <span class="value">INV-2026-001</span>
+            </div>
+            <div class="invoice-date">
+                <span class="label">Date:</span>
+                <span class="value">02 May 2026</span>
+            </div>
+            <div class="due-date">
+                <span class="label">Due Date:</span>
+                <span class="value">01 June 2026</span>
+            </div>
+            <div class="invoice-status">
+                <span class="label">Status:</span>
+                <span class="status-badge paid">Paid</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bill To Section -->
+    <div class="bill-section">
+        <div class="bill-to">
+            <h4>Bill To:</h4>
+            <p class="customer-name">Rajesh Enterprises</p>
+            <p>Shop No. 45, Main Market</p>
+            <p>New Delhi - 110001</p>
+            <p>GST: 27AAACA1234E1ZR</p>
+            <p>Phone: 98765 43210</p>
+        </div>
+        <div class="shipping-to">
+            <h4>Shipping To:</h4>
+            <p class="customer-name">Rajesh Enterprises</p>
+            <p>Shop No. 45, Main Market</p>
+            <p>New Delhi - 110001</p>
+        </div>
+    </div>
+
+    <!-- Products Table -->
+    <div class="table-wrapper">
+        <table class="invoice-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Product Description</th>
+                    <th>HSN/SAC</th>
+                    <th>Qty</th>
+                    <th>Unit Price (₹)</th>
+                    <th>Discount</th>
+                    <th>Tax</th>
+                    <th>Total (₹)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="text-center">1</td>
+                    <td>Wireless Mouse - Logitech</td>
+                    <td class="text-center">847160</td>
+                    <td class="text-center">2</td>
+                    <td class="text-right">599.00</td>
+                    <td class="text-center">5%</td>
+                    <td class="text-center">18%</td>
+                    <td class="text-right">1,138.10</td>
+                </tr>
+                <tr>
+                    <td class="text-center">2</td>
+                    <td>Mechanical Keyboard</td>
+                    <td class="text-center">847160</td>
+                    <td class="text-center">1</td>
+                    <td class="text-right">2,499.00</td>
+                    <td class="text-center">10%</td>
+                    <td class="text-center">18%</td>
+                    <td class="text-right">2,653.38</td>
+                </tr>
+                <tr>
+                    <td class="text-center">3</td>
+                    <td>Office Chair</td>
+                    <td class="text-center">940139</td>
+                    <td class="text-center">1</td>
+                    <td class="text-right">5,999.00</td>
+                    <td class="text-center">0%</td>
+                    <td class="text-center">12%</td>
+                    <td class="text-right">6,718.88</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Summary Section -->
+    <div class="summary-wrapper">
+        <div class="bank-terms">
+            <div class="bank-details">
+                <h5>Bank Details:</h5>
+                <p>Bank: State Bank of India</p>
+                <p>A/C No: 1234567890123456</p>
+                <p>IFSC: SBIN0001234</p>
+                <p>UPI: company@ybl</p>
+            </div>
+            <div class="terms">
+                <h5>Terms & Conditions:</h5>
+                <p>1. Payment due within 15 days</p>
+                <p>2. Late payment charges @2% per month</p>
+                <p>3. E&OE</p>
+            </div>
+        </div>
+        
+        <div class="summary-card">
+            <div class="summary-row">
+                <span>Subtotal:</span>
+                <span>₹9,097.00</span>
+            </div>
+            <div class="summary-row discount">
+                <span>Discount:</span>
+                <span>- ₹249.85</span>
+            </div>
+            <div class="summary-row">
+                <span>Taxable Amount:</span>
+                <span>₹8,847.15</span>
+            </div>
+            <div class="summary-row">
+                <span>CGST (9%):</span>
+                <span>₹796.24</span>
+            </div>
+            <div class="summary-row">
+                <span>SGST (9%):</span>
+                <span>₹796.24</span>
+            </div>
+            <div class="summary-row">
+                <span>Additional Charges:</span>
+                <span>₹50.00</span>
+            </div>
+            <div class="summary-row grand-total">
+                <span>Grand Total:</span>
+                <span>₹10,489.63</span>
+            </div>
+            <div class="summary-row paid">
+                <span>Amount Paid:</span>
+                <span>₹10,489.63</span>
+            </div>
+            <div class="summary-row pending">
+                <span>Balance Due:</span>
+                <span>₹0.00</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="invoice-footer">
+        <div class="footer-note">
+            <p>This is a computer generated invoice. No signature required.</p>
+            <p>Thank you for your business!</p>
+        </div>
+        <div class="signature">
+            <div class="signature-line"></div>
+            <p>Authorized Signatory</p>
+        </div>
+    </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="action-buttons">
+    <button class="print-btn" (click)="printInvoice()">🖨️ Print Invoice</button>
+    <button class="download-btn">📥 Download PDF</button>
+    <button class="share-btn">📧 Share via Email</button>
+</div>

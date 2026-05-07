@@ -1,0 +1,60 @@
+<mat-card class="cardWithShadow mb-0!">
+    <mat-card-content>
+        <div class="flex flex-row items-center self-stretch justify-between gap-4 flex-wrap mb-3">
+            <mat-card-title class="text-lg">Traffic Data</mat-card-title>
+            <mat-form-field appearance="outline" class="search-box hide-hint">
+                <mat-icon matPrefix>search</mat-icon>
+                <input matInput (keyup)="applyFilter($event)" placeholder="Search..." />
+            </mat-form-field>
+        </div>
+        <div class="relative overflow-auto">
+            <table mat-table [dataSource]="dataSource" class="mat-elevation-z2 min-w-full">
+
+                <!-- Checkbox -->
+                <ng-container matColumnDef="select">
+                    <th class="pl-0" mat-header-cell *matHeaderCellDef>
+                        <mat-checkbox></mat-checkbox>
+                    </th>
+                    <td class="pl-0 whitespace-nowrap" mat-cell *matCellDef="let row">
+                        <mat-checkbox></mat-checkbox>
+                    </td>
+                </ng-container>
+
+                <!-- Source -->
+                <ng-container matColumnDef="source">
+                    <th mat-header-cell *matHeaderCellDef> Source </th>
+                    <td mat-cell *matCellDef="let row" class="whitespace-nowrap"> {{row.source}} </td>
+                </ng-container>
+
+                <!-- Visits -->
+                <ng-container matColumnDef="visits">
+                    <th mat-header-cell *matHeaderCellDef> Visits </th>
+                    <td mat-cell *matCellDef="let row" class="whitespace-nowrap"> {{row.visits}} </td>
+                </ng-container>
+
+                <!-- Bounce Rate -->
+                <ng-container matColumnDef="bounceRate">
+                    <th mat-header-cell *matHeaderCellDef> Bounce Rate </th>
+                    <td mat-cell *matCellDef="let row" class="whitespace-nowrap"> {{row.bounceRate}} </td>
+                </ng-container>
+
+                <!-- Goal -->
+                <ng-container matColumnDef="goal">
+                    <th mat-header-cell *matHeaderCellDef> Goal (%) </th>
+                    <td mat-cell *matCellDef="let row" class="whitespace-nowrap">
+                        <div class="flex flex-row items-center self-stretch gap-4">
+                            <mat-progress-bar [color]="row.color" mode="determinate"
+                                [value]="row.goal"></mat-progress-bar>
+                            {{row.goal}}%
+                        </div>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+
+            <mat-paginator [pageSizeOptions]="[3, 5, 10]" showFirstLastButtons></mat-paginator>
+        </div>
+    </mat-card-content>
+</mat-card>

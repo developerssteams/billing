@@ -1,0 +1,121 @@
+<app-page-header title="Customers"></app-page-header>
+<div class="container">
+
+  <div class="header">Customers</div>
+
+  <!-- Actions -->
+  <div class="actions">
+
+    <!-- Search -->
+    <input class="search" placeholder="Search Customers..." [(ngModel)]="searchText" (input)="searchCustomer()" />
+
+    <!-- Buttons -->
+    <div class="action-buttons">
+
+
+
+      <button class="btn btn-primary" (click)="openForm()">
+        + New Customer
+      </button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table">
+
+    <!-- Header -->
+    <div class="row header-row">
+      <div>Name</div>
+      <div>Contact Info</div>
+      <div>Outstanding Balance</div>
+      <div>Action</div>
+    </div>
+
+    <!-- Data Rows -->
+    <div class="row" *ngFor="let customer of paginatedData">
+
+      <!-- Name -->
+      <div class="user">
+        <div class="avatar">
+          {{ customer.name ? customer.name.charAt(0) : 'U' }}
+        </div>
+
+        <div>
+          <div>{{ customer.name }}</div>
+          <small>{{ customer.company_name || 'No Company' }}</small>
+        </div>
+      </div>
+
+      <!-- Contact -->
+      <div class="contact">
+        {{ customer.phone || '-' }}
+        <small>{{ customer.email || '-' }}</small>
+      </div>
+
+      <!-- Balance -->
+      <div>
+        <div class="balance">₹ {{ customer.opening_balance || 0 }}</div>
+        <small>
+          {{ customer.balance_type === 'debit' ? 'You Collect ↑' : 'You Pay ↓' }}
+        </small>
+      </div>
+
+
+
+      <!-- Action -->
+      <div>
+        <button class="note-btn edit" (click)="openForm(customer)">Edit</button>
+        <button class="note-btn more delete-btn" (click)="deleteCustomer(customer.id, customer.name)">Delete</button>
+      </div>
+
+    </div>
+
+    <!-- No Data -->
+    <div class="no-data" *ngIf="paginatedData.length === 0">
+      No Customers Found
+    </div>
+
+  </div>
+
+  <!-- Bottom -->
+  <div class="bottom">
+
+    <div class="summary">
+      <div class="badge pay">
+        You Pay ₹ {{ getTotalPay() }}
+      </div>
+
+      <div class="badge collect">
+        You Collect ₹ {{ getTotalCollect() }}
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+
+      <button (click)="prevPage()" [disabled]="currentPage === 1">
+        Prev
+      </button>
+
+      <span>
+        Page {{ currentPage }} of {{ totalPages() }}
+      </span>
+
+      <button (click)="nextPage()" [disabled]="currentPage === totalPages()">
+        Next
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Customer Form Component -->
+<app-customer-form 
+  [showForm]="showCustomerForm"
+  [isEditMode]="isEditMode"
+  [editCustomerData]="selectedCustomer"
+  (formClosed)="closeForm()"
+  (customerSaved)="onCustomerSaved($event)">
+</app-customer-form>

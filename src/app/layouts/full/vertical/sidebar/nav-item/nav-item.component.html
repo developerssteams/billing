@@ -1,0 +1,60 @@
+@if(item.navCap){
+@if(item.divider){
+<span class="sidebar-divider"></span>
+}
+
+<div mat-subheader class="nav-caption">
+  <i class="iconify size-4.5! caption-icon" data-icon="solar:menu-dots-linear"></i>
+  <span class="caption-text">{{ item.navCap }}</span>
+</div>
+}
+
+@if(!item.navCap && !item.external && !item.twoLines) {
+
+<a mat-list-item (click)="handleClick(item, $event)" [ngClass]="{
+    'mat-toolbar bg-primary text-white! activeMenu': item.route
+      ? router.isActive(item.route, true)
+      : false,
+    expanded: expanded,
+    activemenu: isChildActive(item),
+    locked: item.locked
+  }" class="menu-list-item">
+  <!-- ICON -->
+  @if(item.subItemIcon){
+  <span class="iconify routeIcon sub-item-icon" matListItemIcon [attr.data-icon]="item.iconName"></span>
+  } @else {
+  <span class="iconify routeIcon" matListItemIcon [attr.data-icon]="item.iconName"></span>
+  }
+
+  <!-- TEXT -->
+  <span class="hide-menu">
+    {{ item.displayName | translate }}
+  </span>
+
+  <!-- 🔥 RIGHT SIDE ICON (LOCK / ARROW) -->
+  <span style="margin-left:auto; display:flex; align-items:center;">
+
+    <!-- 🔒 LOCK (only for basic user) -->
+    @if(item.locked && plan === 'basic'){
+    <span class="iconify" data-icon="mdi:lock" style="font-size:18px;"></span>
+    }
+
+    <!-- ⬇ ARROW (only if NOT locked) -->
+    @if(item.children && item.children.length && !(item.locked && plan === 'basic')){
+    <mat-icon [@indicatorRotate]="expanded ? 'expanded' : 'collapsed'">
+      expand_more
+    </mat-icon>
+    }
+
+  </span>
+
+</a>
+}
+
+<!-- CHILD ITEMS -->
+@if(expanded && !(item.locked && plan === 'basic')) {
+@for(child of item.children; track child) {
+<app-nav-item [item]="child" [depth]="depth + 1" (upgradeClick)="upgradeClick.emit()">
+</app-nav-item>
+}
+}
