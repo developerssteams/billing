@@ -64,42 +64,68 @@ export class WelcomeModalComponent {
     let gstNumber = event.target.value.toUpperCase().trim();
     this.companyData.gstin = gstNumber;
     this.gstError = '';
+    
+    console.log('GSTIN entered:', gstNumber);
+    console.log('Length:', gstNumber.length);
 
     if (gstNumber.length === 15) {
+      console.log('15 digits reached, calling API...');
       this.fetchGstDetails();
     }
   }
 
   fetchGstDetails() {
     const gstin = this.companyData.gstin;
+    console.log('fetchGstDetails called with:', gstin);
+    
     if (!gstin || gstin.length !== 15) {
       this.gstError = 'Please enter valid 15-digit GSTIN number';
+      console.log('Invalid GSTIN:', gstin);
       return;
     }
 
     this.isFetchingGst = true;
     this.gstError = '';
 
-    this.http.get(`https://billsezy.com/Api/gst-fetch.php?gstin=${gstin}`).subscribe(
+    const apiUrl = `https://billsezy.com/Api/gst-fetch.php?gstin=${gstin}`;
+    console.log('Calling API:', apiUrl);
+
+    this.http.get(apiUrl).subscribe(
       (res: any) => {
+        console.log('========== FULL API RESPONSE ==========');
+        console.log(JSON.stringify(res, null, 2));
+        console.log('========================================');
+        
         this.isFetchingGst = false;
 
         if (res?.status === true && res?.data) {
           const data = res.data;
+          console.log('Extracted data:', data);
 
+          // Company Name & Trade Name
           if (data.tradeNam) {
             this.companyData.companyName = data.tradeNam;
             this.companyData.tradeName = data.tradeNam;
+            console.log('Company Name set to:', data.tradeNam);
           } else if (data.lgnm) {
             this.companyData.companyName = data.lgnm;
+            console.log('Company Name set to:', data.lgnm);
           }
 
+          // Business Type
           if (data.nba && data.nba.length > 0) {
             this.companyData.businessType = data.nba.join(', ');
+            console.log('Business Type set to:', data.nba.join(', '));
+          } else if (data.ctb) {
+            this.companyData.businessType = data.ctb;
+            console.log('Business Type set to:', data.ctb);
           }
 
+          // Address fields
           if (data.pradr?.addr) {
             const addr = data.pradr.addr;
+            console.log('Address from GST:', addr);
+            
             let addressParts = [];
             if (addr.bno && addr.bno !== '-') addressParts.push(addr.bno);
             if (addr.bnm && addr.bnm !== '-') addressParts.push(addr.bnm);
@@ -110,17 +136,31 @@ export class WelcomeModalComponent {
             this.companyData.city = addr.city || addr.loc || '';
             this.companyData.state = addr.stcd || '';
             this.companyData.pincode = addr.pncd || '';
+            
+            console.log('Address set to:', this.companyData.address);
+            console.log('City:', this.companyData.city);
+            console.log('State:', this.companyData.state);
+            console.log('Pincode:', this.companyData.pincode);
           }
 
           this.gstError = '';
           alert('GST details fetched successfully!');
         } else {
           this.gstError = res?.message || "Invalid GST Number";
+          console.log('API returned error:', this.gstError);
+          alert(this.gstError);
         }
       },
       (error: any) => {
+        console.error('========== API ERROR ==========');
+        console.error('Error status:', error.status);
+        console.error('Error message:', error.message);
+        console.error('Full error:', error);
+        console.error('================================');
+        
         this.isFetchingGst = false;
-        this.gstError = "Failed to fetch GST details";
+        this.gstError = "Failed to fetch GST details. Please check network.";
+        alert('Network error: ' + error.message);
       }
     );
   }
@@ -234,7 +274,7 @@ export class WelcomeModalComponent {
       city: this.companyData.city,
       state: this.companyData.state,
       pincode: this.companyData.pincode,
-      phone: this.ownerData.countryCode + ' ' + this.ownerData.mobile,
+      phone: this.ownerData.mobile,
       email: this.ownerData.email,
       pan: this.ownerData.panNumber,
       website: this.ownerData.website
