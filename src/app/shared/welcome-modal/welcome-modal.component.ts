@@ -19,7 +19,7 @@ export class WelcomeModalComponent {
   isNewUser: boolean = true;
   isLoading: boolean = false;
   isFetchingGst: boolean = false;
-  
+
   // Company Data
   companyData: any = {
     gstin: '',
@@ -30,7 +30,7 @@ export class WelcomeModalComponent {
     logo: null,
     logoPreview: ''
   };
-  
+
   // Owner Data
   ownerData: any = {
     ownerName: '',
@@ -40,12 +40,12 @@ export class WelcomeModalComponent {
     authorisedSignatory: ''
   };
 
-  constructor(private auth: AuthService) {}
+  constructor(private auth: AuthService) { }
 
   ngOnInit() {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     this.userName = user?.name || 'User';
-    
+
     // Auto-fill contact and email from user data
     if (user?.mobile) {
       this.companyData.contactNumber = user.mobile;
@@ -55,23 +55,26 @@ export class WelcomeModalComponent {
       this.companyData.email = user.email;
       this.ownerData.email = user.email;
     }
-    
-    const hasSetup = this.auth.getHasSetup();
-    this.isNewUser = hasSetup !== true;
+
+    const hasSetup = Number(user?.has_setup || 0);
+
+    // Agar has_setup = 1 hai to old user
+    // Agar has_setup = 0 hai to new user
+    this.isNewUser = hasSetup === 0;
     this.isLoading = false;
   }
 
   // 🔥 FETCH GST DETAILS FROM API
   async fetchGstDetails() {
     const gstin = this.companyData.gstin;
-    
+
     if (!gstin || gstin.length !== 15) {
       alert('Please enter valid 15-digit GSTIN number');
       return;
     }
-    
+
     this.isFetchingGst = true;
-    
+
     try {
       // FREE GST API (Replace with your actual API)
       const response = await fetch(`https://api.gstins.in/verify?gstin=${gstin}`, {
@@ -80,24 +83,24 @@ export class WelcomeModalComponent {
           'Content-Type': 'application/json'
         }
       });
-      
+
       // Alternative FREE API: https://gst-verify-api.vercel.app/api/verify?gstin=...
       // const response = await fetch(`https://gst-verify-api.vercel.app/api/verify?gstin=${gstin}`);
-      
+
       if (response.ok) {
         const data = await response.json();
         console.log('GST API Response:', data);
-        
+
         // Auto-fill company details from GST response
         if (data.tradeName || data.businessName) {
           this.companyData.companyName = data.tradeName || data.businessName || this.companyData.companyName;
         }
-        
+
         if (data.address) {
           const addr = data.address;
           this.companyData.address = `${addr.buildingName || ''} ${addr.street || ''}, ${addr.city || ''}, ${addr.state || ''} - ${addr.pincode || ''}`;
         }
-        
+
         alert('GST details fetched successfully!');
       } else {
         // Manual entry fallback
@@ -186,9 +189,9 @@ export class WelcomeModalComponent {
   }
 
   hasStep1Data(): boolean {
-    return !!(this.companyData.gstin || this.companyData.companyName || 
-              this.companyData.address || this.companyData.contactNumber || 
-              this.companyData.email);
+    return !!(this.companyData.gstin || this.companyData.companyName ||
+      this.companyData.address || this.companyData.contactNumber ||
+      this.companyData.email);
   }
 
   saveCompanyData() {
@@ -202,7 +205,7 @@ export class WelcomeModalComponent {
       email: this.companyData.email,
       logo: this.companyData.logoPreview || ''
     };
-    
+
     localStorage.setItem('companyInfo', JSON.stringify(companyInfo));
     console.log('Company Data Saved:', companyInfo);
   }
@@ -217,7 +220,7 @@ export class WelcomeModalComponent {
       designation: this.ownerData.designation,
       authorisedSignatory: this.ownerData.authorisedSignatory
     };
-    
+
     localStorage.setItem('ownerInfo', JSON.stringify(ownerInfo));
     localStorage.setItem('setupCompleted', 'true');
     this.auth.saveHasSetup(true);
