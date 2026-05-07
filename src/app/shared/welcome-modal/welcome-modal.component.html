@@ -1,6 +1,6 @@
 <div class="modal-backdrop">
   <div class="modal-box" *ngIf="step === 'success' && !isLoading">
-    
+
     <!-- SUCCESS ICON -->
     <div class="success-icon">✓</div>
 
@@ -18,7 +18,7 @@
       <ng-container *ngIf="!isNewUser">
         <button class="full-width" (click)="goToDashboard()">Go to Dashboard</button>
       </ng-container>
-      
+
       <ng-container *ngIf="isNewUser">
         <button class="dashboard-btn" (click)="goToDashboard()">Go to Dashboard</button>
         <button class="setup-btn" (click)="startSetup()">Complete Setup</button>
@@ -35,114 +35,165 @@
   </div>
 
   <!-- STEP 1: COMPANY DETAILS -->
+  <!-- STEP 1 -->
   <div class="modal-box setup-modal" *ngIf="step === 'step1'">
+
     <div class="setup-header">
       <h2>Complete Your Setup</h2>
       <p>Step 1 of 2 | Company Details</p>
-      <div class="progress-bar"><div class="progress" style="width: 50%"></div></div>
+
+      <div class="progress-bar">
+        <div class="progress" style="width: 50%"></div>
+      </div>
     </div>
 
     <div class="setup-form">
-      <!-- Row 1: GSTIN + Company Name -->
+
+      <!-- GSTIN + COMPANY -->
       <div class="form-row">
+
         <div class="form-group half">
           <label>GSTIN Number *</label>
+
           <div class="gst-input-wrapper">
-            <input type="text" [(ngModel)]="companyData.gstin" placeholder="Enter GSTIN Number" maxlength="15" 
-                   (blur)="fetchGstDetails()" [disabled]="isFetchingGst">
-            <button class="fetch-gst-btn" (click)="fetchGstDetails()" [disabled]="!companyData.gstin || isFetchingGst">
-              <span *ngIf="!isFetchingGst">🔍</span>
-              <span *ngIf="isFetchingGst">⏳</span>
+
+            <input type="text" [(ngModel)]="companyData.gstin" placeholder="Enter GSTIN Number" maxlength="15">
+
+            <button class="fetch-gst-btn" (click)="fetchGstDetails()">
+              <iconify-icon icon="mdi:magnify"></iconify-icon>
             </button>
+
           </div>
         </div>
+
         <div class="form-group half">
           <label>Company Name *</label>
+
           <input type="text" [(ngModel)]="companyData.companyName" placeholder="Enter Company Name">
         </div>
+
       </div>
 
-      <!-- Row 2: Address (Full Row) -->
-      <div class="form-group full">
-        <label>Address *</label>
-        <textarea rows="3" [(ngModel)]="companyData.address" placeholder="Enter Company Address"></textarea>
-      </div>
-
-      <!-- Row 3: Contact Number + Email -->
+      <!-- TRADE NAME + BUSINESS TYPE -->
       <div class="form-row">
+
         <div class="form-group half">
-          <label>Contact Number *</label>
-          <input type="tel" [(ngModel)]="companyData.contactNumber" placeholder="Enter Contact Number" maxlength="10">
+          <label>Trade Name</label>
+
+          <input type="text" [(ngModel)]="companyData.tradeName" placeholder="Enter Trade Name">
         </div>
+
         <div class="form-group half">
-          <label>Email *</label>
-          <input type="email" [(ngModel)]="companyData.email" placeholder="Enter Company Email">
+          <label>Business Type</label>
+
+          <input type="text" [(ngModel)]="companyData.businessType" placeholder="Enter Business Type">
         </div>
+
       </div>
 
-      <!-- Row 4: Logo Upload -->
+      <!-- ADDRESS -->
       <div class="form-group full">
-        <label>Company Logo</label>
-        <div class="logo-upload">
-          <input type="file" (change)="onLogoSelected($event)" accept="image/*" #fileInput style="display:none">
-          <div class="logo-preview" *ngIf="companyData.logoPreview" (click)="fileInput.click()">
-            <img [src]="companyData.logoPreview" alt="Logo">
-            <button class="remove-logo" (click)="removeLogo($event)">✖</button>
-          </div>
-          <div class="upload-placeholder" *ngIf="!companyData.logoPreview" (click)="fileInput.click()">
-            <span>📷</span>
-            <span>Click to upload logo</span>
-          </div>
-        </div>
+
+        <label>Address *</label>
+
+        <textarea rows="3" [(ngModel)]="companyData.address" placeholder="Enter Address"></textarea>
+
       </div>
+
+      <!-- CITY STATE PINCODE -->
+      <div class="form-row">
+
+        <div class="form-group third">
+          <label>City</label>
+
+          <input type="text" [(ngModel)]="companyData.city" placeholder="City">
+        </div>
+
+        <div class="form-group third">
+          <label>State</label>
+
+          <input type="text" [(ngModel)]="companyData.state" placeholder="State">
+        </div>
+
+        <div class="form-group third">
+          <label>Pincode</label>
+
+          <input type="text" [(ngModel)]="companyData.pincode" placeholder="Pincode">
+        </div>
+
+      </div>
+
     </div>
 
     <div class="setup-actions">
-      <button class="skip-btn" (click)="skipSetup()">Skip Setup →</button>
-      <button class="next-btn" (click)="nextStep()">Next →</button>
+      <button class="skip-btn" (click)="skipSetup()">
+        Skip
+      </button>
+
+      <button class="next-btn" (click)="nextStep()">
+        Next →
+      </button>
     </div>
+
   </div>
 
   <!-- STEP 2: OWNER DETAILS -->
+  <!-- STEP 2 -->
   <div class="modal-box setup-modal" *ngIf="step === 'step2'">
+
     <div class="setup-header">
       <h2>Complete Your Setup</h2>
-      <p>Step 2 of 2 | Owner Details</p>
-      <div class="progress-bar"><div class="progress" style="width: 100%"></div></div>
+
+      <p>Step 2 of 2 | Contact Details</p>
+
+      <div class="progress-bar">
+        <div class="progress" style="width: 100%"></div>
+      </div>
     </div>
 
     <div class="setup-form">
-      <div class="form-row">
-        <div class="form-group half">
-          <label>Owner Name *</label>
-          <input type="text" [(ngModel)]="ownerData.ownerName" placeholder="Enter Owner Name">
-        </div>
-        <div class="form-group half">
-          <label>Designation *</label>
-          <input type="text" [(ngModel)]="ownerData.designation" placeholder="Enter Designation">
-        </div>
-      </div>
 
-      <div class="form-row">
-        <div class="form-group half">
-          <label>Mobile Number *</label>
-          <input type="tel" [(ngModel)]="ownerData.mobile" placeholder="Enter Mobile Number">
-        </div>
-        <div class="form-group half">
-          <label>Email ID *</label>
-          <input type="email" [(ngModel)]="ownerData.email" placeholder="Enter Email ID">
-        </div>
-      </div>
-
+      <!-- PHONE -->
       <div class="form-group full">
-        <label>Authorised Signatory *</label>
-        <input type="text" [(ngModel)]="ownerData.authorisedSignatory" placeholder="Enter Authorised Signatory Name">
+        <label>Phone Number *</label>
+
+        <input type="text" [(ngModel)]="ownerData.mobile" placeholder="Enter Phone Number">
       </div>
+
+      <!-- EMAIL -->
+      <div class="form-group full">
+        <label>Email ID *</label>
+
+        <input type="email" [(ngModel)]="ownerData.email" placeholder="Enter Email ID">
+      </div>
+
+      <!-- PAN -->
+      <div class="form-group full">
+        <label>PAN Number</label>
+
+        <input type="text" [(ngModel)]="ownerData.panNumber" placeholder="Enter PAN Number">
+      </div>
+
+      <!-- WEBSITE -->
+      <div class="form-group full">
+        <label>Website</label>
+
+        <input type="text" [(ngModel)]="ownerData.website" placeholder="Enter Website">
+      </div>
+
     </div>
 
     <div class="setup-actions">
-      <button class="skip-btn" (click)="skipSetup()">Skip →</button>
-      <button class="complete-btn" (click)="completeSetup()">Complete Setup →</button>
+
+      <button class="back-btn" (click)="step='step1'">
+        ← Back
+      </button>
+
+      <button class="complete-btn" (click)="completeSetup()">
+        Complete Setup →
+      </button>
+
     </div>
+
   </div>
 </div>
