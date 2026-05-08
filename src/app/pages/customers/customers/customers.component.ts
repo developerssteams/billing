@@ -305,23 +305,40 @@ export class CustomersComponent {
   }
 
   // 🔥 GET CUSTOMERS
-  // In your customers component
+  // 🔥 GET CUSTOMERS - Updated with better error handling
   getCustomers() {
-    const userId = this.userId; // Get from localStorage or auth service
+    const userId = this.userId;
+
+    console.log('Fetching customers for user_id:', userId);
 
     fetch(`https://billsezy.com/Api/get_customers.php?user_id=${userId}`)
-      .then(res => res.json())
       .then(res => {
+        console.log('Response status:', res.status);
+        return res.json();
+      })
+      .then(res => {
+        console.log('API Response:', res);
+
         if (res.status === true) {
-          this.customerData = res.data;
+          this.customerData = res.data || [];
           this.filteredData = [...this.customerData];
           this.currentPage = 1;
           this.updatePaginatedData();
+
+          console.log('Customers loaded:', this.customerData.length);
+
+          if (this.customerData.length === 0) {
+            console.warn('No customers found for user_id:', userId);
+          }
         } else {
-          console.error(res.message);
+          console.error('API Error:', res.message);
+          alert('Error: ' + (res.message || 'Failed to load customers'));
         }
       })
-      .catch(err => console.error('Error:', err));
+      .catch(err => {
+        console.error('Fetch Error:', err);
+        alert('Server Error: ' + err.message);
+      });
   }
   // 🔥 SUMMARY
   getTotalPay(): number {
