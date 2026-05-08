@@ -44,7 +44,6 @@ body {
   border-radius: 10px;
   width: 280px;
   font-size: 14px;
-  transition: all 0.2s;
 }
 
 .search:focus {
@@ -78,7 +77,7 @@ body {
   background: #2563eb;
 }
 
-/* Table Wrapper - FOR SCROLL 🔥 FIXED */
+/* 🔥 TABLE WRAPPER - SCROLL KE LIYE */
 .table-wrapper {
   width: 100%;
   overflow-x: auto;
@@ -87,21 +86,20 @@ body {
   border-radius: 12px;
 }
 
-/* 🔥 IMPORTANT - Yeh scroll trigger karega */
+/* 🔥 TABLE - FIXED MIN WIDTH FOR SCROLL */
 .table {
-  min-width: 800px;
+  min-width: 900px;
 }
 
-/* ROW GRID - 2fr use kar rahe hain */
+/* 🔥 ROW GRID - FIXED WIDTHS */
 .row {
   display: grid;
-  grid-template-columns: 2fr 2fr 1.5fr 1.5fr;
+  grid-template-columns: 300px 280px 180px 160px;
   padding: 16px 20px;
   border-bottom: 1px solid #f0f0f0;
   align-items: center;
   gap: 20px;
   background: white;
-  transition: background 0.2s;
 }
 
 .row:hover {
@@ -116,7 +114,7 @@ body {
   padding: 14px 20px;
 }
 
-/* USER SECTION - Avatar + Name + Company */
+/* USER SECTION */
 .user {
   display: flex;
   gap: 14px;
@@ -147,21 +145,17 @@ body {
   font-weight: 600;
   font-size: 15px;
   color: #1f2937;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   margin-bottom: 4px;
+  word-break: break-word;
 }
 
 .user-company {
   font-size: 12px;
   color: #6b7280;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  word-break: break-word;
 }
 
-/* Contact Section */
+/* CONTACT SECTION */
 .contact {
   display: flex;
   flex-direction: column;
@@ -177,12 +171,10 @@ body {
 .contact-email {
   font-size: 12px;
   color: #6b7280;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  word-break: break-all;
 }
 
-/* Balance Section */
+/* BALANCE SECTION */
 .balance-section {
   display: flex;
   flex-direction: column;
@@ -195,26 +187,31 @@ body {
   white-space: nowrap;
 }
 
-/* You Pay = Red */
 .balance-amount.pay {
   color: #dc2626;
 }
 
-/* You Collect = Green */
 .balance-amount.collect {
   color: #10b981;
 }
 
 .balance-type {
   font-size: 11px;
-  color: #6b7280;
   display: flex;
   align-items: center;
   gap: 4px;
   white-space: nowrap;
 }
 
-/* Action Buttons - Proper Gap */
+.balance-type.pay {
+  color: #dc2626;
+}
+
+.balance-type.collect {
+  color: #10b981;
+}
+
+/* ACTION BUTTONS */
 .action-buttons-cell {
   display: flex;
   gap: 12px;
@@ -230,7 +227,6 @@ body {
   font-size: 13px;
   font-weight: 500;
   transition: all 0.2s;
-  margin: 0;
 }
 
 .edit {
@@ -240,7 +236,6 @@ body {
 
 .edit:hover {
   background: #fde68a;
-  transform: translateY(-1px);
 }
 
 .delete-btn {
@@ -250,10 +245,9 @@ body {
 
 .delete-btn:hover {
   background: #fecaca;
-  transform: translateY(-1px);
 }
 
-/* Bottom Section */
+/* BOTTOM SECTION */
 .bottom {
   display: flex;
   justify-content: space-between;
@@ -298,12 +292,10 @@ body {
   border-radius: 8px;
   cursor: pointer;
   font-weight: 500;
-  transition: all 0.2s;
 }
 
 .pagination button:hover:not(:disabled) {
   background: #f1f5f9;
-  border-color: #cbd5e1;
 }
 
 .pagination button:disabled {
@@ -311,7 +303,6 @@ body {
   cursor: not-allowed;
 }
 
-/* No Data */
 .no-data {
   text-align: center;
   padding: 48px;
@@ -352,7 +343,6 @@ body {
   right: 0;
 }
 
-/* Form Header */
 .vendor-header {
   background: white;
   padding: 20px;
@@ -379,14 +369,8 @@ body {
   border-radius: 8px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
 }
 
-.header-save-btn:hover {
-  background: #2563eb;
-}
-
-/* Form Body - Scrollable */
 .vendor-body {
   flex: 1;
   overflow-y: auto;
@@ -408,7 +392,6 @@ body {
   border-radius: 10px;
 }
 
-/* Cards */
 .vendor-title {
   font-size: 16px;
   font-weight: 600;
@@ -454,7 +437,6 @@ body {
   padding: 0 12px;
   font-size: 14px;
   background: white;
-  transition: all 0.2s;
 }
 
 .vendor-form input:focus,
@@ -464,7 +446,6 @@ body {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-/* Rows */
 .vendor-row {
   display: flex;
   gap: 12px;
@@ -475,7 +456,6 @@ body {
   flex: 1;
 }
 
-/* Phone Wrapper */
 .vendor-phone-wrapper {
   display: flex;
   align-items: center;
@@ -500,7 +480,6 @@ body {
   border-left: none;
 }
 
-/* GST Wrapper */
 .vendor-gstin-wrapper {
   display: flex;
   gap: 8px;
@@ -510,7 +489,6 @@ body {
   flex: 1;
 }
 
-/* Sub Title */
 .vendor-sub-title {
   font-size: 14px;
   font-weight: 600;
@@ -518,7 +496,6 @@ body {
   color: #475569;
 }
 
-/* Radio Group */
 .label-title {
   font-size: 14px;
   font-weight: 500;
@@ -575,7 +552,6 @@ body {
   transform: translate(-50%, -50%) scale(1);
 }
 
-/* Input Box */
 .input-box {
   position: relative;
   margin-bottom: 20px;
@@ -603,7 +579,6 @@ body {
   color: #10b981;
 }
 
-/* Toggle */
 .section {
   margin-top: 20px;
 }
@@ -665,7 +640,6 @@ body {
   margin-top: 6px;
 }
 
-/* Form Footer */
 .vendor-footer {
   padding: 16px 20px;
   background: white;
@@ -684,11 +658,6 @@ body {
   border: none;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
-}
-
-.vendor-save-btn:hover {
-  background: #2563eb;
 }
 
 .vendor-cancel-btn {
@@ -699,11 +668,6 @@ body {
   border: 1px solid #e2e8f0;
   cursor: pointer;
   font-weight: 500;
-  transition: all 0.2s;
-}
-
-.vendor-cancel-btn:hover {
-  background: #e2e8f0;
 }
 
 /* ==================== */
@@ -720,7 +684,6 @@ body {
 
   .header {
     font-size: 20px;
-    margin-bottom: 16px;
   }
 
   .actions {
@@ -753,6 +716,11 @@ body {
     justify-content: center;
   }
 
+  /* 🔥 MOBILE MEIN SCROLL */
+  .table {
+    min-width: 850px;
+  }
+
   .side-form {
     max-width: 100%;
   }
@@ -782,44 +750,15 @@ body {
   }
 }
 
-/* 🔥 MOBILE SCROLL - Yeh important hai */
-@media (max-width: 768px) {
-  .table {
-    min-width: 750px;
-  }
-  
-  .row {
-    min-width: 750px;
-  }
-}
-
 @media (max-width: 480px) {
-  .row {
-    grid-template-columns: 2fr 2fr 1.5fr 1.5fr;
-    padding: 12px 16px;
-    gap: 12px;
-  }
-  
   .table {
-    min-width: 700px;
+    min-width: 800px;
   }
   
-  .row {
-    min-width: 700px;
-  }
-
   .avatar {
     width: 36px;
     height: 36px;
     font-size: 14px;
-  }
-
-  .user-name {
-    font-size: 13px;
-  }
-
-  .user-company {
-    font-size: 10px;
   }
 
   .note-btn {
