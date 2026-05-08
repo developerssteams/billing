@@ -25,7 +25,7 @@ export class CustomerFormComponent implements OnInit, OnChanges {
   gstLoading: boolean = false;
   gstError: string = '';
 
-  // RCM Only (No TDS/TCS)
+  // RCM Only
   rcmEnabled: boolean = false;
 
   // Delivery Address - Same as Billing
@@ -37,7 +37,7 @@ export class CustomerFormComponent implements OnInit, OnChanges {
   // User ID
   userId: number = 1;
 
-  // Form Data (No balance_type, no tds, no tcs)
+  // Form Data
   customerData: any = {
     name: '',
     phone: '',
@@ -85,7 +85,8 @@ export class CustomerFormComponent implements OnInit, OnChanges {
       pincode: customer.pincode || '',
       state: customer.state || '',
       city: customer.city || '',
-      opening_balance: Math.abs(customer.opening_balance) || 0,
+      // 🔥 IMPORTANT: Show absolute value in input, but store original sign
+      opening_balance: Math.abs(customer.opening_balance || 0),
       rcm: customer.rcm || 0,
       delivery_address_line1: customer.delivery_address_line1 || '',
       delivery_address_line2: customer.delivery_address_line2 || '',
@@ -95,14 +96,15 @@ export class CustomerFormComponent implements OnInit, OnChanges {
       delivery_country: customer.delivery_country || 'India'
     };
 
-    // Preserve sign for opening balance in edit mode
-    if (customer.opening_balance < 0) {
-      this.customerData.opening_balance = -this.customerData.opening_balance;
-    }
-
+    // 🔥 Store the original sign separately for edit mode
+    this.originalBalanceSign = customer.opening_balance < 0 ? -1 : 1;
+    
     this.rcmEnabled = customer.rcm == 1;
     this.sameAsBilling = this.isDeliverySameAsBilling();
   }
+
+  // Store original sign for edit mode
+  originalBalanceSign: number = 1;
 
   isDeliverySameAsBilling(): boolean {
     return this.customerData.delivery_address_line1 === this.customerData.address_line1 &&
@@ -185,12 +187,13 @@ export class CustomerFormComponent implements OnInit, OnChanges {
     input.value = input.value.replace(/[^0-9]/g, '').slice(0, 10);
     this.customerData.phone = input.value;
   }
-  // Toggle RCM
+
   toggleRCM() {
     this.rcmEnabled = !this.rcmEnabled;
     this.customerData.rcm = this.rcmEnabled ? 1 : 0;
     console.log('RCM Status:', this.rcmEnabled ? 'Enabled' : 'Disabled');
   }
+
   closeForm() {
     this.formClosed.emit();
     this.resetForm();
@@ -221,6 +224,7 @@ export class CustomerFormComponent implements OnInit, OnChanges {
     this.sameAsBilling = false;
     this.gstError = '';
     this.isLoading = false;
+    this.originalBalanceSign = 1;
   }
 
   onSubmit() {
@@ -239,9 +243,23 @@ export class CustomerFormComponent implements OnInit, OnChanges {
     }
   }
 
+  // 🔥 Get opening balance with sign
+  getOpeningBalanceWithSign(): number {
+    let amount = Number(this.customerData.opening_balance) || 0;
+    
+    // If in edit mode and original was negative, keep it negative
+    if (this.isEditMode && this.originalBalanceSign === -1 && amount > 0) {
+      return -amount;
+    }
+    
+    // For new customer: positive = You Collect, negative = You Pay
+    // User can directly enter negative value in input
+    return amount;
+  }
+
   createCustomer() {
-    // Prepare opening balance with sign (positive = You Collect, negative = You Pay)
-    let openingBalance = Math.abs(Number(this.customerData.opening_balance) || 0);
+    // 🔥 Get opening balance with sign (user can enter negative directly)
+    let openingBalance = Number(this.customerData.opening_balance) || 0;
 
     const payload = {
       user_id: this.userId,
@@ -262,9 +280,11 @@ export class CustomerFormComponent implements OnInit, OnChanges {
       delivery_city: this.sameAsBilling ? this.customerData.city : this.customerData.delivery_city,
       delivery_country: 'India',
       same_as_billing: this.sameAsBilling ? 1 : 0,
-      opening_balance: openingBalance,
+      opening_balance: openingBalance,  // 🔥 Send as is (positive or negative)
       rcm: this.rcmEnabled ? 1 : 0
     };
+
+    console.log('Creating customer with opening_balance:', openingBalance);
 
     fetch('https://billsezy.com/Api/add_customer.php', {
       method: 'POST',
@@ -275,7 +295,7 @@ export class CustomerFormComponent implements OnInit, OnChanges {
       .then(res => {
         this.isLoading = false;
         if (res.status === true) {
-          this.customerSaved.emit(payload);
+          this.customerSaved.emit(res.data || payload);
           this.closeForm();
           alert('Customer Added Successfully ✅');
         } else {
@@ -284,15 +304,18 @@ export class CustomerFormComponent implements OnInit, OnChanges {
       })
       .catch(err => {
         this.isLoading = false;
+        console.error(err);
         alert('Server Error ❌');
       });
   }
 
   updateCustomer() {
-    let openingBalance = Math.abs(Number(this.customerData.opening_balance) || 0);
+    // 🔥 Get opening balance with sign
+    let openingBalance = Number(this.customerData.opening_balance) || 0;
 
     const payload = {
       id: this.editCustomerData.id,
+      user_id: this.userId,
       name: this.customerData.name,
       phone: this.customerData.phone,
       email: this.customerData.email,
@@ -310,9 +333,11 @@ export class CustomerFormComponent implements OnInit, OnChanges {
       delivery_city: this.sameAsBilling ? this.customerData.city : this.customerData.delivery_city,
       delivery_country: 'India',
       same_as_billing: this.sameAsBilling ? 1 : 0,
-      opening_balance: openingBalance,
+      opening_balance: openingBalance,  // 🔥 Send as is (positive or negative)
       rcm: this.rcmEnabled ? 1 : 0
     };
+
+    console.log('Updating customer with opening_balance:', openingBalance);
 
     fetch('https://billsezy.com/Api/update_customer.php', {
       method: 'POST',
@@ -323,7 +348,8 @@ export class CustomerFormComponent implements OnInit, OnChanges {
       .then(res => {
         this.isLoading = false;
         if (res.status === true) {
-          this.customerSaved.emit(payload);
+          // 🔥 Emit the updated data from response
+          this.customerSaved.emit(res.data || payload);
           this.closeForm();
           alert('Customer Updated Successfully ✅');
         } else {
@@ -332,6 +358,7 @@ export class CustomerFormComponent implements OnInit, OnChanges {
       })
       .catch(err => {
         this.isLoading = false;
+        console.error(err);
         alert('Server Error ❌');
       });
   }
