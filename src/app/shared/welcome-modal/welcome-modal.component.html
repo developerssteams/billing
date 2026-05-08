@@ -27,128 +27,101 @@
 
   </div>
 
-  <!-- Loading State -->
   <div class="modal-box" *ngIf="isLoading">
     <div class="success-icon">⟳</div>
     <h2>Loading...</h2>
     <p class="msg">Please wait while we fetch your details</p>
   </div>
 
-  <!-- 🔥 STEP 1: COMPANY DETAILS (UPDATED) -->
+  <!-- STEP 1: COMPANY DETAILS (Single Step) -->
   <div class="modal-box setup-modal" *ngIf="step === 'step1'">
     <div class="setup-header">
       <h2>Complete Your Setup</h2>
-      <p>Step 1 of 2 | Company Details</p>
-      <div class="progress-bar"><div class="progress" style="width: 50%"></div></div>
+      <p>Company Details</p>
+      <div class="progress-bar"><div class="progress" style="width: 100%"></div></div>
     </div>
 
     <div class="setup-form">
-      <!-- Row 1: GSTIN + Company Name -->
-      <div class="form-row">
-        <div class="form-group half">
-          <label>GSTIN Number *</label>
-          <input type="text" [(ngModel)]="companyData.gstin" placeholder="Enter GSTIN Number" maxlength="15" 
-                 (blur)="fetchGstDetails()" [disabled]="isFetchingGst">
-        </div>
-        <div class="form-group half">
-          <label>Company Name *</label>
-          <input type="text" [(ngModel)]="companyData.companyName" placeholder="Enter Company Name">
-        </div>
-      </div>
-
-      <!-- Row 2: Trade Name + Business Type -->
-      <div class="form-row">
-        <div class="form-group half">
-          <label>Trade Name</label>
-          <input type="text" [(ngModel)]="companyData.tradeName" placeholder="Enter Trade Name">
-        </div>
-        <div class="form-group half">
-          <label>Business Type *</label>
-          <select [(ngModel)]="companyData.businessType">
-            <option value="">Select Business Type</option>
-            <option value="Proprietorship">Proprietorship</option>
-            <option value="Partnership">Partnership</option>
-            <option value="Private Limited">Private Limited</option>
-            <option value="Public Limited">Public Limited</option>
-            <option value="LLP">LLP</option>
-            <option value="Trust">Trust</option>
-            <option value="Society">Society</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Row 3: Address (Full Width) -->
+      <!-- GSTIN Number with Fetch Details -->
       <div class="form-group full">
-        <label>Address *</label>
-        <textarea rows="2" [(ngModel)]="companyData.address" placeholder="Enter Company Address"></textarea>
+        <label>ENTER GSTIN NUMBER</label>
+        <div class="gst-input-wrapper">
+          <input type="text" [(ngModel)]="companyData.gstin" placeholder="Enter GSTIN Number" maxlength="15" 
+                 (input)="checkGST($event)" [disabled]="gstLoading">
+          <button type="button" class="fetch-gst-btn" (click)="fetchGstDetailsManually()" [disabled]="!companyData.gstin || companyData.gstin.length !== 15 || gstLoading">
+            <i class="iconify" data-icon="mdi:refresh"></i> Fetch Details
+          </button>
+        </div>
+        <small *ngIf="gstLoading" class="fetching-text">Fetching GST details...</small>
+        <small *ngIf="gstError" class="error-text">{{ gstError }}</small>
       </div>
 
-      <!-- Row 4: City + State + Pincode -->
+      <!-- Company Phone Number with Country Code Dropdown -->
+      <div class="form-group full">
+        <label>Company Phone Number</label>
+        <div class="phone-input-wrapper">
+          <div class="country-dropdown">
+            <select [(ngModel)]="companyData.countryCode">
+              <option value="+91">+91 (India)</option>
+              <option value="+1">+1 (USA)</option>
+              <option value="+44">+44 (UK)</option>
+              <option value="+61">+61 (Australia)</option>
+              <option value="+86">+86 (China)</option>
+              <option value="+81">+81 (Japan)</option>
+              <option value="+49">+49 (Germany)</option>
+              <option value="+33">+33 (France)</option>
+              <option value="+65">+65 (Singapore)</option>
+              <option value="+971">+971 (Dubai)</option>
+            </select>
+          </div>
+          <input type="tel" [(ngModel)]="companyData.phone" placeholder="Company Phone Number" maxlength="15">
+        </div>
+      </div>
+
+      <!-- Company Email Address -->
+      <div class="form-group full">
+        <label>Company Email Address</label>
+        <input type="email" [(ngModel)]="companyData.email" placeholder="company@example.com">
+      </div>
+
+      <!-- Website -->
+      <div class="form-group full">
+        <label>Website</label>
+        <input type="url" [(ngModel)]="companyData.website" placeholder="https://www.example.com">
+      </div>
+
+      <!-- PAN Number -->
+      <div class="form-group full">
+        <label>PAN Number</label>
+        <input type="text" [(ngModel)]="companyData.pan" placeholder="ABCDE1234F" maxlength="10" (input)="panToUpperCase($event)">
+      </div>
+
+      <!-- Company Address (Line1, Line2) -->
+      <div class="form-group full">
+        <label>Company Address</label>
+        <input type="text" [(ngModel)]="companyData.addressLine1" placeholder="Address Line 1">
+        <input type="text" [(ngModel)]="companyData.addressLine2" placeholder="Address Line 2" class="mt-2">
+      </div>
+
+      <!-- City + State + Pincode Row -->
       <div class="form-row">
-        <div class="form-group half">
-          <label>City *</label>
-          <input type="text" [(ngModel)]="companyData.city" placeholder="Enter City">
+        <div class="form-group third">
+          <label>City</label>
+          <input type="text" [(ngModel)]="companyData.city" placeholder="City">
         </div>
-        <div class="form-group half">
-          <label>State *</label>
-          <input type="text" [(ngModel)]="companyData.state" placeholder="Enter State">
+        <div class="form-group third">
+          <label>State</label>
+          <input type="text" [(ngModel)]="companyData.state" placeholder="State">
         </div>
-        <div class="form-group half">
-          <label>Pincode *</label>
-          <input type="text" [(ngModel)]="companyData.pincode" placeholder="Enter Pincode" maxlength="6">
+        <div class="form-group third">
+          <label>Pincode</label>
+          <input type="text" [(ngModel)]="companyData.pincode" placeholder="Pincode" maxlength="6">
         </div>
       </div>
     </div>
 
     <div class="setup-actions">
       <button class="skip-btn" (click)="skipSetup()">Skip Setup →</button>
-      <button class="next-btn" (click)="nextStep()">Next →</button>
-    </div>
-  </div>
-
-  <!-- 🔥 STEP 2: OWNER DETAILS (UPDATED) -->
-  <div class="modal-box setup-modal" *ngIf="step === 'step2'">
-    <div class="setup-header">
-      <h2>Complete Your Setup</h2>
-      <p>Step 2 of 2 | Owner Details</p>
-      <div class="progress-bar"><div class="progress" style="width: 100%"></div></div>
-    </div>
-
-    <div class="setup-form">
-      <!-- Row 1: User Name (Full Width) -->
-      <div class="form-group full">
-        <label>User Name *</label>
-        <input type="text" [(ngModel)]="ownerData.userName" placeholder="Enter Full Name">
-      </div>
-
-      <!-- Row 2: Mobile Number (Full Width) -->
-      <div class="form-group full">
-        <label>Mobile Number *</label>
-        <input type="tel" [(ngModel)]="ownerData.mobile" placeholder="Enter Mobile Number" maxlength="10">
-      </div>
-
-      <!-- Row 3: Email (Full Width) -->
-      <div class="form-group full">
-        <label>Email *</label>
-        <input type="email" [(ngModel)]="ownerData.email" placeholder="Enter Email Address">
-      </div>
-
-      <!-- Row 4: PAN Card (Full Width) -->
-      <div class="form-group full">
-        <label>PAN Card</label>
-        <input type="text" [(ngModel)]="ownerData.pan" placeholder="Enter PAN Number" maxlength="10">
-      </div>
-
-      <!-- Row 5: Website (Full Width) -->
-      <div class="form-group full">
-        <label>Website</label>
-        <input type="text" [(ngModel)]="ownerData.website" placeholder="Enter Website URL (optional)">
-      </div>
-    </div>
-
-    <div class="setup-actions">
-      <button class="skip-btn" (click)="skipSetup()">Skip →</button>
       <button class="complete-btn" (click)="completeSetup()">Complete Setup →</button>
     </div>
   </div>

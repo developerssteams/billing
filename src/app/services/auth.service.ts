@@ -26,11 +26,7 @@ export class AuthService {
     };
     return this.http.post(this.apiUrl, payload);
   }
-  // Add this method to your AuthService
 
-  saveCompanyDetails(data: any): Observable<any> {
-    return this.http.post('https://billsezy.com/Api/save_setup.php', data);
-  }
   // Send OTP
   sendOTP(data: any): Observable<any> {
     const payload = {
