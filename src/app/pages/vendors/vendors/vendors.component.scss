@@ -110,6 +110,8 @@
 
 .table {
   width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .row {
@@ -118,6 +120,7 @@
   padding: 15px;
   border-bottom: 1px solid #eee;
   align-items: center;
+  min-width: 650px; /* YEH ADD KARO - table scroll ke liye */
 }
 
 .header-row {
@@ -644,4 +647,96 @@
   color: #ef4444;
   font-size: 12px;
   margin-top: 6px;
+}
+@media (max-width: 768px) {
+  .container {
+    padding: 12px;
+  }
+  
+  .row {
+    padding: 10px;
+    min-width: 600px; /* Mobile me thoda kam width */
+  }
+  
+  .search {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  .actions {
+    flex-direction: column;
+  }
+  
+  .action-buttons {
+    width: 100%;
+  }
+  
+  .bottom {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .summary {
+    justify-content: center;
+  }
+  
+  .pagination {
+    justify-content: center;
+  }
+}
+
+/* 4. Extra small devices (480px se chhota) */
+@media (max-width: 480px) {
+  .row {
+    min-width: 550px;
+    font-size: 13px;
+  }
+  
+  .avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+  
+  .note-btn {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+  
+  .badge {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}
+
+/* 5. Form ko bhi mobile friendly bana do (optional but helpful) */
+@media (max-width: 768px) {
+  .vendor-form {
+    right: -100%;
+    width: 100%;
+  }
+  
+  .vendor-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .vendor-footer {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .vendor-save-btn, .vendor-cancel-btn {
+    width: 100%;
+  }
+  
+  .vendor-header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+  
+  .header-save-btn {
+    width: 100%;
+  }
 }
