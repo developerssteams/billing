@@ -12,32 +12,25 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 })
 export class VendorsComponent {
   constructor(private http: HttpClient) { }
+  
   searchText = '';
   gstLoading: boolean = false;
   gstError: string = '';
-  // 🔹 TDS / TCS
-  tdsEnabled = false;
-  tcsEnabled = false;
 
-  tdsError: string = '';
-  tcsError: string = '';
-
-  // 🔹 Pagination
+  // Pagination
   currentPage = 1;
   itemsPerPage = 10;
 
-  // 🔹 Vendor List
+  // Vendor List
   vendorData: any[] = [];
   filteredData: any[] = [];
   paginatedData: any[] = [];
-  selectedVendorId: any;
-  vendorDetails: any = {};
 
-  // 🔹 Edit Mode
+  // Edit Mode
   isEditMode: boolean = false;
   editVendorId: number | null = null;
 
-  // 🔹 Form Data
+  // Form Data (balance_type removed)
   newVendor: any = {
     name: '',
     phone: '',
@@ -49,61 +42,24 @@ export class VendorsComponent {
     pincode: '',
     state: '',
     city: '',
-    balance_type: '',
-    opening_balance: 0,
-    tds: '',
-    tcs: ''
+    opening_balance: 0
   };
 
-  // 🔹 INIT (same as customer)
+  // User ID (get from localStorage or auth service)
+  userId: number = 1; // Change this to actual logged-in user ID
+
   ngOnInit() {
     this.filteredData = this.vendorData;
     this.updatePaginatedData();
     this.getVendors();
   }
 
-  // 🔹 TOGGLES
-  toggleTDS() {
-    this.tdsError = '';
-    this.tcsError = '';
-
-    if (!this.tdsEnabled && this.tcsEnabled) {
-      this.tdsError = 'TCS and TDS cannot be applied together';
-      return;
-    }
-
-    this.tdsEnabled = !this.tdsEnabled;
-
-    // If disabling TDS, clear the TDS value
-    if (!this.tdsEnabled) {
-      this.newVendor.tds = '';
-    }
-  }
-
-  toggleTCS() {
-    this.tdsError = '';
-    this.tcsError = '';
-
-    if (!this.tcsEnabled && this.tdsEnabled) {
-      this.tcsError = 'TDS and TCS cannot be applied together';
-      return;
-    }
-
-    this.tcsEnabled = !this.tcsEnabled;
-
-    // If disabling TCS, clear the TCS value
-    if (!this.tcsEnabled) {
-      this.newVendor.tcs = '';
-    }
-  }
-
+  // 🔹 GST Check
   checkGST(event: any) {
     let gstNumber = event.target.value.toUpperCase().trim();
-
     this.newVendor.gstin = gstNumber;
     this.gstError = '';
 
-    // sirf exact 15 chars par API hit
     if (gstNumber.length === 15) {
       this.fetchGSTDetails(gstNumber);
     }
@@ -117,31 +73,16 @@ export class VendorsComponent {
       .subscribe(
         (res: any) => {
           console.log("GST API Response:", res);
-
           this.gstLoading = false;
 
           if (res?.status && res?.data) {
-
             const data = res.data;
-
-            this.newVendor.company_name =
-              data.tradeNam || data.lgnm || '';
-
-            this.newVendor.address_line1 =
-              data.pradr?.addr?.bno || '';   // 🔥 better than bnm
-
-            this.newVendor.address_line2 =
-              data.pradr?.addr?.st || '';
-
-            this.newVendor.city =
-              data.pradr?.addr?.loc || '';
-
-            this.newVendor.pincode =
-              data.pradr?.addr?.pncd || '';
-
-            this.newVendor.state =
-              data.pradr?.addr?.stcd || '';
-
+            this.newVendor.company_name = data.tradeNam || data.lgnm || '';
+            this.newVendor.address_line1 = data.pradr?.addr?.bno || '';
+            this.newVendor.address_line2 = data.pradr?.addr?.st || '';
+            this.newVendor.city = data.pradr?.addr?.loc || '';
+            this.newVendor.pincode = data.pradr?.addr?.pncd || '';
+            this.newVendor.state = data.pradr?.addr?.stcd || '';
           } else {
             this.gstError = res?.message || "Invalid GST Number / No Data Found";
           }
@@ -158,14 +99,16 @@ export class VendorsComponent {
   onlyNumber(event: any) {
     const input = event.target;
     input.value = input.value.replace(/[^0-9]/g, '').slice(0, 10);
+    this.newVendor.phone = input.value;
   }
 
   // 🔹 SEARCH
   searchVendor() {
     this.filteredData = this.vendorData.filter((item: any) =>
-      item.name.toLowerCase().includes(this.searchText.toLowerCase())
+      item.name?.toLowerCase().includes(this.searchText.toLowerCase()) ||
+      item.company_name?.toLowerCase().includes(this.searchText.toLowerCase()) ||
+      item.phone?.includes(this.searchText)
     );
-
     this.currentPage = 1;
     this.updatePaginatedData();
   }
@@ -174,7 +117,6 @@ export class VendorsComponent {
   updatePaginatedData() {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
-
     this.paginatedData = this.filteredData.slice(startIndex, endIndex);
   }
 
@@ -204,8 +146,6 @@ export class VendorsComponent {
       // Edit Mode
       this.isEditMode = true;
       this.editVendorId = vendor.id;
-
-      // Create a copy of the vendor data
       this.newVendor = {
         name: vendor.name || '',
         phone: vendor.phone || '',
@@ -217,23 +157,14 @@ export class VendorsComponent {
         pincode: vendor.pincode || '',
         state: vendor.state || '',
         city: vendor.city || '',
-        balance_type: vendor.balance_type || 'debit',
-        opening_balance: vendor.opening_balance || 0,
-        tds: vendor.tds || '',
-        tcs: vendor.tcs || ''
+        opening_balance: vendor.opening_balance || 0
       };
-
-      // Set toggle states based on existing TDS/TCS values
-      this.tdsEnabled = !!vendor.tds;
-      this.tcsEnabled = !!vendor.tcs;
-
     } else {
       // Add Mode
       this.isEditMode = false;
       this.editVendorId = null;
       this.resetForm();
     }
-
     this.showForm = true;
   }
 
@@ -256,15 +187,8 @@ export class VendorsComponent {
       pincode: '',
       state: '',
       city: '',
-      balance_type: 'debit',
-      opening_balance: 0,
-      tds: '',
-      tcs: ''
+      opening_balance: 0
     };
-    this.tdsEnabled = false;
-    this.tcsEnabled = false;
-    this.tdsError = '';
-    this.tcsError = '';
     this.gstError = '';
   }
 
@@ -278,26 +202,32 @@ export class VendorsComponent {
     }
 
     if (this.isLoading) return;
-
     this.isLoading = true;
 
     if (this.isEditMode && this.editVendorId) {
-      // Update existing vendor
       this.updateVendor();
     } else {
-      // Add new vendor
       this.createVendor();
     }
   }
 
   createVendor() {
     const payload = {
-      ...this.newVendor,
-      tds_enabled: this.tdsEnabled,
-      tcs_enabled: this.tcsEnabled,
-      tds: this.tdsEnabled ? this.newVendor.tds : null,
-      tcs: this.tcsEnabled ? this.newVendor.tcs : null
+      user_id: this.userId,
+      name: this.newVendor.name,
+      phone: this.newVendor.phone,
+      email: this.newVendor.email,
+      company_name: this.newVendor.company_name,
+      gstin: this.newVendor.gstin,
+      address_line1: this.newVendor.address_line1,
+      address_line2: this.newVendor.address_line2,
+      pincode: this.newVendor.pincode,
+      state: this.newVendor.state,
+      city: this.newVendor.city,
+      opening_balance: this.newVendor.opening_balance || 0
     };
+
+    console.log('Creating vendor:', payload);
 
     fetch('https://billsezy.com/Api/add_vendor.php', {
       method: 'POST',
@@ -307,12 +237,8 @@ export class VendorsComponent {
       .then(res => res.json())
       .then(res => {
         this.isLoading = false;
-
         if (res.status === true) {
           this.getVendors();
-          this.filteredData = [...this.vendorData];
-          this.currentPage = 1;
-          this.updatePaginatedData();
           this.closeForm();
           alert('Vendor Added Successfully ✅');
         } else {
@@ -339,52 +265,37 @@ export class VendorsComponent {
       pincode: this.newVendor.pincode,
       state: this.newVendor.state,
       city: this.newVendor.city,
-      balance_type: this.newVendor.balance_type,
-      opening_balance: this.newVendor.opening_balance
+      opening_balance: this.newVendor.opening_balance || 0
     };
 
-    console.log('Sending payload:', payload);
+    console.log('Updating vendor:', payload);
 
     fetch('https://billsezy.com/Api/update-vendor.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     })
+      .then(res => res.json())
       .then(res => {
-        console.log('Response status:', res.status);
-        return res.text(); // Get as text first to debug
-      })
-      .then(text => {
-        console.log('Raw response:', text);
-        try {
-          const json = JSON.parse(text);
-          this.isLoading = false;
-
-          if (json.status === true) {
-            this.getVendors();
-            this.filteredData = [...this.vendorData];
-            this.currentPage = 1;
-            this.updatePaginatedData();
-            this.closeForm();
-            alert('Vendor Updated Successfully ✅');
-          } else {
-            alert(json.message || 'Something went wrong');
-          }
-        } catch (e) {
-          console.error('JSON parse error:', e);
-          alert('Server returned invalid response. Check console for details.');
+        this.isLoading = false;
+        if (res.status === true) {
+          this.getVendors();
+          this.closeForm();
+          alert('Vendor Updated Successfully ✅');
+        } else {
+          alert(res.message || 'Something went wrong');
         }
       })
       .catch(err => {
         this.isLoading = false;
-        console.error('Fetch error:', err);
-        alert('Server Error ❌: ' + err.message);
+        console.error(err);
+        alert('Server Error ❌');
       });
   }
+
   // 🔥 DELETE VENDOR
   deleteVendor(id: number, name: string) {
     if (confirm(`Are you sure you want to delete "${name}"?`)) {
-
       fetch('https://billsezy.com/Api/delete_vendor.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -393,7 +304,6 @@ export class VendorsComponent {
         .then(res => res.json())
         .then(res => {
           if (res.status === true) {
-            // Refresh the vendor list
             this.getVendors();
             alert('Vendor deleted successfully ✅');
           } else {
@@ -406,9 +316,10 @@ export class VendorsComponent {
         });
     }
   }
-  // 🔥 GET VENDORS (same as customer)
+
+  // 🔥 GET VENDORS
   getVendors() {
-    fetch('https://billsezy.com/Api/get_vendor.php')
+    fetch(`https://billsezy.com/Api/get_vendor.php?user_id=${this.userId}`)
       .then(res => res.json())
       .then(res => {
         if (res.status === true) {
@@ -421,16 +332,14 @@ export class VendorsComponent {
       .catch(err => console.error(err));
   }
 
-  // 🔥 SUMMARY
+  // 🔥 SUMMARY (balance_type removed - all are just opening balance now)
   getTotalPay(): number {
-    return this.vendorData
-      .filter(v => v.balance_type === 'credit')
-      .reduce((sum, v) => sum + Number(v.opening_balance || 0), 0);
+    // Now this is total of all opening balances (you can modify logic as needed)
+    return this.vendorData.reduce((sum, v) => sum + Number(v.opening_balance || 0), 0);
   }
 
   getTotalCollect(): number {
-    return this.vendorData
-      .filter(v => v.balance_type === 'debit')
-      .reduce((sum, v) => sum + Number(v.opening_balance || 0), 0);
+    // If you want separate, you can use some other field
+    return 0;
   }
 }

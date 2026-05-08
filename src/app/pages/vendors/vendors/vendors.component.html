@@ -47,10 +47,12 @@
 
         <!-- Balance -->
         <div class="balance-section">
-          <div class="balance-amount" [class.pay]="vendor.balance_type === 'credit'" [class.collect]="vendor.balance_type === 'debit'">
+          <div class="balance-amount" [class.pay]="vendor.balance_type === 'credit'"
+            [class.collect]="vendor.balance_type === 'debit'">
             ₹ {{ vendor.opening_balance || 0 }}
           </div>
-          <div class="balance-type" [class.pay]="vendor.balance_type === 'credit'" [class.collect]="vendor.balance_type === 'debit'">
+          <div class="balance-type" [class.pay]="vendor.balance_type === 'credit'"
+            [class.collect]="vendor.balance_type === 'debit'">
             {{ vendor.balance_type === 'credit' ? 'You Pay ↑' : 'You Collect ↓' }}
           </div>
         </div>
@@ -116,7 +118,8 @@
             <label>Phone</label>
             <div class="vendor-phone-wrapper">
               <div class="vendor-prefix">+91</div>
-              <input type="tel" maxlength="10" [(ngModel)]="newVendor.phone" name="phone" required (input)="onlyNumber($event)">
+              <input type="tel" maxlength="10" [(ngModel)]="newVendor.phone" name="phone" required
+                (input)="onlyNumber($event)">
             </div>
           </div>
 
@@ -139,7 +142,8 @@
           <div class="vendor-col">
             <label>GSTIN</label>
             <div class="vendor-gstin-wrapper">
-              <input type="text" placeholder="29AABCT1332L000" [(ngModel)]="newVendor.gstin" name="gstin" maxlength="15" (input)="checkGST($event)">
+              <input type="text" placeholder="29AABCT1332L000" [(ngModel)]="newVendor.gstin" name="gstin" maxlength="15"
+                (input)="checkGST($event)">
             </div>
             <small *ngIf="gstLoading" style="color: blue;">Fetching GST details...</small>
             <small *ngIf="gstError" style="color: red;">{{ gstError }}</small>
@@ -175,9 +179,6 @@
           </div>
         </div>
       </div>
-
-  
-
     </div>
 
     <div class="vendor-footer">
