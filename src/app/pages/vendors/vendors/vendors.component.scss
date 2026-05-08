@@ -9,17 +9,13 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
-.vendor-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 16px;
-}
-
 .container {
   background: white;
   border-radius: 16px;
   padding: 24px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .header {
@@ -77,7 +73,7 @@ body {
   background: #2563eb;
 }
 
-/* 🔥 TABLE WRAPPER - SCROLL KE LIYE */
+/* Table Wrapper - SCROLL */
 .table-wrapper {
   width: 100%;
   overflow-x: auto;
@@ -86,12 +82,11 @@ body {
   border-radius: 12px;
 }
 
-/* 🔥 TABLE - FIXED MIN WIDTH FOR SCROLL */
 .table {
   min-width: 900px;
 }
 
-/* 🔥 ROW GRID - FIXED WIDTHS */
+/* Row Grid */
 .row {
   display: grid;
   grid-template-columns: 300px 280px 180px 160px;
@@ -114,7 +109,7 @@ body {
   padding: 14px 20px;
 }
 
-/* USER SECTION */
+/* User Section */
 .user {
   display: flex;
   gap: 14px;
@@ -136,26 +131,19 @@ body {
   text-transform: uppercase;
 }
 
-.user-info {
-  flex: 1;
-  min-width: 0;
-}
-
 .user-name {
   font-weight: 600;
   font-size: 15px;
   color: #1f2937;
   margin-bottom: 4px;
-  word-break: break-word;
 }
 
 .user-company {
   font-size: 12px;
   color: #6b7280;
-  word-break: break-word;
 }
 
-/* CONTACT SECTION */
+/* Contact Section */
 .contact {
   display: flex;
   flex-direction: column;
@@ -174,7 +162,7 @@ body {
   word-break: break-all;
 }
 
-/* BALANCE SECTION */
+/* Balance Section */
 .balance-section {
   display: flex;
   flex-direction: column;
@@ -197,9 +185,6 @@ body {
 
 .balance-type {
   font-size: 11px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
   white-space: nowrap;
 }
 
@@ -211,7 +196,7 @@ body {
   color: #10b981;
 }
 
-/* ACTION BUTTONS */
+/* Action Buttons */
 .action-buttons-cell {
   display: flex;
   gap: 12px;
@@ -247,7 +232,7 @@ body {
   background: #fecaca;
 }
 
-/* BOTTOM SECTION */
+/* Bottom Section */
 .bottom {
   display: flex;
   justify-content: space-between;
@@ -428,8 +413,7 @@ body {
   color: #ef4444;
 }
 
-.vendor-form input,
-.vendor-form select {
+.vendor-form input {
   width: 100%;
   height: 42px;
   border: 1px solid #cbd5e1;
@@ -439,8 +423,7 @@ body {
   background: white;
 }
 
-.vendor-form input:focus,
-.vendor-form select:focus {
+.vendor-form input:focus {
   outline: none;
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
@@ -496,14 +479,6 @@ body {
   color: #475569;
 }
 
-.label-title {
-  font-size: 14px;
-  font-weight: 500;
-  display: block;
-  margin-bottom: 10px;
-  color: #334155;
-}
-
 .radio-group {
   display: flex;
   gap: 24px;
@@ -544,11 +519,11 @@ body {
   transition: 0.1s ease;
 }
 
-.custom-radio input:checked+.radio-circle {
+.custom-radio input:checked + .radio-circle {
   border-color: #3b82f6;
 }
 
-.custom-radio input:checked+.radio-circle::after {
+.custom-radio input:checked + .radio-circle::after {
   transform: translate(-50%, -50%) scale(1);
 }
 
@@ -558,7 +533,7 @@ body {
 }
 
 .input-box input {
-  padding-right: 160px;
+  padding-right: 140px;
 }
 
 .balance-text {
@@ -577,67 +552,6 @@ body {
 
 .green {
   color: #10b981;
-}
-
-.section {
-  margin-top: 20px;
-}
-
-.toggle {
-  width: 72px;
-  height: 32px;
-  background: #cbd5e1;
-  border-radius: 40px;
-  display: flex;
-  align-items: center;
-  padding: 0 6px;
-  cursor: pointer;
-  position: relative;
-  transition: all 0.2s;
-}
-
-.toggle span {
-  flex: 1;
-  text-align: right;
-  padding-right: 6px;
-  font-size: 11px;
-  font-weight: 600;
-  color: #475569;
-}
-
-.toggle.active {
-  background: #3b82f6;
-}
-
-.toggle.active span {
-  text-align: left;
-  padding-left: 6px;
-  color: white;
-}
-
-.circle {
-  width: 24px;
-  height: 24px;
-  background: white;
-  border-radius: 50%;
-  position: absolute;
-  left: 4px;
-  transition: 0.2s;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-}
-
-.toggle.active .circle {
-  left: calc(100% - 28px);
-}
-
-.dropdown select {
-  margin-top: 12px;
-}
-
-.error-text {
-  color: #ef4444;
-  font-size: 12px;
-  margin-top: 6px;
 }
 
 .vendor-footer {
@@ -674,10 +588,6 @@ body {
 /* MOBILE RESPONSIVE */
 /* ==================== */
 @media (max-width: 768px) {
-  .vendor-container {
-    padding: 8px;
-  }
-
   .container {
     padding: 16px;
   }
@@ -716,7 +626,6 @@ body {
     justify-content: center;
   }
 
-  /* 🔥 MOBILE MEIN SCROLL */
   .table {
     min-width: 850px;
   }
@@ -754,7 +663,7 @@ body {
   .table {
     min-width: 800px;
   }
-  
+
   .avatar {
     width: 36px;
     height: 36px;
