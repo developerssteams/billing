@@ -438,7 +438,7 @@ export class SettingsComponent {
     // ======================================================
 
     this.http.post(
-      'https://billsezy.com/Api/get_company_details.php',
+      'https://billsezy.com/Api/save_company_details.php',
       formData
     ).subscribe({
 
