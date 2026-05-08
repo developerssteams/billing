@@ -13,12 +13,15 @@ import { HttpClient } from '@angular/common/http';
 export class SettingsComponent {
 
   @ViewChild('fileInput') fileInput!: ElementRef;
+  @ViewChild('signatureInput') signatureInput!: ElementRef;  // 🔥 ADDED - Signature input reference
 
   constructor(private http: HttpClient) { }
 
   logoPreview: string | ArrayBuffer | null = null;
+  signaturePreview: string | ArrayBuffer | null = null;  // 🔥 ADDED - Signature preview variable
 
   selectedFile: any;
+  selectedSignature: any;  // 🔥 ADDED - Selected signature file
   isLoading: boolean = false;
   gstLoading: boolean = false;
   gstError: string = '';
@@ -92,7 +95,7 @@ export class SettingsComponent {
               this.logoPreview = this.company.logo;
             }
 
-            // 🔥 ADD THIS - Set signature preview
+            // 🔥 Set signature preview
             if (this.company.signature && this.company.signature !== 'null') {
               this.signaturePreview = this.company.signature;
             }
@@ -105,15 +108,9 @@ export class SettingsComponent {
         }
       });
   }
-  /* ================= SIGNATURE ================= */
-
-  signaturePreview: string | ArrayBuffer | null = null;
-
-  selectedSignature: any;
-  /* ================= SIGNATURE UPLOAD ================= */
 
   /* ================= SIGNATURE UPLOAD ================= */
-onSignatureChange(event: any) {
+  onSignatureChange(event: any) {
     const file = event.target.files[0];
     if (!file) return;
     
@@ -129,7 +126,8 @@ onSignatureChange(event: any) {
         this.signaturePreview = reader.result;
     };
     reader.readAsDataURL(file);
-}
+  }
+
   /* ================= SYNC TRADE NAME TO COMPANY NAME ================= */
   syncCompanyName() {
     if (!this.company.company_name) {
@@ -225,8 +223,6 @@ onSignatureChange(event: any) {
   }
 
   /* ================= SAVE COMPANY ================= */
-  /* ================= SAVE COMPANY ================= */
-
   saveCompany() {
 
     const userId = this.user?.id;
@@ -414,21 +410,9 @@ onSignatureChange(event: any) {
     // ======================================================
 
     if (this.selectedSignature) {
-
-      const signExt =
-        this.selectedSignature.name
-          .split('.')
-          .pop();
-
-      const signFileName =
-        `${cleanName}_sign.${signExt}`;
-
-      formData.append(
-        'signature',
-        this.selectedSignature,
-        signFileName
-      );
-
+        const signExt = this.selectedSignature.name.split('.').pop();
+        const signFileName = `${cleanName}_sign.${signExt}`;
+        formData.append('signature', this.selectedSignature, signFileName);
     }
 
     // ======================================================
