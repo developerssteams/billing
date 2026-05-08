@@ -91,13 +91,21 @@ export class SettingsComponent {
             if (this.company.logo) {
               this.logoPreview = this.company.logo;
             }
+            // SIGNATURE PREVIEW
+
+            if (this.company.signature) {
+
+              this.signaturePreview =
+                this.company.signature;
+
+
+            }
+          },
+          error: (err) => {
+            this.isLoading = false;
+            console.error('Error fetching company:', err);
           }
-        },
-        error: (err) => {
-          this.isLoading = false;
-          console.error('Error fetching company:', err);
-        }
-      });
+        });
   }
   /* ================= SIGNATURE ================= */
 
