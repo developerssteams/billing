@@ -252,10 +252,7 @@ export class SettingsComponent {
 
           if (data.pradr?.addr) {
 
-            const addr =
-              data.pradr.addr;
-
-            // ADDRESS PARTS
+            const addr = data.pradr.addr;
 
             const bno =
               addr.bno || '';
@@ -265,6 +262,9 @@ export class SettingsComponent {
 
             const st =
               addr.st || '';
+
+            const bn =
+              addr.bn || '';
 
             const loc =
               addr.loc || '';
@@ -282,43 +282,48 @@ export class SettingsComponent {
             // FULL ADDRESS
             // ==================================================
 
-            let addressLine1 = '';
+            let fullAddress = '';
 
             if (bno) {
-              addressLine1 += bno + ', ';
+              fullAddress += bno + ', ';
             }
 
             if (flno) {
-              addressLine1 += flno + ', ';
+              fullAddress += flno + ', ';
+            }
+
+            if (bn) {
+              fullAddress += bn + ', ';
             }
 
             if (st) {
-              addressLine1 += st;
+              fullAddress += st + ', ';
             }
-
-            let addressLine2 = '';
 
             if (loc) {
-              addressLine2 += loc;
+              fullAddress += loc + ', ';
             }
+
+            if (dst) {
+              fullAddress += dst;
+            }
+
+            // REMOVE LAST COMMA
+
+            fullAddress = fullAddress
+              .replace(/,\s*$/, '')
+              .trim();
 
             // ==================================================
             // SAVE ADDRESS
             // ==================================================
 
+            this.company.address = fullAddress;
+
             this.company.address_line1 =
-              addressLine1;
+              fullAddress;
 
-            this.company.address_line2 =
-              addressLine2;
-
-            // COMBINED ADDRESS
-
-            this.company.address =
-              this.combineAddress(
-                addressLine1,
-                addressLine2
-              );
+            this.company.address_line2 = '';
 
             // ==================================================
             // CITY
