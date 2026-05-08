@@ -9,12 +9,14 @@
   font-weight: 600;
   margin-bottom: 40px;
 }
-.preview-image{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-  border-radius:10px;
+
+.preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 10px;
 }
+
 /* ROW */
 .form-row {
   display: flex;
@@ -135,21 +137,27 @@
     max-width: 100%;
   }
 
-  .phone-group{
+  .phone-group {
     flex-direction: row;
   }
+
   .gst-group {
     flex-direction: column;
   }
 
   .country-code {
-    width: 100%;
+    width: 30%;
+  }
+
+  .contact {
+    width: 70%;
   }
 
   .fetch-btn {
     width: 100%;
   }
 }
+
 /* Action Row (Right Align) */
 .action-row {
   margin-top: 30px;
@@ -159,14 +167,16 @@
 .save-btn {
   height: 44px;
   padding: 0 25px;
-  background: #165a50;   /* Blue */
+  background: #165a50;
+  /* Blue */
   color: #fff;
   border: none;
   border-radius: 6px;
   font-size: 15px;
   font-weight: 500;
   cursor: pointer;
-  float: right; /* right align */
+  float: right;
+  /* right align */
 }
 
 /* Hover */
