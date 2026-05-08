@@ -13,15 +13,15 @@ import { HttpClient } from '@angular/common/http';
 export class SettingsComponent {
 
   @ViewChild('fileInput') fileInput!: ElementRef;
-  @ViewChild('signatureInput') signatureInput!: ElementRef;
+  @ViewChild('signatureInput') signatureInput!: ElementRef;  // 🔥 ADDED - Signature input reference
 
   constructor(private http: HttpClient) { }
 
   logoPreview: string | ArrayBuffer | null = null;
-  signaturePreview: string | ArrayBuffer | null = null;
+  signaturePreview: string | ArrayBuffer | null = null;  // 🔥 ADDED - Signature preview variable
 
   selectedFile: any;
-  selectedSignature: any;
+  selectedSignature: any;  // 🔥 ADDED - Selected signature file
   isLoading: boolean = false;
   gstLoading: boolean = false;
   gstError: string = '';
@@ -29,6 +29,7 @@ export class SettingsComponent {
   user: any = JSON.parse(localStorage.getItem('user') || '{}');
   companyId: number | null = null;
 
+  // 🔥 COMPANY DATA - MATCHING YOUR DATABASE COLUMNS
   company: any = {
     id: null,
     user_id: null,
@@ -57,6 +58,7 @@ export class SettingsComponent {
     }
   }
 
+  /* ================= GET COMPANY DETAILS ================= */
   getCompanyDetails() {
     this.isLoading = true;
     const userId = this.user.id;
@@ -88,18 +90,16 @@ export class SettingsComponent {
               logo: data.logo || '',
               signature: data.signature || ''
             };
-            
             // Set logo preview
-            if (this.company.logo && this.company.logo !== 'null' && this.company.logo !== '') {
+            if (this.company.logo && this.company.logo !== 'null') {
               this.logoPreview = this.company.logo;
-              console.log('Logo loaded:', this.logoPreview);
             }
 
-            // Set signature preview
-            if (this.company.signature && this.company.signature !== 'null' && this.company.signature !== '') {
+            // 🔥 Set signature preview
+            if (this.company.signature && this.company.signature !== 'null') {
               this.signaturePreview = this.company.signature;
-              console.log('Signature loaded:', this.signaturePreview);
             }
+
           }
         },
         error: (err) => {
@@ -109,6 +109,7 @@ export class SettingsComponent {
       });
   }
 
+  /* ================= SIGNATURE UPLOAD ================= */
   onSignatureChange(event: any) {
     const file = event.target.files[0];
     if (!file) return;
@@ -123,23 +124,18 @@ export class SettingsComponent {
     const reader = new FileReader();
     reader.onload = () => {
         this.signaturePreview = reader.result;
-        console.log('Signature preview set from file');
     };
     reader.readAsDataURL(file);
   }
 
-  onSignatureImageError() {
-    console.log('Signature image failed to load, resetting preview');
-    this.signaturePreview = null;
-    this.company.signature = '';
-  }
-
+  /* ================= SYNC TRADE NAME TO COMPANY NAME ================= */
   syncCompanyName() {
     if (!this.company.company_name) {
       this.company.company_name = this.company.trade_name;
     }
   }
 
+  /* ================= LOGO UPLOAD ================= */
   onFileChange(event: any) {
     const file = event.target.files[0];
 
@@ -159,6 +155,7 @@ export class SettingsComponent {
     reader.readAsDataURL(file);
   }
 
+  /* ================= FETCH GST DETAILS ================= */
   fetchGSTDetails(gstin: string) {
     if (!gstin || gstin.length !== 15) {
       this.gstError = "Enter valid 15 digit GSTIN";
@@ -176,6 +173,7 @@ export class SettingsComponent {
         if (res?.status && res?.data) {
           const data = res.data;
 
+          // Trade/Company Name
           if (data.tradeNam) {
             this.company.trade_name = data.tradeNam;
             this.company.company_name = data.tradeNam;
@@ -184,6 +182,7 @@ export class SettingsComponent {
             this.company.company_name = data.lgnm;
           }
 
+          // Address
           if (data.pradr?.addr) {
             const addr = data.pradr.addr;
 
@@ -202,6 +201,7 @@ export class SettingsComponent {
             this.company.pincode = addr.pncd || '';
           }
 
+          // Business Type
           if (data.ctb) {
             this.company.business_type = data.ctb;
           } else if (data.nba && data.nba.length > 0) {
@@ -222,103 +222,248 @@ export class SettingsComponent {
     );
   }
 
+  /* ================= SAVE COMPANY ================= */
   saveCompany() {
+
     const userId = this.user?.id;
 
     if (!userId) {
+
       alert("User not logged in");
+
       return;
+
     }
 
+    // ======================================================
+    // VALIDATION
+    // ======================================================
+
     if (!this.company.trade_name) {
+
       alert('Trade/Brand Name is required');
+
       return;
+
     }
 
     if (!this.company.company_name) {
+
       alert('Company Name is required');
+
       return;
+
     }
 
     if (!this.company.phone) {
+
       alert('Company Phone is required');
+
       return;
+
     }
 
     if (!this.company.email) {
+
       alert('Company Email is required');
+
       return;
+
     }
 
     if (!this.company.gstin) {
+
       alert('GSTIN is required');
+
       return;
+
     }
 
     if (!this.company.pan) {
+
       alert('PAN Number is required');
+
       return;
+
     }
 
     this.isLoading = true;
 
+    // ======================================================
+    // FORM DATA
+    // ======================================================
+
     const formData = new FormData();
 
-    formData.append('user_id', userId.toString());
+    formData.append(
+      'user_id',
+      userId.toString()
+    );
 
     if (this.company.id) {
-      formData.append('id', this.company.id.toString());
+
+      formData.append(
+        'id',
+        this.company.id.toString()
+      );
+
     }
 
-    formData.append('trade_name', this.company.trade_name);
-    formData.append('company_name', this.company.company_name);
-    formData.append('business_type', this.company.business_type);
-    formData.append('address', this.company.address);
-    formData.append('city', this.company.city);
-    formData.append('state', this.company.state);
-    formData.append('pincode', this.company.pincode);
-    formData.append('gstin', this.company.gstin);
-    formData.append('phone', this.company.phone);
-    formData.append('email', this.company.email);
-    formData.append('pan', this.company.pan);
-    formData.append('website', this.company.website);
-    formData.append('country_code', this.company.country_code);
+    formData.append(
+      'trade_name',
+      this.company.trade_name
+    );
 
-    const cleanName = this.company.company_name
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, '_');
+    formData.append(
+      'company_name',
+      this.company.company_name
+    );
+
+    formData.append(
+      'business_type',
+      this.company.business_type
+    );
+
+    formData.append(
+      'address',
+      this.company.address
+    );
+
+    formData.append(
+      'city',
+      this.company.city
+    );
+
+    formData.append(
+      'state',
+      this.company.state
+    );
+
+    formData.append(
+      'pincode',
+      this.company.pincode
+    );
+
+    formData.append(
+      'gstin',
+      this.company.gstin
+    );
+
+    formData.append(
+      'phone',
+      this.company.phone
+    );
+
+    formData.append(
+      'email',
+      this.company.email
+    );
+
+    formData.append(
+      'pan',
+      this.company.pan
+    );
+
+    formData.append(
+      'website',
+      this.company.website
+    );
+
+    formData.append(
+      'country_code',
+      this.company.country_code
+    );
+
+    // ======================================================
+    // CLEAN COMPANY NAME
+    // ======================================================
+
+    const cleanName =
+      this.company.company_name
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '_');
+
+    // ======================================================
+    // LOGO
+    // ======================================================
 
     if (this.selectedFile) {
-      const logoExt = this.selectedFile.name.split('.').pop();
-      const logoFileName = `${cleanName}_logo.${logoExt}`;
-      formData.append('logo', this.selectedFile, logoFileName);
+
+      const logoExt =
+        this.selectedFile.name
+          .split('.')
+          .pop();
+
+      const logoFileName =
+        `${cleanName}_logo.${logoExt}`;
+
+      formData.append(
+        'logo',
+        this.selectedFile,
+        logoFileName
+      );
+
     }
+
+    // ======================================================
+    // SIGNATURE
+    // ======================================================
 
     if (this.selectedSignature) {
-      const signExt = this.selectedSignature.name.split('.').pop();
-      const signFileName = `${cleanName}_sign.${signExt}`;
-      formData.append('signature', this.selectedSignature, signFileName);
+        const signExt = this.selectedSignature.name.split('.').pop();
+        const signFileName = `${cleanName}_sign.${signExt}`;
+        formData.append('signature', this.selectedSignature, signFileName);
     }
 
-    this.http.post('https://billsezy.com/Api/save_company_details.php', formData).subscribe({
+    // ======================================================
+    // API
+    // ======================================================
+
+    this.http.post(
+      'https://billsezy.com/Api/save_company_details.php',
+      formData
+    ).subscribe({
+
       next: (res: any) => {
+
         this.isLoading = false;
+
         console.log(res);
 
         if (res.status) {
+
           alert(res.message);
-          this.selectedFile = null;
-          this.selectedSignature = null;
+
           this.getCompanyDetails();
+
         } else {
-          alert(res.message || 'Save failed');
+
+          alert(
+            res.message || 'Save failed'
+          );
+
         }
+
       },
+
       error: (error) => {
+
         this.isLoading = false;
+
         console.log(error);
-        alert(error?.error?.message || "Server Error ❌");
+
+        console.log("FULL ERROR:", error);
+
+        console.log("ERROR BODY:", error.error);
+
+        alert(
+          error?.error?.message ||
+          "Server Error ❌"
+        );
+
       }
+
     });
+
   }
 }

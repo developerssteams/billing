@@ -179,21 +179,32 @@
         </div>
     </div>
     <!-- Signature -->
-       <div class="form-row logo-row">
+    <div class="form-row logo-row">
+
         <div class="label-col">
             <label>Company Signature :</label>
         </div>
+
         <div class="input-col logo-box">
+
             <div class="upload-box" (click)="signatureInput.click()">
+
                 <ng-container *ngIf="!signaturePreview">
+
                     <div class="plus">+</div>
+
                     <span>Upload Signature</span>
+
                 </ng-container>
+
                 <img *ngIf="signaturePreview" [src]="signaturePreview" class="preview-image"
-                    (error)="signaturePreview = null; onSignatureImageError()" />
+                    (error)="signaturePreview = null" />
             </div>
+
             <input type="file" hidden #signatureInput (change)="onSignatureChange($event)" accept="image/*">
+
         </div>
+
     </div>
     <!-- Action Button -->
     <div class="form-row action-row">
