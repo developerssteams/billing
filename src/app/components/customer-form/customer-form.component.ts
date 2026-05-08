@@ -25,13 +25,8 @@ export class CustomerFormComponent implements OnInit, OnChanges {
   gstLoading: boolean = false;
   gstError: string = '';
   
-  // TDS / TCS / RCM
-  tdsEnabled = false;
-  tcsEnabled = false;
-  rcmEnabled = false;
-
-  tdsError: string = '';
-  tcsError: string = '';
+  // RCM Only (No TDS/TCS)
+  rcmEnabled: boolean = false;
 
   // Delivery Address - Same as Billing
   sameAsBilling: boolean = false;
@@ -39,7 +34,10 @@ export class CustomerFormComponent implements OnInit, OnChanges {
   // Loading State
   isLoading = false;
 
-  // Form Data
+  // User ID
+  userId: number = 1;
+
+  // Form Data (No balance_type, no tds, no tcs)
   customerData: any = {
     name: '',
     phone: '',
@@ -51,10 +49,7 @@ export class CustomerFormComponent implements OnInit, OnChanges {
     pincode: '',
     state: '',
     city: '',
-    balance_type: 'debit',
     opening_balance: 0,
-    tds: '',
-    tcs: '',
     rcm: 0,
     delivery_address_line1: '',
     delivery_address_line2: '',
@@ -64,23 +59,18 @@ export class CustomerFormComponent implements OnInit, OnChanges {
     delivery_country: 'India'
   };
 
-  ngOnInit(): void {
-    // Initialization if needed
-  }
+  ngOnInit(): void {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    // When editCustomerData changes, populate form
     if (changes['editCustomerData'] && this.editCustomerData && this.isEditMode) {
       this.populateFormForEdit();
     }
     
-    // When form opens in add mode, reset
     if (changes['showForm'] && this.showForm && !this.isEditMode) {
       this.resetForm();
     }
   }
 
-  // Populate form for edit mode
   populateFormForEdit() {
     const customer = this.editCustomerData;
     
@@ -95,10 +85,7 @@ export class CustomerFormComponent implements OnInit, OnChanges {
       pincode: customer.pincode || '',
       state: customer.state || '',
       city: customer.city || '',
-      balance_type: customer.balance_type || 'debit',
-      opening_balance: customer.opening_balance || 0,
-      tds: customer.tds || '',
-      tcs: customer.tcs || '',
+      opening_balance: Math.abs(customer.opening_balance) || 0,
       rcm: customer.rcm || 0,
       delivery_address_line1: customer.delivery_address_line1 || '',
       delivery_address_line2: customer.delivery_address_line2 || '',
@@ -108,16 +95,15 @@ export class CustomerFormComponent implements OnInit, OnChanges {
       delivery_country: customer.delivery_country || 'India'
     };
     
-    // Set toggle states
-    this.tdsEnabled = !!customer.tds;
-    this.tcsEnabled = !!customer.tcs;
-    this.rcmEnabled = customer.rcm == 1;
+    // Preserve sign for opening balance in edit mode
+    if (customer.opening_balance < 0) {
+      this.customerData.opening_balance = -this.customerData.opening_balance;
+    }
     
-    // Check if delivery address is same as billing
+    this.rcmEnabled = customer.rcm == 1;
     this.sameAsBilling = this.isDeliverySameAsBilling();
   }
 
-  // Check if delivery address matches billing address
   isDeliverySameAsBilling(): boolean {
     return this.customerData.delivery_address_line1 === this.customerData.address_line1 &&
            this.customerData.delivery_address_line2 === this.customerData.address_line2 &&
@@ -126,7 +112,6 @@ export class CustomerFormComponent implements OnInit, OnChanges {
            this.customerData.delivery_city === this.customerData.city;
   }
 
-  // Get Billing Address Preview
   getBillingAddressPreview(): string {
     const parts = [];
     if (this.customerData.address_line1) parts.push(this.customerData.address_line1);
@@ -137,18 +122,14 @@ export class CustomerFormComponent implements OnInit, OnChanges {
     return parts.length ? parts.join(', ') : 'No billing address entered yet';
   }
 
-  // When Same as Billing Checkbox changes
   onSameAsBillingChange() {
     if (this.sameAsBilling) {
-      // Copy billing address to delivery address
       this.customerData.delivery_address_line1 = this.customerData.address_line1;
       this.customerData.delivery_address_line2 = this.customerData.address_line2;
       this.customerData.delivery_pincode = this.customerData.pincode;
       this.customerData.delivery_state = this.customerData.state;
       this.customerData.delivery_city = this.customerData.city;
-      this.customerData.delivery_country = 'India';
     } else {
-      // Clear delivery fields when unchecked
       this.customerData.delivery_address_line1 = '';
       this.customerData.delivery_address_line2 = '';
       this.customerData.delivery_pincode = '';
@@ -157,7 +138,6 @@ export class CustomerFormComponent implements OnInit, OnChanges {
     }
   }
 
-  // GST Check
   checkGST(event: any) {
     let gstNumber = event.target.value.toUpperCase();
     this.customerData.gstin = gstNumber;
@@ -176,20 +156,16 @@ export class CustomerFormComponent implements OnInit, OnChanges {
     this.http.get(`https://billsezy.com/Api/gst-fetch.php?gstin=${gstin}`)
       .subscribe(
         (res: any) => {
-          console.log("GST API Response:", res);
           this.gstLoading = false;
-
           if (res?.status && res?.data) {
             const data = res.data;
-
             this.customerData.company_name = data.tradeNam || data.lgnm || '';
             this.customerData.address_line1 = data.pradr?.addr?.bno || '';
             this.customerData.address_line2 = data.pradr?.addr?.st || '';
             this.customerData.city = data.pradr?.addr?.loc || '';
             this.customerData.pincode = data.pradr?.addr?.pncd || '';
             this.customerData.state = data.pradr?.addr?.stcd || '';
-
-            // If sameAsBilling is true, also update delivery address
+            
             if (this.sameAsBilling) {
               this.onSameAsBillingChange();
             }
@@ -200,64 +176,26 @@ export class CustomerFormComponent implements OnInit, OnChanges {
         (error: any) => {
           this.gstLoading = false;
           this.gstError = "GST fetch failed";
-          console.error(error);
         }
       );
   }
 
-  // Phone Input Restriction
   onlyNumber(event: any) {
     const input = event.target;
     input.value = input.value.replace(/[^0-9]/g, '').slice(0, 10);
+    this.customerData.phone = input.value;
   }
 
-  // TDS Toggle
-  toggleTDS() {
-    this.tdsError = '';
-    this.tcsError = '';
-
-    if (!this.tdsEnabled && this.tcsEnabled) {
-      this.tdsError = 'TCS and TDS cannot be applied together';
-      return;
-    }
-
-    this.tdsEnabled = !this.tdsEnabled;
-    
-    if (!this.tdsEnabled) {
-      this.customerData.tds = '';
-    }
-  }
-
-  // TCS Toggle
-  toggleTCS() {
-    this.tdsError = '';
-    this.tcsError = '';
-
-    if (!this.tcsEnabled && this.tdsEnabled) {
-      this.tcsError = 'TDS and TCS cannot be applied together';
-      return;
-    }
-
-    this.tcsEnabled = !this.tcsEnabled;
-    
-    if (!this.tcsEnabled) {
-      this.customerData.tcs = '';
-    }
-  }
-
-  // RCM Toggle
   toggleRCM() {
     this.rcmEnabled = !this.rcmEnabled;
     this.customerData.rcm = this.rcmEnabled ? 1 : 0;
   }
 
-  // Close Form
   closeForm() {
     this.formClosed.emit();
     this.resetForm();
   }
 
-  // Reset Form
   resetForm() {
     this.customerData = {
       name: '',
@@ -270,10 +208,7 @@ export class CustomerFormComponent implements OnInit, OnChanges {
       pincode: '',
       state: '',
       city: '',
-      balance_type: 'debit',
       opening_balance: 0,
-      tds: '',
-      tcs: '',
       rcm: 0,
       delivery_address_line1: '',
       delivery_address_line2: '',
@@ -282,17 +217,12 @@ export class CustomerFormComponent implements OnInit, OnChanges {
       delivery_city: '',
       delivery_country: 'India'
     };
-    this.tdsEnabled = false;
-    this.tcsEnabled = false;
     this.rcmEnabled = false;
     this.sameAsBilling = false;
-    this.tdsError = '';
-    this.tcsError = '';
     this.gstError = '';
     this.isLoading = false;
   }
 
-  // Submit Form
   onSubmit() {
     if (!this.customerData.name) {
       alert('Name required');
@@ -300,7 +230,6 @@ export class CustomerFormComponent implements OnInit, OnChanges {
     }
 
     if (this.isLoading) return;
-
     this.isLoading = true;
 
     if (this.isEditMode && this.editCustomerData?.id) {
@@ -311,98 +240,98 @@ export class CustomerFormComponent implements OnInit, OnChanges {
   }
 
   createCustomer() {
-    // Prepare delivery address (if same as billing, use billing address)
-    let deliveryData = { ...this.customerData };
+    // Prepare opening balance with sign (positive = You Collect, negative = You Pay)
+    let openingBalance = Math.abs(Number(this.customerData.opening_balance) || 0);
     
-    if (this.sameAsBilling) {
-      deliveryData.delivery_address_line1 = this.customerData.address_line1;
-      deliveryData.delivery_address_line2 = this.customerData.address_line2;
-      deliveryData.delivery_pincode = this.customerData.pincode;
-      deliveryData.delivery_state = this.customerData.state;
-      deliveryData.delivery_city = this.customerData.city;
-    }
-
     const payload = {
-      ...deliveryData,
-      tds_enabled: this.tdsEnabled,
-      tcs_enabled: this.tcsEnabled,
-      rcm_enabled: this.rcmEnabled,
-      tds: this.tdsEnabled ? this.customerData.tds : null,
-      tcs: this.tcsEnabled ? this.customerData.tcs : null,
-      rcm: this.rcmEnabled ? 1 : 0,
-      same_as_billing: this.sameAsBilling
+      user_id: this.userId,
+      name: this.customerData.name,
+      phone: this.customerData.phone,
+      email: this.customerData.email,
+      company_name: this.customerData.company_name,
+      gstin: this.customerData.gstin,
+      address_line1: this.customerData.address_line1,
+      address_line2: this.customerData.address_line2,
+      pincode: this.customerData.pincode,
+      state: this.customerData.state,
+      city: this.customerData.city,
+      delivery_address_line1: this.sameAsBilling ? this.customerData.address_line1 : this.customerData.delivery_address_line1,
+      delivery_address_line2: this.sameAsBilling ? this.customerData.address_line2 : this.customerData.delivery_address_line2,
+      delivery_pincode: this.sameAsBilling ? this.customerData.pincode : this.customerData.delivery_pincode,
+      delivery_state: this.sameAsBilling ? this.customerData.state : this.customerData.delivery_state,
+      delivery_city: this.sameAsBilling ? this.customerData.city : this.customerData.delivery_city,
+      delivery_country: 'India',
+      same_as_billing: this.sameAsBilling ? 1 : 0,
+      opening_balance: openingBalance,
+      rcm: this.rcmEnabled ? 1 : 0
     };
 
     fetch('https://billsezy.com/Api/add_customer.php', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     })
       .then(res => res.json())
       .then(res => {
         this.isLoading = false;
-
         if (res.status === true) {
-          this.customerSaved.emit(res.data || payload);
+          this.customerSaved.emit(payload);
           this.closeForm();
+          alert('Customer Added Successfully ✅');
         } else {
           alert(res.message || 'Something went wrong');
         }
       })
       .catch(err => {
         this.isLoading = false;
-        console.error(err);
         alert('Server Error ❌');
       });
   }
 
   updateCustomer() {
-    // Prepare delivery address (if same as billing, use billing address)
-    let deliveryData = { ...this.customerData };
+    let openingBalance = Math.abs(Number(this.customerData.opening_balance) || 0);
     
-    if (this.sameAsBilling) {
-      deliveryData.delivery_address_line1 = this.customerData.address_line1;
-      deliveryData.delivery_address_line2 = this.customerData.address_line2;
-      deliveryData.delivery_pincode = this.customerData.pincode;
-      deliveryData.delivery_state = this.customerData.state;
-      deliveryData.delivery_city = this.customerData.city;
-    }
-
     const payload = {
       id: this.editCustomerData.id,
-      ...deliveryData,
-      tds_enabled: this.tdsEnabled,
-      tcs_enabled: this.tcsEnabled,
-      rcm_enabled: this.rcmEnabled,
-      tds: this.tdsEnabled ? this.customerData.tds : null,
-      tcs: this.tcsEnabled ? this.customerData.tcs : null,
-      rcm: this.rcmEnabled ? 1 : 0,
-      same_as_billing: this.sameAsBilling
+      name: this.customerData.name,
+      phone: this.customerData.phone,
+      email: this.customerData.email,
+      company_name: this.customerData.company_name,
+      gstin: this.customerData.gstin,
+      address_line1: this.customerData.address_line1,
+      address_line2: this.customerData.address_line2,
+      pincode: this.customerData.pincode,
+      state: this.customerData.state,
+      city: this.customerData.city,
+      delivery_address_line1: this.sameAsBilling ? this.customerData.address_line1 : this.customerData.delivery_address_line1,
+      delivery_address_line2: this.sameAsBilling ? this.customerData.address_line2 : this.customerData.delivery_address_line2,
+      delivery_pincode: this.sameAsBilling ? this.customerData.pincode : this.customerData.delivery_pincode,
+      delivery_state: this.sameAsBilling ? this.customerData.state : this.customerData.delivery_state,
+      delivery_city: this.sameAsBilling ? this.customerData.city : this.customerData.delivery_city,
+      delivery_country: 'India',
+      same_as_billing: this.sameAsBilling ? 1 : 0,
+      opening_balance: openingBalance,
+      rcm: this.rcmEnabled ? 1 : 0
     };
 
     fetch('https://billsezy.com/Api/update_customer.php', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     })
       .then(res => res.json())
       .then(res => {
         this.isLoading = false;
-
         if (res.status === true) {
-          this.customerSaved.emit(res.data || payload);
+          this.customerSaved.emit(payload);
           this.closeForm();
+          alert('Customer Updated Successfully ✅');
         } else {
           alert(res.message || 'Something went wrong');
         }
       })
       .catch(err => {
         this.isLoading = false;
-        console.error(err);
         alert('Server Error ❌');
       });
   }

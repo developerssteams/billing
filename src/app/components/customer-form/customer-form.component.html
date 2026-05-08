@@ -91,9 +91,9 @@
       <div class="customer-card">
         <div class="same-address-checkbox">
           <label class="checkbox-label">
-            <input type="checkbox" class="check-box-address" [(ngModel)]="sameAsBilling" (change)="onSameAsBillingChange()" name="sameAsBilling">
-            <span class="checkmark"></span>
-            Same as Billing Address
+            <input type="checkbox" [(ngModel)]="sameAsBilling" (change)="onSameAsBillingChange()" name="sameAsBilling">
+            <span class="checkmark-custom"></span>
+            <span class="checkbox-text">Same as Billing Address</span>
           </label>
         </div>
 
@@ -132,74 +132,35 @@
         </div>
       </div>
 
-      <!-- 🔹 OPTIONAL DETAILS -->
-      <h4 class="customer-title mt-2">Optional Details</h4>
+      <!-- 🔹 OPENING BALANCE (Simple - No Debit/Credit Radio) -->
+      <h4 class="customer-title mt-2">Opening Balance</h4>
       <div class="customer-card">
-        <label class="label-title">Opening Balance</label>
-        <div class="radio-group">
-          <label class="custom-radio">
-            <input type="radio" value="debit" [(ngModel)]="customerData.balance_type" name="balance_type">
-            <span class="radio-circle"></span>
-            Debit
-          </label>
-          <label class="custom-radio">
-            <input type="radio" value="credit" [(ngModel)]="customerData.balance_type" name="balance_type">
-            <span class="radio-circle"></span>
-            Credit
-          </label>
+        <div class="customer-group">
+          <label>Amount (₹)</label>
+          <input type="number" placeholder="Enter amount" [(ngModel)]="customerData.opening_balance" name="opening_balance">
+          <small class="balance-hint" [class.positive]="customerData.opening_balance > 0" [class.negative]="customerData.opening_balance < 0">
+            {{ customerData.opening_balance > 0 ? '✓ You will collect this amount from customer' : '' }}
+            {{ customerData.opening_balance < 0 ? '⚠ You will pay this amount to customer' : '' }}
+            {{ customerData.opening_balance == 0 ? 'Enter positive amount (You Collect) or negative amount (You Pay)' : '' }}
+          </small>
         </div>
+      </div>
 
-        <div class="input-box">
-          <input type="number" placeholder="Enter Amount" [(ngModel)]="customerData.opening_balance" name="opening_balance">
-          <span class="balance-text" [ngClass]="customerData.balance_type === 'debit' ? 'red' : 'green'">
-            {{ customerData.balance_type === 'debit' ? 'Customer Pays You ₹' : 'You Pay Customer ₹' }}
-          </span>
-        </div>
-
-        <!-- TDS -->
-        <div class="section">
-          <label class="label-title">TDS</label>
-          <div class="toggle" [class.active]="tdsEnabled" (click)="toggleTDS()">
-            <div class="circle"></div>
-            <span>{{ tdsEnabled ? 'Yes' : 'No' }}</span>
+      <!-- 🔹 RCM ONLY (No TDS/TCS) -->
+      <h4 class="customer-title mt-2">Reverse Charge Mechanism (RCM)</h4>
+      <div class="customer-card">
+        <div class="rcm-toggle-container">
+          <label class="rcm-label">RCM Status</label>
+          <div class="toggle-switch" [class.active]="rcmEnabled" (click)="toggleRCM()">
+            <div class="toggle-slider"></div>
+            <span class="toggle-text">{{ rcmEnabled ? 'Enabled' : 'Disabled' }}</span>
           </div>
-          <div class="error-text" *ngIf="tdsError">{{ tdsError }}</div>
-          <div class="dropdown" *ngIf="tdsEnabled">
-            <select [(ngModel)]="customerData.tds" name="tds">
-              <option value="">TDS Percentage</option>
-              <option value="10">10% Interest</option>
-              <option value="2">2% GST TDS</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- TCS -->
-        <div class="section">
-          <label class="label-title">TCS</label>
-          <div class="toggle" [class.active]="tcsEnabled" (click)="toggleTCS()">
-            <div class="circle"></div>
-            <span>{{ tcsEnabled ? 'Yes' : 'No' }}</span>
-          </div>
-          <div class="error-text" *ngIf="tcsError">{{ tcsError }}</div>
-          <div class="dropdown" *ngIf="tcsEnabled">
-            <select [(ngModel)]="customerData.tcs" name="tcs">
-              <option value="">TCS Percentage</option>
-              <option value="0.1">0.1% Goods</option>
-              <option value="1">1% Scrap</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- RCM -->
-        <div class="section">
-          <label class="label-title">RCM (Reverse Charge Mechanism)</label>
-          <div class="toggle" [class.active]="rcmEnabled" (click)="toggleRCM()">
-            <div class="circle"></div>
-            <span>{{ rcmEnabled ? 'Yes' : 'No' }}</span>
-          </div>
-          <div class="info-text" *ngIf="rcmEnabled">
-            ⚠️ RCM applies - Customer will pay tax directly to government
-          </div>
+          <small class="rcm-hint" *ngIf="rcmEnabled" style="color: #10b981; display: block; margin-top: 10px;">
+            ✓ RCM is enabled. Customer will pay tax directly to government.
+          </small>
+          <small class="rcm-hint" *ngIf="!rcmEnabled" style="color: #6b7280; display: block; margin-top: 10px;">
+            ✗ RCM is disabled. Regular tax applies.
+          </small>
         </div>
       </div>
     </div>

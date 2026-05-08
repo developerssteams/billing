@@ -292,6 +292,20 @@
   display: none;
 }
 
+/* Balance Hint Styles */
+.balance-hint {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+.balance-hint.positive {
+  color: #10b981;
+}
+
+.balance-hint.negative {
+  color: #dc2626;
+}
 /* outer circle */
 .radio-circle {
   width: 20px;

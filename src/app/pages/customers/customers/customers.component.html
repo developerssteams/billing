@@ -1,177 +1,92 @@
-<!-- Overlay -->
-<div class="overlay" *ngIf="showForm" (click)="closeForm()"></div>
+<app-page-header title="Customers"></app-page-header>
 
-<form (ngSubmit)="onSubmit()">
-  <div class="side-form customer-form" [class.open]="showForm">
+<div class="container">
 
-    <div class="customer-header">
-      <h3>{{ isEditMode ? 'Edit Customer' : 'Add Customer' }}</h3>
-      <button class="customer-save-btn header-save-btn" type="submit">
-        {{ isEditMode ? 'Update Customer' : 'Save Customer' }}
-      </button>
-    </div>
+  <div class="header">Customers</div>
 
-    <div class="customer-body">
-      <!-- 🔹 BASIC DETAILS -->
-      <h4 class="customer-title">Basic Details</h4>
-      <div class="customer-card">
-        <div class="customer-group">
-          <label class="customer-required">Name</label>
-          <input type="text" placeholder="Customer Name" [(ngModel)]="customerData.name" name="name" required>
-        </div>
-
-        <div class="customer-row">
-          <div class="customer-col">
-            <label>Phone</label>
-            <div class="customer-phone-wrapper">
-              <div class="customer-prefix">+91</div>
-              <input type="tel" class="customer-phone-input" placeholder="9876543210" maxlength="10"
-                [(ngModel)]="customerData.phone" (input)="onlyNumber($event)" name="phone">
-            </div>
-          </div>
-
-          <div class="customer-col">
-            <label>Email</label>
-            <input type="email" placeholder="Enter email" [(ngModel)]="customerData.email" name="email">
-          </div>
-        </div>
-      </div>
-
-      <!-- 🔹 COMPANY DETAILS -->
-      <h4 class="customer-title mt-2">Company Details</h4>
-      <div class="customer-card">
-        <div class="customer-row">
-          <div class="customer-col">
-            <label>GSTIN</label>
-            <div class="customer-gstin-wrapper">
-              <input type="text" placeholder="29AABCT1332L000" [(ngModel)]="customerData.gstin" name="gstin"
-                (input)="checkGST($event)" maxlength="15" style="text-transform: uppercase;">
-            </div>
-            <small *ngIf="gstLoading" style="color: blue;">Fetching GST details...</small>
-            <small *ngIf="gstError" style="color: red;">{{ gstError }}</small>
-          </div>
-          <div class="customer-col">
-            <label>Company</label>
-            <input type="text" placeholder="Company Name" [(ngModel)]="customerData.company_name" name="company_name">
-          </div>
-        </div>
-      </div>
-
-      <!-- 🔹 BILLING ADDRESS -->
-      <h4 class="customer-title mt-2">Billing Address</h4>
-      <div class="customer-card">
-        <div class="customer-row">
-          <div class="customer-col">
-            <input type="text" placeholder="Address Line 1" [(ngModel)]="customerData.address_line1" name="address_line1">
-          </div>
-          <div class="customer-col">
-            <input type="text" placeholder="Address Line 2" [(ngModel)]="customerData.address_line2" name="address_line2">
-          </div>
-        </div>
-        <div class="customer-row">
-          <div class="customer-col">
-            <input type="text" placeholder="Pincode" [(ngModel)]="customerData.pincode" name="pincode">
-          </div>
-          <div class="customer-col">
-            <input type="text" placeholder="Select State" [(ngModel)]="customerData.state" name="state">
-          </div>
-        </div>
-        <div class="customer-row">
-          <div class="customer-col">
-            <input type="text" placeholder="City" [(ngModel)]="customerData.city" name="city">
-          </div>
-          <div class="customer-col">
-            <input type="text" value="India" disabled>
-          </div>
-        </div>
-      </div>
-
-      <!-- 🔹 DELIVERY ADDRESS -->
-      <h4 class="customer-title mt-2">Delivery Address</h4>
-      <div class="customer-card">
-        <div class="same-address-checkbox">
-          <label class="checkbox-label">
-            <input type="checkbox" [(ngModel)]="sameAsBilling" (change)="onSameAsBillingChange()" name="sameAsBilling">
-            <span class="checkmark-custom"></span>
-            <span class="checkbox-text">Same as Billing Address</span>
-          </label>
-        </div>
-
-        <div class="delivery-address-fields" *ngIf="!sameAsBilling">
-          <div class="customer-row">
-            <div class="customer-col">
-              <input type="text" placeholder="Delivery Address Line 1" [(ngModel)]="customerData.delivery_address_line1" name="delivery_address_line1">
-            </div>
-            <div class="customer-col">
-              <input type="text" placeholder="Delivery Address Line 2" [(ngModel)]="customerData.delivery_address_line2" name="delivery_address_line2">
-            </div>
-          </div>
-          <div class="customer-row">
-            <div class="customer-col">
-              <input type="text" placeholder="Delivery Pincode" [(ngModel)]="customerData.delivery_pincode" name="delivery_pincode">
-            </div>
-            <div class="customer-col">
-              <input type="text" placeholder="Delivery State" [(ngModel)]="customerData.delivery_state" name="delivery_state">
-            </div>
-          </div>
-          <div class="customer-row">
-            <div class="customer-col">
-              <input type="text" placeholder="Delivery City" [(ngModel)]="customerData.delivery_city" name="delivery_city">
-            </div>
-            <div class="customer-col">
-              <input type="text" placeholder="Delivery Country" value="India" disabled>
-            </div>
-          </div>
-        </div>
-
-        <div class="billing-address-preview" *ngIf="sameAsBilling">
-          <div class="preview-box">
-            <strong>Delivery Address will be:</strong>
-            <p>{{ getBillingAddressPreview() }}</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- 🔹 OPENING BALANCE (Simple - No Debit/Credit Radio) -->
-      <h4 class="customer-title mt-2">Opening Balance</h4>
-      <div class="customer-card">
-        <div class="customer-group">
-          <label>Amount (₹)</label>
-          <input type="number" placeholder="Enter amount" [(ngModel)]="customerData.opening_balance" name="opening_balance">
-          <small class="balance-hint" [class.positive]="customerData.opening_balance > 0" [class.negative]="customerData.opening_balance < 0">
-            {{ customerData.opening_balance > 0 ? '✓ You will collect this amount from customer' : '' }}
-            {{ customerData.opening_balance < 0 ? '⚠ You will pay this amount to customer' : '' }}
-            {{ customerData.opening_balance == 0 ? 'Enter positive amount (You Collect) or negative amount (You Pay)' : '' }}
-          </small>
-        </div>
-      </div>
-
-      <!-- 🔹 RCM ONLY (No TDS/TCS) -->
-      <h4 class="customer-title mt-2">Reverse Charge Mechanism (RCM)</h4>
-      <div class="customer-card">
-        <div class="rcm-toggle-container">
-          <label class="rcm-label">RCM Status</label>
-          <div class="toggle-switch" [class.active]="rcmEnabled" (click)="toggleRCM()">
-            <div class="toggle-slider"></div>
-            <span class="toggle-text">{{ rcmEnabled ? 'Enabled' : 'Disabled' }}</span>
-          </div>
-          <small class="rcm-hint" *ngIf="rcmEnabled" style="color: #10b981; display: block; margin-top: 10px;">
-            ✓ RCM is enabled. Customer will pay tax directly to government.
-          </small>
-          <small class="rcm-hint" *ngIf="!rcmEnabled" style="color: #6b7280; display: block; margin-top: 10px;">
-            ✗ RCM is disabled. Regular tax applies.
-          </small>
-        </div>
-      </div>
-    </div>
-
-    <div class="customer-footer">
-      <button class="customer-save-btn" type="submit">
-        {{ isEditMode ? 'Update Customer' : 'Save Customer' }}
-      </button>
-      <button class="customer-cancel-btn" type="button" (click)="closeForm()">
-        Cancel
+  <!-- Actions -->
+  <div class="actions">
+    <input class="search" placeholder="Search Customers..." [(ngModel)]="searchText" (input)="searchCustomer()" />
+    <div class="action-buttons">
+      <button class="btn btn-primary" (click)="openForm()">
+        + New Customer
       </button>
     </div>
   </div>
-</form>
+
+  <div class="table-wrapper">
+    <div class="table">
+
+      <div class="row header-row">
+        <div>Name</div>
+        <div>Contact Info</div>
+        <div>Outstanding Balance</div>
+        <div>Action</div>
+      </div>
+
+      <div class="row" *ngFor="let customer of paginatedData">
+        <!-- Name -->
+        <div class="user">
+          <div class="avatar">
+            {{ customer.name ? customer.name.charAt(0) : 'C' }}
+          </div>
+          <div>
+            <div class="user-name">{{ customer.name }}</div>
+            <div class="user-company">{{ customer.company_name || 'No Company' }}</div>
+          </div>
+        </div>
+
+        <!-- Contact -->
+        <div class="contact">
+          <div class="contact-phone">{{ customer.phone || '-' }}</div>
+          <div class="contact-email">{{ customer.email || '-' }}</div>
+        </div>
+
+        <!-- Balance - Positive/Negative Logic -->
+        <div class="balance-section">
+          <div class="balance-amount" [class.pay]="customer.opening_balance < 0" [class.collect]="customer.opening_balance >= 0">
+            ₹ {{ customer.opening_balance < 0 ? -customer.opening_balance : customer.opening_balance }}
+          </div>
+          <div class="balance-type" [class.pay]="customer.opening_balance < 0" [class.collect]="customer.opening_balance >= 0">
+            {{ customer.opening_balance >= 0 ? 'You Collect ↓' : 'You Pay ↑' }}
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons-cell">
+          <button class="note-btn edit" (click)="openForm(customer)">Edit</button>
+          <button class="note-btn delete-btn" (click)="deleteCustomer(customer.id, customer.name)">Delete</button>
+        </div>
+      </div>
+
+      <div class="no-data" *ngIf="paginatedData.length === 0">
+        No Customers Found
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bottom -->
+  <div class="bottom">
+    <div class="summary">
+      <div class="badge pay">You Pay ₹ {{ getTotalPay() }}</div>
+      <div class="badge collect">You Collect ₹ {{ getTotalCollect() }}</div>
+    </div>
+
+    <div class="pagination">
+      <button (click)="prevPage()" [disabled]="currentPage === 1">Prev</button>
+      <span>Page {{ currentPage }} of {{ totalPages() }}</span>
+      <button (click)="nextPage()" [disabled]="currentPage === totalPages()">Next</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Customer Form Component -->
+<app-customer-form 
+  [showForm]="showCustomerForm"
+  [isEditMode]="isEditMode"
+  [editCustomerData]="selectedCustomer"
+  (formClosed)="closeForm()"
+  (customerSaved)="onCustomerSaved($event)">
+</app-customer-form>
