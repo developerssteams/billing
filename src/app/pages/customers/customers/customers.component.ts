@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-customers',
-  imports: [CommonModule, FormsModule,],
+  imports: [CommonModule, FormsModule],
   templateUrl: './customers.component.html',
   styleUrls: ['./customers.component.scss']
 })
@@ -29,6 +29,12 @@ export class CustomersComponent {
   isEditMode: boolean = false;
   editCustomerId: number | null = null;
 
+  // RCM Toggle
+  rcmEnabled: boolean = false;
+
+  // Same as Billing
+  sameAsBilling: boolean = true;
+
   // Form Data
   newCustomer: any = {
     name: '',
@@ -41,7 +47,13 @@ export class CustomersComponent {
     pincode: '',
     state: '',
     city: '',
-    opening_balance: 0
+    delivery_address_line1: '',
+    delivery_address_line2: '',
+    delivery_pincode: '',
+    delivery_state: '',
+    delivery_city: '',
+    opening_balance: 0,
+    rcm: 0
   };
 
   // User ID
@@ -53,7 +65,24 @@ export class CustomersComponent {
     this.getCustomers();
   }
 
-  // 🔹 GST Check
+  // Same as Billing Logic
+  onSameAsBillingChange() {
+    if (this.sameAsBilling) {
+      this.newCustomer.delivery_address_line1 = this.newCustomer.address_line1;
+      this.newCustomer.delivery_address_line2 = this.newCustomer.address_line2;
+      this.newCustomer.delivery_pincode = this.newCustomer.pincode;
+      this.newCustomer.delivery_state = this.newCustomer.state;
+      this.newCustomer.delivery_city = this.newCustomer.city;
+    }
+  }
+
+  // Toggle RCM
+  toggleRCM() {
+    this.rcmEnabled = !this.rcmEnabled;
+    console.log('RCM Status:', this.rcmEnabled ? 'Enabled' : 'Disabled');
+  }
+
+  // GST Check
   checkGST(event: any) {
     let gstNumber = event.target.value.toUpperCase().trim();
     this.newCustomer.gstin = gstNumber;
@@ -80,6 +109,10 @@ export class CustomersComponent {
             this.newCustomer.city = data.pradr?.addr?.loc || '';
             this.newCustomer.pincode = data.pradr?.addr?.pncd || '';
             this.newCustomer.state = data.pradr?.addr?.stcd || '';
+            
+            if (this.sameAsBilling) {
+              this.onSameAsBillingChange();
+            }
           } else {
             this.gstError = res?.message || "Invalid GST Number / No Data Found";
           }
@@ -91,14 +124,14 @@ export class CustomersComponent {
       );
   }
 
-  // 🔹 Phone Restriction
+  // Phone Restriction
   onlyNumber(event: any) {
     const input = event.target;
     input.value = input.value.replace(/[^0-9]/g, '').slice(0, 10);
     this.newCustomer.phone = input.value;
   }
 
-  // 🔹 SEARCH
+  // Search
   searchCustomer() {
     this.filteredData = this.customerData.filter((item: any) =>
       item.name?.toLowerCase().includes(this.searchText.toLowerCase()) ||
@@ -109,7 +142,7 @@ export class CustomersComponent {
     this.updatePaginatedData();
   }
 
-  // 🔹 PAGINATION
+  // Pagination
   updatePaginatedData() {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
@@ -134,7 +167,7 @@ export class CustomersComponent {
     return Math.ceil(this.filteredData.length / this.itemsPerPage);
   }
 
-  // 🔹 FORM
+  // Form
   showCustomerForm = false;
 
   openForm(customer?: any) {
@@ -152,9 +185,16 @@ export class CustomersComponent {
         pincode: customer.pincode || '',
         state: customer.state || '',
         city: customer.city || '',
-        opening_balance: Math.abs(customer.opening_balance) || 0
+        delivery_address_line1: customer.delivery_address_line1 || '',
+        delivery_address_line2: customer.delivery_address_line2 || '',
+        delivery_pincode: customer.delivery_pincode || '',
+        delivery_state: customer.delivery_state || '',
+        delivery_city: customer.delivery_city || '',
+        opening_balance: Math.abs(customer.opening_balance) || 0,
+        rcm: customer.rcm || 0
       };
       this.rcmEnabled = customer.rcm == 1;
+      this.sameAsBilling = customer.same_as_billing == 1;
     } else {
       this.isEditMode = false;
       this.editCustomerId = null;
@@ -182,14 +222,20 @@ export class CustomersComponent {
       pincode: '',
       state: '',
       city: '',
+      delivery_address_line1: '',
+      delivery_address_line2: '',
+      delivery_pincode: '',
+      delivery_state: '',
+      delivery_city: '',
       opening_balance: 0,
-      rcm: 0  // Add this
+      rcm: 0
     };
     this.rcmEnabled = false;
+    this.sameAsBilling = true;
     this.gstError = '';
   }
 
-  // 🔥 ADD/UPDATE CUSTOMER
+  // Add/Update Customer
   isLoading = false;
 
   addCustomer() {
@@ -221,6 +267,12 @@ export class CustomersComponent {
       pincode: this.newCustomer.pincode,
       state: this.newCustomer.state,
       city: this.newCustomer.city,
+      delivery_address_line1: this.newCustomer.delivery_address_line1,
+      delivery_address_line2: this.newCustomer.delivery_address_line2,
+      delivery_pincode: this.newCustomer.delivery_pincode,
+      delivery_state: this.newCustomer.delivery_state,
+      delivery_city: this.newCustomer.delivery_city,
+      same_as_billing: this.sameAsBilling ? 1 : 0,
       opening_balance: Number(this.newCustomer.opening_balance) || 0,
       rcm: this.rcmEnabled ? 1 : 0
     };
@@ -260,6 +312,12 @@ export class CustomersComponent {
       pincode: this.newCustomer.pincode,
       state: this.newCustomer.state,
       city: this.newCustomer.city,
+      delivery_address_line1: this.newCustomer.delivery_address_line1,
+      delivery_address_line2: this.newCustomer.delivery_address_line2,
+      delivery_pincode: this.newCustomer.delivery_pincode,
+      delivery_state: this.newCustomer.delivery_state,
+      delivery_city: this.newCustomer.delivery_city,
+      same_as_billing: this.sameAsBilling ? 1 : 0,
       opening_balance: Number(this.newCustomer.opening_balance) || 0,
       rcm: this.rcmEnabled ? 1 : 0
     };
@@ -286,7 +344,7 @@ export class CustomersComponent {
       });
   }
 
-  // 🔥 DELETE CUSTOMER
+  // Delete Customer
   deleteCustomer(id: number, name: string) {
     if (confirm(`Are you sure you want to delete "${name}"?`)) {
       fetch('https://billsezy.com/Api/delete_customer.php', {
@@ -308,50 +366,29 @@ export class CustomersComponent {
         });
     }
   }
-  rcmEnabled: boolean = false;
 
-  // Add toggleRCM method
-  toggleRCM() {
-    this.rcmEnabled = !this.rcmEnabled;
-    console.log('RCM Status:', this.rcmEnabled ? 'Enabled' : 'Disabled');
-  }
-  // 🔥 GET CUSTOMERS
-  // 🔥 GET CUSTOMERS - Updated with better error handling
+  // Get Customers
   getCustomers() {
     const userId = this.userId;
-
     console.log('Fetching customers for user_id:', userId);
 
     fetch(`https://billsezy.com/Api/get_customers.php?user_id=${userId}`)
+      .then(res => res.json())
       .then(res => {
-        console.log('Response status:', res.status);
-        return res.json();
-      })
-      .then(res => {
-        console.log('API Response:', res);
-
         if (res.status === true) {
           this.customerData = res.data || [];
           this.filteredData = [...this.customerData];
           this.currentPage = 1;
           this.updatePaginatedData();
-
           console.log('Customers loaded:', this.customerData.length);
-
-          if (this.customerData.length === 0) {
-            console.warn('No customers found for user_id:', userId);
-          }
         } else {
           console.error('API Error:', res.message);
-          alert('Error: ' + (res.message || 'Failed to load customers'));
         }
       })
-      .catch(err => {
-        console.error('Fetch Error:', err);
-        alert('Server Error: ' + err.message);
-      });
+      .catch(err => console.error('Fetch Error:', err));
   }
-  // 🔥 SUMMARY
+
+  // Summary
   getTotalPay(): number {
     return this.customerData
       .filter(c => c.opening_balance < 0)
