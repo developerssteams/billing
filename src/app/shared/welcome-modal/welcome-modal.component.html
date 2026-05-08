@@ -34,7 +34,7 @@
     <p class="msg">Please wait while we fetch your details</p>
   </div>
 
-  <!-- STEP 1: COMPANY DETAILS -->
+  <!-- 🔥 STEP 1: COMPANY DETAILS (UPDATED) -->
   <div class="modal-box setup-modal" *ngIf="step === 'step1'">
     <div class="setup-header">
       <h2>Complete Your Setup</h2>
@@ -47,14 +47,8 @@
       <div class="form-row">
         <div class="form-group half">
           <label>GSTIN Number *</label>
-          <div class="gst-input-wrapper">
-            <input type="text" [(ngModel)]="companyData.gstin" placeholder="Enter GSTIN Number" maxlength="15" 
-                   (blur)="fetchGstDetails()" [disabled]="isFetchingGst">
-            <button class="fetch-gst-btn" (click)="fetchGstDetails()" [disabled]="!companyData.gstin || isFetchingGst">
-              <span *ngIf="!isFetchingGst">🔍</span>
-              <span *ngIf="isFetchingGst">⏳</span>
-            </button>
-          </div>
+          <input type="text" [(ngModel)]="companyData.gstin" placeholder="Enter GSTIN Number" maxlength="15" 
+                 (blur)="fetchGstDetails()" [disabled]="isFetchingGst">
         </div>
         <div class="form-group half">
           <label>Company Name *</label>
@@ -62,37 +56,47 @@
         </div>
       </div>
 
-      <!-- Row 2: Address (Full Row) -->
-      <div class="form-group full">
-        <label>Address *</label>
-        <textarea rows="3" [(ngModel)]="companyData.address" placeholder="Enter Company Address"></textarea>
-      </div>
-
-      <!-- Row 3: Contact Number + Email -->
+      <!-- Row 2: Trade Name + Business Type -->
       <div class="form-row">
         <div class="form-group half">
-          <label>Contact Number *</label>
-          <input type="tel" [(ngModel)]="companyData.contactNumber" placeholder="Enter Contact Number" maxlength="10">
+          <label>Trade Name</label>
+          <input type="text" [(ngModel)]="companyData.tradeName" placeholder="Enter Trade Name">
         </div>
         <div class="form-group half">
-          <label>Email *</label>
-          <input type="email" [(ngModel)]="companyData.email" placeholder="Enter Company Email">
+          <label>Business Type *</label>
+          <select [(ngModel)]="companyData.businessType">
+            <option value="">Select Business Type</option>
+            <option value="Proprietorship">Proprietorship</option>
+            <option value="Partnership">Partnership</option>
+            <option value="Private Limited">Private Limited</option>
+            <option value="Public Limited">Public Limited</option>
+            <option value="LLP">LLP</option>
+            <option value="Trust">Trust</option>
+            <option value="Society">Society</option>
+            <option value="Other">Other</option>
+          </select>
         </div>
       </div>
 
-      <!-- Row 4: Logo Upload -->
+      <!-- Row 3: Address (Full Width) -->
       <div class="form-group full">
-        <label>Company Logo</label>
-        <div class="logo-upload">
-          <input type="file" (change)="onLogoSelected($event)" accept="image/*" #fileInput style="display:none">
-          <div class="logo-preview" *ngIf="companyData.logoPreview" (click)="fileInput.click()">
-            <img [src]="companyData.logoPreview" alt="Logo">
-            <button class="remove-logo" (click)="removeLogo($event)">✖</button>
-          </div>
-          <div class="upload-placeholder" *ngIf="!companyData.logoPreview" (click)="fileInput.click()">
-            <span>📷</span>
-            <span>Click to upload logo</span>
-          </div>
+        <label>Address *</label>
+        <textarea rows="2" [(ngModel)]="companyData.address" placeholder="Enter Company Address"></textarea>
+      </div>
+
+      <!-- Row 4: City + State + Pincode -->
+      <div class="form-row">
+        <div class="form-group half">
+          <label>City *</label>
+          <input type="text" [(ngModel)]="companyData.city" placeholder="Enter City">
+        </div>
+        <div class="form-group half">
+          <label>State *</label>
+          <input type="text" [(ngModel)]="companyData.state" placeholder="Enter State">
+        </div>
+        <div class="form-group half">
+          <label>Pincode *</label>
+          <input type="text" [(ngModel)]="companyData.pincode" placeholder="Enter Pincode" maxlength="6">
         </div>
       </div>
     </div>
@@ -103,7 +107,7 @@
     </div>
   </div>
 
-  <!-- STEP 2: OWNER DETAILS -->
+  <!-- 🔥 STEP 2: OWNER DETAILS (UPDATED) -->
   <div class="modal-box setup-modal" *ngIf="step === 'step2'">
     <div class="setup-header">
       <h2>Complete Your Setup</h2>
@@ -112,31 +116,34 @@
     </div>
 
     <div class="setup-form">
-      <div class="form-row">
-        <div class="form-group half">
-          <label>Owner Name *</label>
-          <input type="text" [(ngModel)]="ownerData.ownerName" placeholder="Enter Owner Name">
-        </div>
-        <div class="form-group half">
-          <label>Designation *</label>
-          <input type="text" [(ngModel)]="ownerData.designation" placeholder="Enter Designation">
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group half">
-          <label>Mobile Number *</label>
-          <input type="tel" [(ngModel)]="ownerData.mobile" placeholder="Enter Mobile Number">
-        </div>
-        <div class="form-group half">
-          <label>Email ID *</label>
-          <input type="email" [(ngModel)]="ownerData.email" placeholder="Enter Email ID">
-        </div>
-      </div>
-
+      <!-- Row 1: User Name (Full Width) -->
       <div class="form-group full">
-        <label>Authorised Signatory *</label>
-        <input type="text" [(ngModel)]="ownerData.authorisedSignatory" placeholder="Enter Authorised Signatory Name">
+        <label>User Name *</label>
+        <input type="text" [(ngModel)]="ownerData.userName" placeholder="Enter Full Name">
+      </div>
+
+      <!-- Row 2: Mobile Number (Full Width) -->
+      <div class="form-group full">
+        <label>Mobile Number *</label>
+        <input type="tel" [(ngModel)]="ownerData.mobile" placeholder="Enter Mobile Number" maxlength="10">
+      </div>
+
+      <!-- Row 3: Email (Full Width) -->
+      <div class="form-group full">
+        <label>Email *</label>
+        <input type="email" [(ngModel)]="ownerData.email" placeholder="Enter Email Address">
+      </div>
+
+      <!-- Row 4: PAN Card (Full Width) -->
+      <div class="form-group full">
+        <label>PAN Card</label>
+        <input type="text" [(ngModel)]="ownerData.pan" placeholder="Enter PAN Number" maxlength="10">
+      </div>
+
+      <!-- Row 5: Website (Full Width) -->
+      <div class="form-group full">
+        <label>Website</label>
+        <input type="text" [(ngModel)]="ownerData.website" placeholder="Enter Website URL (optional)">
       </div>
     </div>
 
