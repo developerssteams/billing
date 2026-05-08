@@ -60,9 +60,10 @@
       </div>
 
       <!-- Notes -->
-      <div>
+      <!-- Action Buttons -->
+      <div class="action-buttons-cell">
         <button class="note-btn edit" (click)="openForm(vendor)">Edit</button>
-      <button class="note-btn more delete-btn" (click)="deleteVendor(vendor.id, vendor.name)">Delete</button>
+        <button class="note-btn delete-btn" (click)="deleteVendor(vendor.id, vendor.name)">Delete</button>
       </div>
 
     </div>

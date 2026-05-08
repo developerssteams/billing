@@ -88,7 +88,7 @@ body {
 }
 
 .table {
-  min-width: 750px;
+  min-width: 100%;
 }
 
 /* ROW GRID - Proper spacing */
@@ -209,13 +209,12 @@ body {
   align-items: center;
   gap: 4px;
   white-space: nowrap;
-}
-
-/* Action Buttons */
+}/* Action Buttons - Proper Gap */
 .action-buttons-cell {
   display: flex;
-  gap: 8px;
+  gap: 12px;  /* Edit aur Delete ke beech 12px gap */
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .note-btn {
@@ -226,6 +225,7 @@ body {
   font-size: 13px;
   font-weight: 500;
   transition: all 0.2s;
+  margin: 0;  /* Remove default margin */
 }
 
 .edit {
@@ -247,7 +247,6 @@ body {
   background: #fecaca;
   transform: translateY(-1px);
 }
-
 /* Bottom Section */
 .bottom {
   display: flex;
