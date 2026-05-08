@@ -62,10 +62,12 @@
       <div class="customer-card">
         <div class="customer-row">
           <div class="customer-col">
-            <input type="text" placeholder="Address Line 1" [(ngModel)]="customerData.address_line1" name="address_line1">
+            <input type="text" placeholder="Address Line 1" [(ngModel)]="customerData.address_line1"
+              name="address_line1">
           </div>
           <div class="customer-col">
-            <input type="text" placeholder="Address Line 2" [(ngModel)]="customerData.address_line2" name="address_line2">
+            <input type="text" placeholder="Address Line 2" [(ngModel)]="customerData.address_line2"
+              name="address_line2">
           </div>
         </div>
         <div class="customer-row">
@@ -100,23 +102,28 @@
         <div class="delivery-address-fields" *ngIf="!sameAsBilling">
           <div class="customer-row">
             <div class="customer-col">
-              <input type="text" placeholder="Delivery Address Line 1" [(ngModel)]="customerData.delivery_address_line1" name="delivery_address_line1">
+              <input type="text" placeholder="Delivery Address Line 1" [(ngModel)]="customerData.delivery_address_line1"
+                name="delivery_address_line1">
             </div>
             <div class="customer-col">
-              <input type="text" placeholder="Delivery Address Line 2" [(ngModel)]="customerData.delivery_address_line2" name="delivery_address_line2">
-            </div>
-          </div>
-          <div class="customer-row">
-            <div class="customer-col">
-              <input type="text" placeholder="Delivery Pincode" [(ngModel)]="customerData.delivery_pincode" name="delivery_pincode">
-            </div>
-            <div class="customer-col">
-              <input type="text" placeholder="Delivery State" [(ngModel)]="customerData.delivery_state" name="delivery_state">
+              <input type="text" placeholder="Delivery Address Line 2" [(ngModel)]="customerData.delivery_address_line2"
+                name="delivery_address_line2">
             </div>
           </div>
           <div class="customer-row">
             <div class="customer-col">
-              <input type="text" placeholder="Delivery City" [(ngModel)]="customerData.delivery_city" name="delivery_city">
+              <input type="text" placeholder="Delivery Pincode" [(ngModel)]="customerData.delivery_pincode"
+                name="delivery_pincode">
+            </div>
+            <div class="customer-col">
+              <input type="text" placeholder="Delivery State" [(ngModel)]="customerData.delivery_state"
+                name="delivery_state">
+            </div>
+          </div>
+          <div class="customer-row">
+            <div class="customer-col">
+              <input type="text" placeholder="Delivery City" [(ngModel)]="customerData.delivery_city"
+                name="delivery_city">
             </div>
             <div class="customer-col">
               <input type="text" placeholder="Delivery Country" value="India" disabled>
@@ -137,16 +144,19 @@
       <div class="customer-card">
         <div class="customer-group">
           <label>Amount (₹)</label>
-          <input type="number" placeholder="Enter amount" [(ngModel)]="customerData.opening_balance" name="opening_balance">
-          <small class="balance-hint" [class.positive]="customerData.opening_balance > 0" [class.negative]="customerData.opening_balance < 0">
+          <input type="number" placeholder="Enter amount" [(ngModel)]="customerData.opening_balance"
+            name="opening_balance">
+          <small class="balance-hint" [class.positive]="customerData.opening_balance > 0"
+            [class.negative]="customerData.opening_balance < 0">
             {{ customerData.opening_balance > 0 ? '✓ You will collect this amount from customer' : '' }}
-            {{ customerData.opening_balance < 0 ? '⚠ You will pay this amount to customer' : '' }}
-            {{ customerData.opening_balance == 0 ? 'Enter positive amount (You Collect) or negative amount (You Pay)' : '' }}
-          </small>
+            {{ customerData.opening_balance < 0 ? '⚠ You will pay this amount to customer' : '' }} {{
+              customerData.opening_balance==0 ? 'Enter positive amount (You Collect) or negative amount (You Pay)' : ''
+              }} </small>
         </div>
       </div>
 
       <!-- 🔹 RCM ONLY (No TDS/TCS) -->
+      <!-- 🔹 RCM ONLY -->
       <h4 class="customer-title mt-2">Reverse Charge Mechanism (RCM)</h4>
       <div class="customer-card">
         <div class="rcm-toggle-container">
@@ -155,10 +165,10 @@
             <div class="toggle-slider"></div>
             <span class="toggle-text">{{ rcmEnabled ? 'Enabled' : 'Disabled' }}</span>
           </div>
-          <small class="rcm-hint" *ngIf="rcmEnabled" style="color: #10b981; display: block; margin-top: 10px;">
+          <small class="rcm-hint" *ngIf="rcmEnabled" style="color: #10b981;">
             ✓ RCM is enabled. Customer will pay tax directly to government.
           </small>
-          <small class="rcm-hint" *ngIf="!rcmEnabled" style="color: #6b7280; display: block; margin-top: 10px;">
+          <small class="rcm-hint" *ngIf="!rcmEnabled" style="color: #6b7280;">
             ✗ RCM is disabled. Regular tax applies.
           </small>
         </div>

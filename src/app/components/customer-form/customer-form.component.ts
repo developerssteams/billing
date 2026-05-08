@@ -11,11 +11,11 @@ import { HttpClient } from '@angular/common/http';
   styleUrls: ['./customer-form.component.scss']
 })
 export class CustomerFormComponent implements OnInit, OnChanges {
-  
+
   @Input() showForm: boolean = false;
   @Input() isEditMode: boolean = false;
   @Input() editCustomerData: any = null;
-  
+
   @Output() formClosed = new EventEmitter<void>();
   @Output() customerSaved = new EventEmitter<any>();
 
@@ -24,7 +24,7 @@ export class CustomerFormComponent implements OnInit, OnChanges {
   // GST Related
   gstLoading: boolean = false;
   gstError: string = '';
-  
+
   // RCM Only (No TDS/TCS)
   rcmEnabled: boolean = false;
 
@@ -59,13 +59,13 @@ export class CustomerFormComponent implements OnInit, OnChanges {
     delivery_country: 'India'
   };
 
-  ngOnInit(): void {}
+  ngOnInit(): void { }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['editCustomerData'] && this.editCustomerData && this.isEditMode) {
       this.populateFormForEdit();
     }
-    
+
     if (changes['showForm'] && this.showForm && !this.isEditMode) {
       this.resetForm();
     }
@@ -73,7 +73,7 @@ export class CustomerFormComponent implements OnInit, OnChanges {
 
   populateFormForEdit() {
     const customer = this.editCustomerData;
-    
+
     this.customerData = {
       name: customer.name || '',
       phone: customer.phone || '',
@@ -94,22 +94,22 @@ export class CustomerFormComponent implements OnInit, OnChanges {
       delivery_city: customer.delivery_city || '',
       delivery_country: customer.delivery_country || 'India'
     };
-    
+
     // Preserve sign for opening balance in edit mode
     if (customer.opening_balance < 0) {
       this.customerData.opening_balance = -this.customerData.opening_balance;
     }
-    
+
     this.rcmEnabled = customer.rcm == 1;
     this.sameAsBilling = this.isDeliverySameAsBilling();
   }
 
   isDeliverySameAsBilling(): boolean {
     return this.customerData.delivery_address_line1 === this.customerData.address_line1 &&
-           this.customerData.delivery_address_line2 === this.customerData.address_line2 &&
-           this.customerData.delivery_pincode === this.customerData.pincode &&
-           this.customerData.delivery_state === this.customerData.state &&
-           this.customerData.delivery_city === this.customerData.city;
+      this.customerData.delivery_address_line2 === this.customerData.address_line2 &&
+      this.customerData.delivery_pincode === this.customerData.pincode &&
+      this.customerData.delivery_state === this.customerData.state &&
+      this.customerData.delivery_city === this.customerData.city;
   }
 
   getBillingAddressPreview(): string {
@@ -165,7 +165,7 @@ export class CustomerFormComponent implements OnInit, OnChanges {
             this.customerData.city = data.pradr?.addr?.loc || '';
             this.customerData.pincode = data.pradr?.addr?.pncd || '';
             this.customerData.state = data.pradr?.addr?.stcd || '';
-            
+
             if (this.sameAsBilling) {
               this.onSameAsBillingChange();
             }
@@ -185,12 +185,12 @@ export class CustomerFormComponent implements OnInit, OnChanges {
     input.value = input.value.replace(/[^0-9]/g, '').slice(0, 10);
     this.customerData.phone = input.value;
   }
-
+  // Toggle RCM
   toggleRCM() {
     this.rcmEnabled = !this.rcmEnabled;
     this.customerData.rcm = this.rcmEnabled ? 1 : 0;
+    console.log('RCM Status:', this.rcmEnabled ? 'Enabled' : 'Disabled');
   }
-
   closeForm() {
     this.formClosed.emit();
     this.resetForm();
@@ -242,7 +242,7 @@ export class CustomerFormComponent implements OnInit, OnChanges {
   createCustomer() {
     // Prepare opening balance with sign (positive = You Collect, negative = You Pay)
     let openingBalance = Math.abs(Number(this.customerData.opening_balance) || 0);
-    
+
     const payload = {
       user_id: this.userId,
       name: this.customerData.name,
@@ -290,7 +290,7 @@ export class CustomerFormComponent implements OnInit, OnChanges {
 
   updateCustomer() {
     let openingBalance = Math.abs(Number(this.customerData.opening_balance) || 0);
-    
+
     const payload = {
       id: this.editCustomerData.id,
       name: this.customerData.name,
