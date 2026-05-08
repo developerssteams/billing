@@ -95,7 +95,7 @@ body {
 /* Row Grid */
 .row {
   display: grid;
-   grid-template-columns: 2fr 2fr 1.5fr 1.5fr;
+  grid-template-columns: 280px 280px 160px 160px;
   padding: 14px 16px;
   border-bottom: 1px solid #eef2ff;
   align-items: center;
@@ -133,12 +133,12 @@ body {
   flex-shrink: 0;
 }
 
-.user > div {
+.user>div {
   min-width: 0;
   flex: 1;
 }
 
-.user > div > div {
+.user>div>div {
   font-weight: 500;
   font-size: 14px;
   white-space: nowrap;
@@ -531,11 +531,11 @@ body {
   transition: 0.1s ease;
 }
 
-.custom-radio input:checked + .radio-circle {
+.custom-radio input:checked+.radio-circle {
   border-color: #3b82f6;
 }
 
-.custom-radio input:checked + .radio-circle::after {
+.custom-radio input:checked+.radio-circle::after {
   transform: translate(-50%, -50%) scale(1);
 }
 
