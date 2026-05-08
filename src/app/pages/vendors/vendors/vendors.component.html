@@ -44,8 +44,7 @@
           <div class="contact-phone">{{ vendor.phone || '-' }}</div>
           <div class="contact-email">{{ vendor.email || '-' }}</div>
         </div>
-
-        <!-- Balance - Based on positive/negative value (No sign displayed) -->
+        <!-- Balance - Clean version with no sign -->
         <div class="balance-section">
           <div class="balance-amount" [class.pay]="vendor.opening_balance < 0"
             [class.collect]="vendor.opening_balance >= 0">
