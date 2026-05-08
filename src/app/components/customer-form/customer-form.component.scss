@@ -382,6 +382,9 @@
 
 /* Mobile Responsive */
 @media (max-width: 480px) {
+  .customer-form{
+    width: 100%;
+  }
   .toggle-switch {
     width: 80px;
     height: 36px;
