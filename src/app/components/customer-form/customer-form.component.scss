@@ -225,6 +225,21 @@
   font-size: 14px;
   cursor: pointer;
 }
+.header-save-btn {
+  width: auto;
+  /* 🔥 change */
+  padding: 0 20px;
+  /* button size */
+  height: 42px;
+  /* thoda compact */
+  border-radius: 10px;
+  background: #165a50;
+  color: #fff;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+}
+
 
 /* Cancel */
 .customer-cancel-btn {
@@ -444,6 +459,9 @@
   .customer-save-btn,
   .customer-cancel-btn {
     width: 100%;
+  }
+  .header-save-btn {
+    display: none;
   }
 }
 
