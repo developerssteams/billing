@@ -6,7 +6,7 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 
 @Component({
   selector: 'app-vendors',
-  imports: [CommonModule, FormsModule, PageHeaderComponent],
+  imports: [CommonModule, FormsModule,],
   templateUrl: './vendors.component.html',
   styleUrls: ['./vendors.component.scss']
 })
