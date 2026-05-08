@@ -305,8 +305,11 @@ export class CustomersComponent {
   }
 
   // 🔥 GET CUSTOMERS
+  // In your customers component
   getCustomers() {
-    fetch(`https://billsezy.com/Api/get_customers.php?user_id=${this.userId}`)
+    const userId = this.userId; // Get from localStorage or auth service
+
+    fetch(`https://billsezy.com/Api/get_customers.php?user_id=${userId}`)
       .then(res => res.json())
       .then(res => {
         if (res.status === true) {
@@ -314,11 +317,12 @@ export class CustomersComponent {
           this.filteredData = [...this.customerData];
           this.currentPage = 1;
           this.updatePaginatedData();
+        } else {
+          console.error(res.message);
         }
       })
-      .catch(err => console.error(err));
+      .catch(err => console.error('Error:', err));
   }
-
   // 🔥 SUMMARY
   getTotalPay(): number {
     return this.customerData
