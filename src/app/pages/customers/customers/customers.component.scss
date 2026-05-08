@@ -614,3 +614,92 @@ body {
     padding: 16px;
   }
 }
+/* RCM Toggle Switch Styles */
+.rcm-toggle-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rcm-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #334155;
+  margin-bottom: 5px;
+}
+
+.toggle-switch {
+  width: 100px;
+  height: 40px;
+  background: #e2e8f0;
+  border-radius: 40px;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-switch.active {
+  background: #10b981;
+}
+
+.toggle-slider {
+  width: 32px;
+  height: 32px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-switch.active .toggle-slider {
+  transform: translateX(60px);
+}
+
+.toggle-text {
+  position: absolute;
+  right: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.toggle-switch.active .toggle-text {
+  left: 12px;
+  right: auto;
+  color: white;
+}
+
+.rcm-hint {
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .toggle-switch {
+    width: 80px;
+    height: 34px;
+  }
+  
+  .toggle-slider {
+    width: 26px;
+    height: 26px;
+  }
+  
+  .toggle-switch.active .toggle-slider {
+    transform: translateX(46px);
+  }
+  
+  .toggle-text {
+    font-size: 10px;
+    right: 8px;
+  }
+  
+  .toggle-switch.active .toggle-text {
+    left: 8px;
+  }
+}

@@ -154,6 +154,7 @@ export class CustomersComponent {
         city: customer.city || '',
         opening_balance: Math.abs(customer.opening_balance) || 0
       };
+      this.rcmEnabled = customer.rcm == 1;
     } else {
       this.isEditMode = false;
       this.editCustomerId = null;
@@ -181,8 +182,10 @@ export class CustomersComponent {
       pincode: '',
       state: '',
       city: '',
-      opening_balance: 0
+      opening_balance: 0,
+      rcm: 0  // Add this
     };
+    this.rcmEnabled = false;
     this.gstError = '';
   }
 
@@ -218,7 +221,8 @@ export class CustomersComponent {
       pincode: this.newCustomer.pincode,
       state: this.newCustomer.state,
       city: this.newCustomer.city,
-      opening_balance: Number(this.newCustomer.opening_balance) || 0
+      opening_balance: Number(this.newCustomer.opening_balance) || 0,
+      rcm: this.rcmEnabled ? 1 : 0
     };
 
     fetch('https://billsezy.com/Api/add_customer.php', {
@@ -256,7 +260,8 @@ export class CustomersComponent {
       pincode: this.newCustomer.pincode,
       state: this.newCustomer.state,
       city: this.newCustomer.city,
-      opening_balance: Number(this.newCustomer.opening_balance) || 0
+      opening_balance: Number(this.newCustomer.opening_balance) || 0,
+      rcm: this.rcmEnabled ? 1 : 0
     };
 
     fetch('https://billsezy.com/Api/update_customer.php', {
@@ -303,7 +308,13 @@ export class CustomersComponent {
         });
     }
   }
+  rcmEnabled: boolean = false;
 
+  // Add toggleRCM method
+  toggleRCM() {
+    this.rcmEnabled = !this.rcmEnabled;
+    console.log('RCM Status:', this.rcmEnabled ? 'Enabled' : 'Disabled');
+  }
   // 🔥 GET CUSTOMERS
   // 🔥 GET CUSTOMERS - Updated with better error handling
   getCustomers() {
