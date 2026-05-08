@@ -176,29 +176,7 @@
         </div>
       </div>
 
-      <!-- Opening Balance Only - TDS/TCS REMOVED -->
-      <h4 class="vendor-title">Opening Balance</h4>
-      <div class="vendor-card">
-        <div class="radio-group">
-          <label class="custom-radio">
-            <input type="radio" value="debit" [(ngModel)]="newVendor.balance_type" name="balance_type">
-            <span class="radio-circle"></span>
-            Debit (You Collect)
-          </label>
-          <label class="custom-radio">
-            <input type="radio" value="credit" [(ngModel)]="newVendor.balance_type" name="balance_type">
-            <span class="radio-circle"></span>
-            Credit (You Pay)
-          </label>
-        </div>
-
-        <div class="input-box">
-          <input type="number" placeholder="Enter Amount" [(ngModel)]="newVendor.opening_balance" name="opening_balance">
-          <span class="balance-text" [ngClass]="newVendor.balance_type === 'debit' ? 'green' : 'red'">
-            {{ newVendor.balance_type === 'debit' ? 'You Collect ₹' : 'You Pay ₹' }}
-          </span>
-        </div>
-      </div>
+  
 
     </div>
 
