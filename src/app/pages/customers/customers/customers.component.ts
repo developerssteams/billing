@@ -3,11 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { CustomerFormComponent } from '../../../components/customer-form/customer-form.component'; // Adjust path as needed
 
 @Component({
   selector: 'app-customers',
-  imports: [CommonModule, FormsModule, PageHeaderComponent, CustomerFormComponent],
+  imports: [CommonModule, FormsModule, PageHeaderComponent],
   templateUrl: './customers.component.html',
   styleUrls: ['./customers.component.scss']
 })
@@ -15,38 +14,103 @@ export class CustomersComponent {
   constructor(private http: HttpClient) { }
 
   searchText = '';
+  gstLoading: boolean = false;
+  gstError: string = '';
 
-  // 🔹 Pagination
+  // Pagination
   currentPage = 1;
   itemsPerPage = 10;
 
-  // 🔹 Customer List
+  // Customer List
   customerData: any[] = [];
   filteredData: any[] = [];
   paginatedData: any[] = [];
 
-  // 🔹 Form Modal Control
-  showCustomerForm = false;
-  isEditMode = false;
-  selectedCustomer: any = null;
+  // Edit Mode
+  isEditMode: boolean = false;
+  editCustomerId: number | null = null;
 
-  // 🔹 Lifecycle
+  // Form Data
+  newCustomer: any = {
+    name: '',
+    phone: '',
+    email: '',
+    company_name: '',
+    gstin: '',
+    address_line1: '',
+    address_line2: '',
+    pincode: '',
+    state: '',
+    city: '',
+    opening_balance: 0
+  };
+
+  // User ID
+  userId: number = 1;
+
   ngOnInit() {
     this.filteredData = this.customerData;
     this.updatePaginatedData();
     this.getCustomers();
   }
 
-  // 🔹 Search
+  // 🔹 GST Check
+  checkGST(event: any) {
+    let gstNumber = event.target.value.toUpperCase().trim();
+    this.newCustomer.gstin = gstNumber;
+    this.gstError = '';
+
+    if (gstNumber.length === 15) {
+      this.fetchGSTDetails(gstNumber);
+    }
+  }
+
+  fetchGSTDetails(gstin: string) {
+    this.gstLoading = true;
+    this.gstError = '';
+
+    this.http.get(`https://billsezy.com/Api/gst-fetch.php?gstin=${gstin}`)
+      .subscribe(
+        (res: any) => {
+          this.gstLoading = false;
+          if (res?.status && res?.data) {
+            const data = res.data;
+            this.newCustomer.company_name = data.tradeNam || data.lgnm || '';
+            this.newCustomer.address_line1 = data.pradr?.addr?.bno || '';
+            this.newCustomer.address_line2 = data.pradr?.addr?.st || '';
+            this.newCustomer.city = data.pradr?.addr?.loc || '';
+            this.newCustomer.pincode = data.pradr?.addr?.pncd || '';
+            this.newCustomer.state = data.pradr?.addr?.stcd || '';
+          } else {
+            this.gstError = res?.message || "Invalid GST Number / No Data Found";
+          }
+        },
+        (error: any) => {
+          this.gstLoading = false;
+          this.gstError = "GST fetch failed";
+        }
+      );
+  }
+
+  // 🔹 Phone Restriction
+  onlyNumber(event: any) {
+    const input = event.target;
+    input.value = input.value.replace(/[^0-9]/g, '').slice(0, 10);
+    this.newCustomer.phone = input.value;
+  }
+
+  // 🔹 SEARCH
   searchCustomer() {
     this.filteredData = this.customerData.filter((item: any) =>
-      item.name.toLowerCase().includes(this.searchText.toLowerCase())
+      item.name?.toLowerCase().includes(this.searchText.toLowerCase()) ||
+      item.company_name?.toLowerCase().includes(this.searchText.toLowerCase()) ||
+      item.phone?.includes(this.searchText)
     );
     this.currentPage = 1;
     this.updatePaginatedData();
   }
 
-  // 🔹 Pagination
+  // 🔹 PAGINATION
   updatePaginatedData() {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
@@ -71,29 +135,151 @@ export class CustomersComponent {
     return Math.ceil(this.filteredData.length / this.itemsPerPage);
   }
 
-  // 🔹 Open Form (Add/Edit)
+  // 🔹 FORM
+  showCustomerForm = false;
+
   openForm(customer?: any) {
     if (customer) {
       this.isEditMode = true;
-      this.selectedCustomer = customer;
+      this.editCustomerId = customer.id;
+      this.newCustomer = {
+        name: customer.name || '',
+        phone: customer.phone || '',
+        email: customer.email || '',
+        company_name: customer.company_name || '',
+        gstin: customer.gstin || '',
+        address_line1: customer.address_line1 || '',
+        address_line2: customer.address_line2 || '',
+        pincode: customer.pincode || '',
+        state: customer.state || '',
+        city: customer.city || '',
+        opening_balance: Math.abs(customer.opening_balance) || 0
+      };
     } else {
       this.isEditMode = false;
-      this.selectedCustomer = null;
+      this.editCustomerId = null;
+      this.resetForm();
     }
     this.showCustomerForm = true;
   }
 
-  // 🔹 Close Form
   closeForm() {
     this.showCustomerForm = false;
     this.isEditMode = false;
-    this.selectedCustomer = null;
+    this.editCustomerId = null;
+    this.resetForm();
   }
 
-  // 🔹 When Customer Saved (Add/Edit)
-  onCustomerSaved(customer: any) {
-    this.getCustomers(); // Refresh list
-    this.closeForm();
+  resetForm() {
+    this.newCustomer = {
+      name: '',
+      phone: '',
+      email: '',
+      company_name: '',
+      gstin: '',
+      address_line1: '',
+      address_line2: '',
+      pincode: '',
+      state: '',
+      city: '',
+      opening_balance: 0
+    };
+    this.gstError = '';
+  }
+
+  // 🔥 ADD/UPDATE CUSTOMER
+  isLoading = false;
+
+  addCustomer() {
+    if (!this.newCustomer.name) {
+      alert('Name required');
+      return;
+    }
+
+    if (this.isLoading) return;
+    this.isLoading = true;
+
+    if (this.isEditMode && this.editCustomerId) {
+      this.updateCustomer();
+    } else {
+      this.createCustomer();
+    }
+  }
+
+  createCustomer() {
+    const payload = {
+      user_id: this.userId,
+      name: this.newCustomer.name,
+      phone: this.newCustomer.phone,
+      email: this.newCustomer.email,
+      company_name: this.newCustomer.company_name,
+      gstin: this.newCustomer.gstin,
+      address_line1: this.newCustomer.address_line1,
+      address_line2: this.newCustomer.address_line2,
+      pincode: this.newCustomer.pincode,
+      state: this.newCustomer.state,
+      city: this.newCustomer.city,
+      opening_balance: Number(this.newCustomer.opening_balance) || 0
+    };
+
+    fetch('https://billsezy.com/Api/add_customer.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(res => res.json())
+      .then(res => {
+        this.isLoading = false;
+        if (res.status === true) {
+          this.getCustomers();
+          this.closeForm();
+          alert('Customer Added Successfully ✅');
+        } else {
+          alert(res.message || 'Something went wrong');
+        }
+      })
+      .catch(err => {
+        this.isLoading = false;
+        alert('Server Error ❌');
+      });
+  }
+
+  updateCustomer() {
+    const payload = {
+      id: this.editCustomerId,
+      name: this.newCustomer.name,
+      phone: this.newCustomer.phone,
+      email: this.newCustomer.email,
+      company_name: this.newCustomer.company_name,
+      gstin: this.newCustomer.gstin,
+      address_line1: this.newCustomer.address_line1,
+      address_line2: this.newCustomer.address_line2,
+      pincode: this.newCustomer.pincode,
+      state: this.newCustomer.state,
+      city: this.newCustomer.city,
+      opening_balance: Number(this.newCustomer.opening_balance) || 0
+    };
+
+    fetch('https://billsezy.com/Api/update_customer.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(res => res.json())
+      .then(res => {
+        this.isLoading = false;
+        if (res.status === true) {
+          this.getCustomers();
+          this.closeForm();
+          alert('Customer Updated Successfully ✅');
+        } else {
+          alert(res.message || 'Something went wrong');
+        }
+      })
+      .catch(err => {
+        this.isLoading = false;
+        alert('Server Error ❌');
+      });
   }
 
   // 🔥 DELETE CUSTOMER
@@ -102,7 +288,7 @@ export class CustomersComponent {
       fetch('https://billsezy.com/Api/delete_customer.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: id })
+        body: JSON.stringify({ id: id, user_id: this.userId })
       })
         .then(res => res.json())
         .then(res => {
@@ -114,7 +300,6 @@ export class CustomersComponent {
           }
         })
         .catch(err => {
-          console.error('Error:', err);
           alert('Server Error ❌');
         });
     }
@@ -122,7 +307,7 @@ export class CustomersComponent {
 
   // 🔥 GET CUSTOMERS
   getCustomers() {
-    fetch('https://billsezy.com/Api/get_customers.php')
+    fetch(`https://billsezy.com/Api/get_customers.php?user_id=${this.userId}`)
       .then(res => res.json())
       .then(res => {
         if (res.status === true) {
@@ -135,21 +320,16 @@ export class CustomersComponent {
       .catch(err => console.error(err));
   }
 
-  // 🔥 VIEW LEDGER
-  viewLedger(customer: any) {
-    alert(`Viewing ledger for ${customer.name}`);
-  }
-
   // 🔥 SUMMARY
   getTotalPay(): number {
     return this.customerData
-      .filter(c => c.balance_type === 'credit')
-      .reduce((sum, c) => sum + Number(c.opening_balance || 0), 0);
+      .filter(c => c.opening_balance < 0)
+      .reduce((sum, c) => sum + Math.abs(Number(c.opening_balance || 0)), 0);
   }
 
   getTotalCollect(): number {
     return this.customerData
-      .filter(c => c.balance_type === 'debit')
+      .filter(c => c.opening_balance > 0)
       .reduce((sum, c) => sum + Number(c.opening_balance || 0), 0);
   }
 }
