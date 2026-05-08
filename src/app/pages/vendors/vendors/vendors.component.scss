@@ -95,7 +95,7 @@ body {
 /* Row Grid */
 .row {
   display: grid;
-  grid-template-columns: 280px 280px 160px 160px;
+   grid-template-columns: 2fr 2fr 1.5fr 1.5fr;
   padding: 14px 16px;
   border-bottom: 1px solid #eef2ff;
   align-items: center;
