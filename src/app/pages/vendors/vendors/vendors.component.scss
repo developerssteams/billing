@@ -40,7 +40,6 @@ body {
   border-radius: 10px;
   width: 280px;
   font-size: 14px;
-  transition: all 0.2s;
 }
 
 .search:focus {
@@ -74,7 +73,7 @@ body {
   background: #2563eb;
 }
 
-/* Table Wrapper - Scroll on mobile */
+/* Table Wrapper */
 .table-wrapper {
   width: 100%;
   overflow-x: auto;
@@ -87,7 +86,7 @@ body {
   width: 100%;
 }
 
-/* Row Grid - Responsive */
+/* Row Grid */
 .row {
   display: grid;
   grid-template-columns: 2.5fr 2fr 1.5fr 1.5fr;
@@ -138,13 +137,11 @@ body {
   font-size: 15px;
   color: #1f2937;
   margin-bottom: 4px;
-  word-break: break-word;
 }
 
 .user-company {
   font-size: 12px;
   color: #6b7280;
-  word-break: break-word;
 }
 
 /* Contact Section */
@@ -281,7 +278,6 @@ body {
   border-radius: 8px;
   cursor: pointer;
   font-weight: 500;
-  transition: all 0.2s;
 }
 
 .pagination button:hover:not(:disabled) {
@@ -301,7 +297,7 @@ body {
 }
 
 /* ==================== */
-/* SIDEBAR FORM - Same as Customer */
+/* SIDEBAR FORM */
 /* ==================== */
 .overlay {
   position: fixed;
@@ -336,7 +332,7 @@ body {
 /* Header */
 .vendor-header {
   background: white;
-  padding: 20px;
+  padding: 16px 20px;
   border-bottom: 1px solid #e2e8f0;
   display: flex;
   justify-content: space-between;
@@ -347,27 +343,56 @@ body {
 
 .vendor-header h3 {
   margin: 0;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
   color: #0f172a;
+}
+
+.header-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.header-close-btn:hover {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fecaca;
 }
 
 .header-save-btn {
   background: #3b82f6;
   color: white;
   border: none;
-  padding: 8px 20px;
+  padding: 6px 16px;
   border-radius: 8px;
   font-weight: 500;
+  font-size: 13px;
   cursor: pointer;
   transition: all 0.2s;
+  height: 32px;
 }
 
 .header-save-btn:hover {
   background: #2563eb;
 }
 
-/* Body - Scrollable */
+/* Body */
 .vendor-body {
   flex: 1;
   overflow-y: auto;
@@ -437,7 +462,6 @@ body {
   padding: 0 12px;
   font-size: 14px;
   background: white;
-  transition: all 0.2s;
 }
 
 .vendor-form input:focus {
@@ -492,7 +516,6 @@ body {
   flex: 1;
 }
 
-/* Sub Title */
 .vendor-sub-title {
   font-size: 14px;
   font-weight: 600;
@@ -500,7 +523,6 @@ body {
   color: #475569;
 }
 
-/* Balance Hint */
 .text-gray-500 {
   color: #6b7280;
   font-size: 12px;
@@ -508,7 +530,7 @@ body {
   margin-top: 5px;
 }
 
-/* Footer Buttons */
+/* Footer */
 .vendor-footer {
   padding: 16px 20px;
   background: white;
@@ -518,7 +540,7 @@ body {
   flex-shrink: 0;
 }
 
-.vendor-save-btn {
+.vendor-footer .vendor-save-btn {
   flex: 1;
   height: 44px;
   border-radius: 8px;
@@ -526,11 +548,11 @@ body {
   color: white;
   border: none;
   font-weight: 600;
+  font-size: 14px;
   cursor: pointer;
-  transition: all 0.2s;
 }
 
-.vendor-save-btn:hover {
+.vendor-footer .vendor-save-btn:hover {
   background: #2563eb;
 }
 
@@ -540,9 +562,10 @@ body {
   border-radius: 8px;
   background: #f1f5f9;
   border: 1px solid #e2e8f0;
-  cursor: pointer;
+  color: #334155;
   font-weight: 500;
-  transition: all 0.2s;
+  font-size: 14px;
+  cursor: pointer;
 }
 
 .vendor-cancel-btn:hover {
@@ -591,7 +614,6 @@ body {
     justify-content: center;
   }
 
-  /* Mobile scroll */
   .table {
     min-width: 700px;
   }
@@ -600,7 +622,6 @@ body {
     min-width: 700px;
   }
 
-  /* Form full width on mobile */
   .side-form {
     max-width: 100%;
   }
@@ -611,22 +632,19 @@ body {
   }
 
   .vendor-footer {
-    flex-direction: column;
+    flex-direction: column-reverse;
     gap: 10px;
   }
 
-  .vendor-save-btn,
+  .vendor-footer .vendor-save-btn,
   .vendor-cancel-btn {
     width: 100%;
+    flex: none;
   }
 
   .vendor-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .header-save-btn {
-    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
   }
 }
 
