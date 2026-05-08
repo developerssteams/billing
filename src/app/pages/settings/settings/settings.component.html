@@ -70,19 +70,42 @@
     </div>
 
     <!-- GST -->
+    <!-- GST -->
     <div class="form-row">
+
         <div class="label-col">
             <label><span class="req">*</span>GSTIN :</label>
         </div>
+
         <div class="input-col gst-group">
+
             <input type="text" class="form-control" placeholder="Enter GSTIN Number" [(ngModel)]="company.gstin"
                 maxlength="15" style="text-transform: uppercase;" required>
-            <button class="fetch-btn" (click)="fetchGSTDetails(company.gstin)" [disabled]="gstLoading">
+
+            <button class="fetch-btn" (click)="fetchGSTDetails(company.gstin)"
+                [disabled]="gstLoading || company.business_type">
+
                 {{ gstLoading ? 'Fetching...' : 'Fetch Details' }}
+
             </button>
+
         </div>
-        <small *ngIf="gstLoading" style="color: blue;">Fetching GST details...</small>
-        <small *ngIf="gstError" style="color:red">{{ gstError }}</small>
+
+        <!-- LOADING -->
+        <small *ngIf="gstLoading" style="color: blue;">
+            Fetching GST details...
+        </small>
+
+        <!-- ERROR -->
+        <small *ngIf="gstError" style="color:red">
+            {{ gstError }}
+        </small>
+
+        <!-- SUCCESS -->
+        <small *ngIf="company.business_type" style="color: green;">
+            GST Details Already Loaded
+        </small>
+
     </div>
 
     <!-- Business Type -->
@@ -121,7 +144,8 @@
             <label>Address :</label>
         </div>
         <div class="input-col">
-            <textarea class="form-control" [(ngModel)]="company.address" placeholder="Company Address (Line1, Line2)" rows="3"></textarea>
+            <textarea class="form-control" [(ngModel)]="company.address" placeholder="Company Address (Line1, Line2)"
+                rows="3"></textarea>
         </div>
     </div>
 
