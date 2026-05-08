@@ -135,9 +135,11 @@
     max-width: 100%;
   }
 
-  .phone-group,
+  .phone-group{
+    flex-direction: column;
+  }
   .gst-group {
-    flex-direction: row;
+    flex-direction: column;
   }
 
   .country-code {
