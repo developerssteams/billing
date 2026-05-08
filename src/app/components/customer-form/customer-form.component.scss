@@ -528,8 +528,10 @@
 }
 
 /* ========================= */
-/* 🔹 MOBILE RESPONSIVE */
+/* 🔹 RESPONSIVE BREAKPOINTS */
 /* ========================= */
+
+/* Mobile (max-width: 768px) - Full width */
 @media (max-width: 768px) {
   .customer-form {
     width: 100%;
@@ -560,9 +562,7 @@
     flex-direction: row;
     justify-content: space-between;
   }
-}
-
-@media (max-width: 480px) {
+  
   .toggle-switch {
     width: 80px;
     height: 36px;
@@ -583,5 +583,65 @@
   
   .customer-card {
     padding: 16px;
+  }
+}
+
+/* Tablet (769px to 1024px) - 65% width */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .customer-form {
+    width: 65%;
+    right: -65%;
+  }
+  
+  .customer-form.open {
+    right: 0;
+  }
+  
+  .customer-row {
+    flex-direction: row;
+    gap: 12px;
+  }
+  
+  .customer-footer {
+    flex-direction: row;
+    gap: 12px;
+  }
+  
+  .customer-footer .customer-save-btn,
+  .customer-cancel-btn {
+    flex: 1;
+    width: auto;
+  }
+  
+  .customer-header {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+/* Laptop/Desktop (min-width: 1025px) - 40% width */
+@media (min-width: 1025px) {
+  .customer-form {
+    width: 40%;
+    right: -40%;
+  }
+  
+  .customer-form.open {
+    right: 0;
+  }
+  
+  .customer-row {
+    flex-direction: row;
+    gap: 12px;
+  }
+  
+  .customer-footer {
+    flex-direction: row;
+    gap: 12px;
+  }
+  
+  .customer-header {
+    flex-direction: row;
+    justify-content: space-between;
   }
 }
