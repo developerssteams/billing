@@ -87,23 +87,18 @@
 
 </div>
 
-
-
 <!-- Overlay -->
 <div class="overlay" *ngIf="showForm" (click)="closeForm()"></div>
 
+<!-- Side Form -->
 <form (ngSubmit)="addVendor()">
   <div class="side-form vendor-form" [class.open]="showForm">
 
-    <!-- Header with Close Button and Save Button -->
     <div class="vendor-header">
       <h3>{{ isEditMode ? 'Edit Vendor' : 'Add Vendor' }}</h3>
-      <div class="header-buttons">
-        <button type="button" class="header-close-btn" (click)="closeForm()">✕</button>
-        <button class="vendor-save-btn header-save-btn" type="submit">
-          {{ isEditMode ? 'Update' : 'Save' }}
-        </button>
-      </div>
+      <button class="vendor-save-btn header-save-btn" type="submit">
+        {{ isEditMode ? 'Update Vendor' : 'Save Vendor' }}
+      </button>
     </div>
 
     <div class="vendor-body">
@@ -113,7 +108,7 @@
       <div class="vendor-card">
         <div class="vendor-group">
           <label class="vendor-required">Name</label>
-          <input type="text" placeholder="Vendor Name" [(ngModel)]="newVendor.name" name="name" required>
+          <input type="text" placeholder="Ratan TATA" [(ngModel)]="newVendor.name" name="name" required>
         </div>
 
         <div class="vendor-row">
@@ -145,8 +140,8 @@
           <div class="vendor-col">
             <label>GSTIN</label>
             <div class="vendor-gstin-wrapper">
-              <input type="text" placeholder="29AABCT1332L000" [(ngModel)]="newVendor.gstin" name="gstin" maxlength="15"
-                (input)="checkGST($event)">
+              <input type="text" placeholder="29AABCT1332L000" [(ngModel)]="newVendor.gstin" name="gstin"
+                maxlength="15" (input)="checkGST($event)">
             </div>
             <small *ngIf="gstLoading" style="color: blue;">Fetching GST details...</small>
             <small *ngIf="gstError" style="color: red;">{{ gstError }}</small>
@@ -157,10 +152,12 @@
         <h5 class="vendor-sub-title">Billing Address</h5>
         <div class="vendor-row">
           <div class="vendor-col">
-            <input type="text" placeholder="Address Line 1" [(ngModel)]="newVendor.address_line1" name="address_line1">
+            <input type="text" placeholder="Address Line 1" [(ngModel)]="newVendor.address_line1"
+              name="address_line1">
           </div>
           <div class="vendor-col">
-            <input type="text" placeholder="Address Line 2" [(ngModel)]="newVendor.address_line2" name="address_line2">
+            <input type="text" placeholder="Address Line 2" [(ngModel)]="newVendor.address_line2"
+              name="address_line2">
           </div>
         </div>
 
@@ -188,21 +185,18 @@
       <div class="vendor-card">
         <div class="vendor-group">
           <label>Amount (₹)</label>
-          <input type="number" placeholder="Enter amount (positive or negative)" [(ngModel)]="newVendor.opening_balance"
-            name="opening_balance">
+          <input type="number" placeholder="Enter amount" [(ngModel)]="newVendor.opening_balance" name="opening_balance">
           <small class="text-gray-500">Positive = You Collect, Negative = You Pay</small>
         </div>
       </div>
 
     </div>
 
-    <!-- Footer with Cancel and Save Buttons -->
     <div class="vendor-footer">
-      <button type="button" class="vendor-cancel-btn" (click)="closeForm()">Cancel</button>
       <button class="vendor-save-btn" type="submit">
         {{ isEditMode ? 'Update Vendor' : 'Save Vendor' }}
       </button>
+      <button class="vendor-cancel-btn" type="button" (click)="closeForm()">Cancel</button>
     </div>
-
   </div>
 </form>
