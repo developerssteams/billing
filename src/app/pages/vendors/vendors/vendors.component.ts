@@ -53,13 +53,9 @@ export class VendorsComponent {
     this.updatePaginatedData();
     this.getVendors();
   }
-  // Get absolute amount for display (no sign)
+  // 🔹 Get absolute amount for display (no sign)
   getDisplayAmount(amount: number): number {
     return Math.abs(amount);
-  }
-  // 🔹 Get balance type based on opening balance value
-  getBalanceType(amount: number): string {
-    return amount >= 0 ? 'debit' : 'credit';
   }
 
   // Get balance text
@@ -70,6 +66,10 @@ export class VendorsComponent {
   // Get balance type class
   getBalanceClass(amount: number): string {
     return amount >= 0 ? 'collect' : 'pay';
+  }
+  // 🔹 Get balance type based on opening balance value
+  getBalanceType(amount: number): string {
+    return amount >= 0 ? 'debit' : 'credit';
   }
 
   // 🔹 GST Check
