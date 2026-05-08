@@ -87,19 +87,25 @@ export class SettingsComponent {
               signature: data.signature || ''
             };
 
-            // Set logo preview if exists
-            if (this.company.logo) {
-              this.logoPreview = this.company.logo;
+            if (
+              this.company.logo &&
+              this.company.logo !== 'null'
+            ) {
+
+              this.logoPreview =
+                this.company.logo;
+
             }
-            // SIGNATURE PREVIEW
+            if (
+              this.company.signature &&
+              this.company.signature !== 'null'
+            ) {
 
-if (this.company.signature) {
+              this.signaturePreview =
+                this.company.signature;
 
-  this.signaturePreview =
-    this.company.signature;
+            }
 
-}
-            
           }
         },
         error: (err) => {
