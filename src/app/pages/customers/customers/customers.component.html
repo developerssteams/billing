@@ -1,3 +1,5 @@
+<app-page-header title="Customers"></app-page-header>
+
 <div class="container">
 
   <div class="header">Customers</div>
@@ -40,7 +42,7 @@
           <div class="contact-email">{{ customer.email || '-' }}</div>
         </div>
 
-        <!-- Balance -->
+        <!-- Balance - Positive/Negative Logic -->
         <div class="balance-section">
           <div class="balance-amount" [class.pay]="customer.opening_balance < 0" [class.collect]="customer.opening_balance >= 0">
             ₹ {{ customer.opening_balance < 0 ? -customer.opening_balance : customer.opening_balance }}
@@ -70,6 +72,7 @@
       <div class="badge pay">You Pay ₹ {{ getTotalPay() }}</div>
       <div class="badge collect">You Collect ₹ {{ getTotalCollect() }}</div>
     </div>
+
     <div class="pagination">
       <button (click)="prevPage()" [disabled]="currentPage === 1">Prev</button>
       <span>Page {{ currentPage }} of {{ totalPages() }}</span>
@@ -79,167 +82,11 @@
 
 </div>
 
-<!-- Overlay -->
-<div class="overlay" *ngIf="showCustomerForm" (click)="closeForm()"></div>
-
-<!-- Side Form -->
-<form (ngSubmit)="addCustomer()">
-  <div class="side-form customer-form" [class.open]="showCustomerForm">
-
-    <div class="customer-header">
-      <h3>{{ isEditMode ? 'Edit Customer' : 'Add Customer' }}</h3>
-      <button class="customer-save-btn header-save-btn" type="submit">
-        {{ isEditMode ? 'Update Customer' : 'Save Customer' }}
-      </button>
-    </div>
-
-    <div class="customer-body">
-
-      <!-- Basic Details -->
-      <h4 class="customer-title">Basic Details</h4>
-      <div class="customer-card">
-        <div class="customer-group">
-          <label class="customer-required">Name</label>
-          <input type="text" placeholder="Customer Name" [(ngModel)]="newCustomer.name" name="name" required>
-        </div>
-
-        <div class="customer-row">
-          <div class="customer-col">
-            <label>Phone</label>
-            <div class="customer-phone-wrapper">
-              <div class="customer-prefix">+91</div>
-              <input type="tel" maxlength="10" [(ngModel)]="newCustomer.phone" name="phone" (input)="onlyNumber($event)">
-            </div>
-          </div>
-          <div class="customer-col">
-            <label>Email</label>
-            <input type="email" placeholder="Enter email" [(ngModel)]="newCustomer.email" name="email">
-          </div>
-        </div>
-      </div>
-
-      <!-- Company Details -->
-      <h4 class="customer-title mt-2">Company Details</h4>
-      <div class="customer-card">
-        <div class="customer-row">
-          <div class="customer-col">
-            <label>Company</label>
-            <input type="text" placeholder="Company Name" [(ngModel)]="newCustomer.company_name" name="company_name">
-          </div>
-          <div class="customer-col">
-            <label>GSTIN</label>
-            <div class="customer-gstin-wrapper">
-              <input type="text" placeholder="29AABCT1332L000" [(ngModel)]="newCustomer.gstin" name="gstin" maxlength="15" (input)="checkGST($event)">
-            </div>
-            <small *ngIf="gstLoading" style="color: blue;">Fetching GST details...</small>
-            <small *ngIf="gstError" style="color: red;">{{ gstError }}</small>
-          </div>
-        </div>
-
-        <!-- Billing Address -->
-        <h5 class="customer-sub-title">Billing Address</h5>
-        <div class="customer-row">
-          <div class="customer-col">
-            <input type="text" placeholder="Address Line 1" [(ngModel)]="newCustomer.address_line1" name="address_line1">
-          </div>
-          <div class="customer-col">
-            <input type="text" placeholder="Address Line 2" [(ngModel)]="newCustomer.address_line2" name="address_line2">
-          </div>
-        </div>
-        <div class="customer-row">
-          <div class="customer-col">
-            <input type="text" placeholder="Pincode" [(ngModel)]="newCustomer.pincode" name="pincode">
-          </div>
-          <div class="customer-col">
-            <input type="text" placeholder="Select State" [(ngModel)]="newCustomer.state" name="state">
-          </div>
-        </div>
-        <div class="customer-row">
-          <div class="customer-col">
-            <input type="text" placeholder="City" [(ngModel)]="newCustomer.city" name="city">
-          </div>
-          <div class="customer-col">
-            <input type="text" value="India" disabled>
-          </div>
-        </div>
-
-        <!-- Same as Billing Checkbox -->
-        <div class="customer-row">
-          <div class="customer-col">
-            <label class="checkbox-label">
-              <input type="checkbox" [(ngModel)]="sameAsBilling" (change)="onSameAsBillingChange()" name="same_as_billing">
-              Same as Billing Address
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Delivery Address -->
-      <h4 class="customer-title">Delivery Address</h4>
-      <div class="customer-card">
-        <div class="customer-row">
-          <div class="customer-col">
-            <input type="text" placeholder="Delivery Address Line 1" [(ngModel)]="newCustomer.delivery_address_line1" name="delivery_address_line1">
-          </div>
-          <div class="customer-col">
-            <input type="text" placeholder="Delivery Address Line 2" [(ngModel)]="newCustomer.delivery_address_line2" name="delivery_address_line2">
-          </div>
-        </div>
-        <div class="customer-row">
-          <div class="customer-col">
-            <input type="text" placeholder="Delivery Pincode" [(ngModel)]="newCustomer.delivery_pincode" name="delivery_pincode">
-          </div>
-          <div class="customer-col">
-            <input type="text" placeholder="Delivery State" [(ngModel)]="newCustomer.delivery_state" name="delivery_state">
-          </div>
-        </div>
-        <div class="customer-row">
-          <div class="customer-col">
-            <input type="text" placeholder="Delivery City" [(ngModel)]="newCustomer.delivery_city" name="delivery_city">
-          </div>
-          <div class="customer-col">
-            <input type="text" value="India" disabled>
-          </div>
-        </div>
-      </div>
-
-      <!-- Opening Balance -->
-      <h4 class="customer-title">Opening Balance</h4>
-      <div class="customer-card">
-        <div class="customer-group">
-          <label>Amount (₹)</label>
-          <input type="number" placeholder="Enter amount" [(ngModel)]="newCustomer.opening_balance" name="opening_balance">
-          <small style="color: #6b7280; font-size: 12px; display: block; margin-top: 5px;">
-            Positive (+) = You Collect | Negative (-) = You Pay
-          </small>
-        </div>
-      </div>
-
-      <!-- RCM Toggle Button -->
-      <h4 class="customer-title">Reverse Charge Mechanism (RCM)</h4>
-      <div class="customer-card">
-        <div class="rcm-toggle-container">
-          <label class="rcm-label">RCM Status</label>
-          <div class="toggle-switch" [class.active]="rcmEnabled" (click)="toggleRCM()">
-            <div class="toggle-slider"></div>
-            <span class="toggle-text">{{ rcmEnabled ? 'Enabled' : 'Disabled' }}</span>
-          </div>
-          <small class="rcm-hint" *ngIf="rcmEnabled" style="color: #10b981; display: block; margin-top: 10px;">
-            RCM is enabled. Tax will be charged under reverse charge.
-          </small>
-          <small class="rcm-hint" *ngIf="!rcmEnabled" style="color: #6b7280; display: block; margin-top: 10px;">
-            RCM is disabled. Regular tax applies.
-          </small>
-        </div>
-      </div>
-
-    </div>
-
-    <div class="customer-footer">
-      <button class="customer-save-btn" type="submit">
-        {{ isEditMode ? 'Update Customer' : 'Save Customer' }}
-      </button>
-      <button class="customer-cancel-btn" type="button" (click)="closeForm()">Cancel</button>
-    </div>
-  </div>
-</form>
+<!-- Customer Form Component -->
+<app-customer-form 
+  [showForm]="showCustomerForm"
+  [isEditMode]="isEditMode"
+  [editCustomerData]="selectedCustomer"
+  (formClosed)="closeForm()"
+  (customerSaved)="onCustomerSaved($event)">
+</app-customer-form>

@@ -2,10 +2,12 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
+import { CustomerFormComponent } from '../../../components/customer-form/customer-form.component';
 
 @Component({
   selector: 'app-customers',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PageHeaderComponent, CustomerFormComponent],
   templateUrl: './customers.component.html',
   styleUrls: ['./customers.component.scss']
 })
@@ -13,8 +15,6 @@ export class CustomersComponent {
   constructor(private http: HttpClient) { }
 
   searchText = '';
-  gstLoading: boolean = false;
-  gstError: string = '';
 
   // Pagination
   currentPage = 1;
@@ -25,36 +25,10 @@ export class CustomersComponent {
   filteredData: any[] = [];
   paginatedData: any[] = [];
 
-  // Edit Mode
-  isEditMode: boolean = false;
-  editCustomerId: number | null = null;
-
-  // RCM Toggle
-  rcmEnabled: boolean = false;
-
-  // Same as Billing
-  sameAsBilling: boolean = true;
-
-  // Form Data
-  newCustomer: any = {
-    name: '',
-    phone: '',
-    email: '',
-    company_name: '',
-    gstin: '',
-    address_line1: '',
-    address_line2: '',
-    pincode: '',
-    state: '',
-    city: '',
-    delivery_address_line1: '',
-    delivery_address_line2: '',
-    delivery_pincode: '',
-    delivery_state: '',
-    delivery_city: '',
-    opening_balance: 0,
-    rcm: 0
-  };
+  // Form Modal Control
+  showCustomerForm = false;
+  isEditMode = false;
+  selectedCustomer: any = null;
 
   // User ID
   userId: number = 1;
@@ -63,72 +37,6 @@ export class CustomersComponent {
     this.filteredData = this.customerData;
     this.updatePaginatedData();
     this.getCustomers();
-  }
-
-  // Same as Billing Logic
-  onSameAsBillingChange() {
-    if (this.sameAsBilling) {
-      this.newCustomer.delivery_address_line1 = this.newCustomer.address_line1;
-      this.newCustomer.delivery_address_line2 = this.newCustomer.address_line2;
-      this.newCustomer.delivery_pincode = this.newCustomer.pincode;
-      this.newCustomer.delivery_state = this.newCustomer.state;
-      this.newCustomer.delivery_city = this.newCustomer.city;
-    }
-  }
-
-  // Toggle RCM
-  toggleRCM() {
-    this.rcmEnabled = !this.rcmEnabled;
-    console.log('RCM Status:', this.rcmEnabled ? 'Enabled' : 'Disabled');
-  }
-
-  // GST Check
-  checkGST(event: any) {
-    let gstNumber = event.target.value.toUpperCase().trim();
-    this.newCustomer.gstin = gstNumber;
-    this.gstError = '';
-
-    if (gstNumber.length === 15) {
-      this.fetchGSTDetails(gstNumber);
-    }
-  }
-
-  fetchGSTDetails(gstin: string) {
-    this.gstLoading = true;
-    this.gstError = '';
-
-    this.http.get(`https://billsezy.com/Api/gst-fetch.php?gstin=${gstin}`)
-      .subscribe(
-        (res: any) => {
-          this.gstLoading = false;
-          if (res?.status && res?.data) {
-            const data = res.data;
-            this.newCustomer.company_name = data.tradeNam || data.lgnm || '';
-            this.newCustomer.address_line1 = data.pradr?.addr?.bno || '';
-            this.newCustomer.address_line2 = data.pradr?.addr?.st || '';
-            this.newCustomer.city = data.pradr?.addr?.loc || '';
-            this.newCustomer.pincode = data.pradr?.addr?.pncd || '';
-            this.newCustomer.state = data.pradr?.addr?.stcd || '';
-            
-            if (this.sameAsBilling) {
-              this.onSameAsBillingChange();
-            }
-          } else {
-            this.gstError = res?.message || "Invalid GST Number / No Data Found";
-          }
-        },
-        (error: any) => {
-          this.gstLoading = false;
-          this.gstError = "GST fetch failed";
-        }
-      );
-  }
-
-  // Phone Restriction
-  onlyNumber(event: any) {
-    const input = event.target;
-    input.value = input.value.replace(/[^0-9]/g, '').slice(0, 10);
-    this.newCustomer.phone = input.value;
   }
 
   // Search
@@ -167,181 +75,29 @@ export class CustomersComponent {
     return Math.ceil(this.filteredData.length / this.itemsPerPage);
   }
 
-  // Form
-  showCustomerForm = false;
-
+  // Open Form
   openForm(customer?: any) {
     if (customer) {
       this.isEditMode = true;
-      this.editCustomerId = customer.id;
-      this.newCustomer = {
-        name: customer.name || '',
-        phone: customer.phone || '',
-        email: customer.email || '',
-        company_name: customer.company_name || '',
-        gstin: customer.gstin || '',
-        address_line1: customer.address_line1 || '',
-        address_line2: customer.address_line2 || '',
-        pincode: customer.pincode || '',
-        state: customer.state || '',
-        city: customer.city || '',
-        delivery_address_line1: customer.delivery_address_line1 || '',
-        delivery_address_line2: customer.delivery_address_line2 || '',
-        delivery_pincode: customer.delivery_pincode || '',
-        delivery_state: customer.delivery_state || '',
-        delivery_city: customer.delivery_city || '',
-        opening_balance: Math.abs(customer.opening_balance) || 0,
-        rcm: customer.rcm || 0
-      };
-      this.rcmEnabled = customer.rcm == 1;
-      this.sameAsBilling = customer.same_as_billing == 1;
+      this.selectedCustomer = customer;
     } else {
       this.isEditMode = false;
-      this.editCustomerId = null;
-      this.resetForm();
+      this.selectedCustomer = null;
     }
     this.showCustomerForm = true;
   }
 
+  // Close Form
   closeForm() {
     this.showCustomerForm = false;
     this.isEditMode = false;
-    this.editCustomerId = null;
-    this.resetForm();
+    this.selectedCustomer = null;
   }
 
-  resetForm() {
-    this.newCustomer = {
-      name: '',
-      phone: '',
-      email: '',
-      company_name: '',
-      gstin: '',
-      address_line1: '',
-      address_line2: '',
-      pincode: '',
-      state: '',
-      city: '',
-      delivery_address_line1: '',
-      delivery_address_line2: '',
-      delivery_pincode: '',
-      delivery_state: '',
-      delivery_city: '',
-      opening_balance: 0,
-      rcm: 0
-    };
-    this.rcmEnabled = false;
-    this.sameAsBilling = true;
-    this.gstError = '';
-  }
-
-  // Add/Update Customer
-  isLoading = false;
-
-  addCustomer() {
-    if (!this.newCustomer.name) {
-      alert('Name required');
-      return;
-    }
-
-    if (this.isLoading) return;
-    this.isLoading = true;
-
-    if (this.isEditMode && this.editCustomerId) {
-      this.updateCustomer();
-    } else {
-      this.createCustomer();
-    }
-  }
-
-  createCustomer() {
-    const payload = {
-      user_id: this.userId,
-      name: this.newCustomer.name,
-      phone: this.newCustomer.phone,
-      email: this.newCustomer.email,
-      company_name: this.newCustomer.company_name,
-      gstin: this.newCustomer.gstin,
-      address_line1: this.newCustomer.address_line1,
-      address_line2: this.newCustomer.address_line2,
-      pincode: this.newCustomer.pincode,
-      state: this.newCustomer.state,
-      city: this.newCustomer.city,
-      delivery_address_line1: this.newCustomer.delivery_address_line1,
-      delivery_address_line2: this.newCustomer.delivery_address_line2,
-      delivery_pincode: this.newCustomer.delivery_pincode,
-      delivery_state: this.newCustomer.delivery_state,
-      delivery_city: this.newCustomer.delivery_city,
-      same_as_billing: this.sameAsBilling ? 1 : 0,
-      opening_balance: Number(this.newCustomer.opening_balance) || 0,
-      rcm: this.rcmEnabled ? 1 : 0
-    };
-
-    fetch('https://billsezy.com/Api/add_customer.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
-      .then(res => res.json())
-      .then(res => {
-        this.isLoading = false;
-        if (res.status === true) {
-          this.getCustomers();
-          this.closeForm();
-          alert('Customer Added Successfully ✅');
-        } else {
-          alert(res.message || 'Something went wrong');
-        }
-      })
-      .catch(err => {
-        this.isLoading = false;
-        alert('Server Error ❌');
-      });
-  }
-
-  updateCustomer() {
-    const payload = {
-      id: this.editCustomerId,
-      name: this.newCustomer.name,
-      phone: this.newCustomer.phone,
-      email: this.newCustomer.email,
-      company_name: this.newCustomer.company_name,
-      gstin: this.newCustomer.gstin,
-      address_line1: this.newCustomer.address_line1,
-      address_line2: this.newCustomer.address_line2,
-      pincode: this.newCustomer.pincode,
-      state: this.newCustomer.state,
-      city: this.newCustomer.city,
-      delivery_address_line1: this.newCustomer.delivery_address_line1,
-      delivery_address_line2: this.newCustomer.delivery_address_line2,
-      delivery_pincode: this.newCustomer.delivery_pincode,
-      delivery_state: this.newCustomer.delivery_state,
-      delivery_city: this.newCustomer.delivery_city,
-      same_as_billing: this.sameAsBilling ? 1 : 0,
-      opening_balance: Number(this.newCustomer.opening_balance) || 0,
-      rcm: this.rcmEnabled ? 1 : 0
-    };
-
-    fetch('https://billsezy.com/Api/update_customer.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
-      .then(res => res.json())
-      .then(res => {
-        this.isLoading = false;
-        if (res.status === true) {
-          this.getCustomers();
-          this.closeForm();
-          alert('Customer Updated Successfully ✅');
-        } else {
-          alert(res.message || 'Something went wrong');
-        }
-      })
-      .catch(err => {
-        this.isLoading = false;
-        alert('Server Error ❌');
-      });
+  // When Customer Saved
+  onCustomerSaved(customer: any) {
+    this.getCustomers();
+    this.closeForm();
   }
 
   // Delete Customer
@@ -369,10 +125,7 @@ export class CustomersComponent {
 
   // Get Customers
   getCustomers() {
-    const userId = this.userId;
-    console.log('Fetching customers for user_id:', userId);
-
-    fetch(`https://billsezy.com/Api/get_customers.php?user_id=${userId}`)
+    fetch(`https://billsezy.com/Api/get_customers.php?user_id=${this.userId}`)
       .then(res => res.json())
       .then(res => {
         if (res.status === true) {
@@ -380,15 +133,12 @@ export class CustomersComponent {
           this.filteredData = [...this.customerData];
           this.currentPage = 1;
           this.updatePaginatedData();
-          console.log('Customers loaded:', this.customerData.length);
-        } else {
-          console.error('API Error:', res.message);
         }
       })
-      .catch(err => console.error('Fetch Error:', err));
+      .catch(err => console.error(err));
   }
 
-  // Summary
+  // Summary - Positive = You Collect, Negative = You Pay
   getTotalPay(): number {
     return this.customerData
       .filter(c => c.opening_balance < 0)
