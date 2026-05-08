@@ -83,7 +83,8 @@ export class SettingsComponent {
               pan: data.pan || '',
               website: data.website || '',
               country_code: data.country_code || '+91',
-              logo: data.logo || ''
+              logo: data.logo || '',
+              signature: data.signature || ''
             };
 
             // Set logo preview if exists
@@ -470,8 +471,13 @@ export class SettingsComponent {
 
         console.log(error);
 
+        console.log("FULL ERROR:", error);
+
+        console.log("ERROR BODY:", error.error);
+
         alert(
-          "Save failed: Server Error ❌"
+          error?.error?.message ||
+          "Server Error ❌"
         );
 
       }
