@@ -12,7 +12,7 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 })
 export class VendorsComponent {
   constructor(private http: HttpClient) { }
-  
+
   searchText = '';
   gstLoading: boolean = false;
   gstError: string = '';
@@ -30,7 +30,7 @@ export class VendorsComponent {
   isEditMode: boolean = false;
   editVendorId: number | null = null;
 
-  // Form Data (balance_type removed)
+  // Form Data
   newVendor: any = {
     name: '',
     phone: '',
@@ -52,6 +52,24 @@ export class VendorsComponent {
     this.filteredData = this.vendorData;
     this.updatePaginatedData();
     this.getVendors();
+  }
+  // Get absolute amount for display (no sign)
+  getDisplayAmount(amount: number): number {
+    return Math.abs(amount);
+  }
+  // 🔹 Get balance type based on opening balance value
+  getBalanceType(amount: number): string {
+    return amount >= 0 ? 'debit' : 'credit';
+  }
+
+  // Get balance text
+  getBalanceText(amount: number): string {
+    return amount >= 0 ? 'You Collect ↓' : 'You Pay ↑';
+  }
+
+  // Get balance type class
+  getBalanceClass(amount: number): string {
+    return amount >= 0 ? 'collect' : 'pay';
   }
 
   // 🔹 GST Check
@@ -157,7 +175,7 @@ export class VendorsComponent {
         pincode: vendor.pincode || '',
         state: vendor.state || '',
         city: vendor.city || '',
-        opening_balance: vendor.opening_balance || 0
+        opening_balance: Math.abs(vendor.opening_balance) || 0  // Store absolute value
       };
     } else {
       // Add Mode
@@ -212,6 +230,7 @@ export class VendorsComponent {
   }
 
   createVendor() {
+    // Positive amount means You Collect, Negative means You Pay
     const payload = {
       user_id: this.userId,
       name: this.newVendor.name,
@@ -224,7 +243,7 @@ export class VendorsComponent {
       pincode: this.newVendor.pincode,
       state: this.newVendor.state,
       city: this.newVendor.city,
-      opening_balance: this.newVendor.opening_balance || 0
+      opening_balance: Number(this.newVendor.opening_balance) || 0
     };
 
     console.log('Creating vendor:', payload);
@@ -265,7 +284,7 @@ export class VendorsComponent {
       pincode: this.newVendor.pincode,
       state: this.newVendor.state,
       city: this.newVendor.city,
-      opening_balance: this.newVendor.opening_balance || 0
+      opening_balance: Number(this.newVendor.opening_balance) || 0
     };
 
     console.log('Updating vendor:', payload);
@@ -296,10 +315,15 @@ export class VendorsComponent {
   // 🔥 DELETE VENDOR
   deleteVendor(id: number, name: string) {
     if (confirm(`Are you sure you want to delete "${name}"?`)) {
+      const payload = {
+        id: id,
+        user_id: this.userId
+      };
+
       fetch('https://billsezy.com/Api/delete_vendor.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: id })
+        body: JSON.stringify(payload)
       })
         .then(res => res.json())
         .then(res => {
@@ -332,14 +356,18 @@ export class VendorsComponent {
       .catch(err => console.error(err));
   }
 
-  // 🔥 SUMMARY (balance_type removed - all are just opening balance now)
+  // 🔥 SUMMARY - Positive = You Collect, Negative = You Pay
   getTotalPay(): number {
-    // Now this is total of all opening balances (you can modify logic as needed)
-    return this.vendorData.reduce((sum, v) => sum + Number(v.opening_balance || 0), 0);
+    // Total of negative balances (You Pay)
+    return this.vendorData
+      .filter(v => v.opening_balance < 0)
+      .reduce((sum, v) => sum + Math.abs(Number(v.opening_balance || 0)), 0);
   }
 
   getTotalCollect(): number {
-    // If you want separate, you can use some other field
-    return 0;
+    // Total of positive balances (You Collect)
+    return this.vendorData
+      .filter(v => v.opening_balance > 0)
+      .reduce((sum, v) => sum + Number(v.opening_balance || 0), 0);
   }
 }

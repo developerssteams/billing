@@ -45,147 +45,148 @@
           <div class="contact-email">{{ vendor.email || '-' }}</div>
         </div>
 
-        <!-- Balance -->
+        <!-- Balance - Based on positive/negative value (No sign displayed) -->
         <div class="balance-section">
-          <div class="balance-amount" [class.pay]="vendor.balance_type === 'credit'"
-            [class.collect]="vendor.balance_type === 'debit'">
-            ₹ {{ vendor.opening_balance || 0 }}
+          <div class="balance-amount" [class.pay]="vendor.opening_balance < 0"
+            [class.collect]="vendor.opening_balance >= 0">
+            ₹ {{ vendor.opening_balance < 0 ? -vendor.opening_balance : vendor.opening_balance }} </div>
+              <div class="balance-type" [class.pay]="vendor.opening_balance < 0"
+                [class.collect]="vendor.opening_balance >= 0">
+                {{ vendor.opening_balance >= 0 ? 'You Collect ↓' : 'You Pay ↑' }}
+              </div>
           </div>
-          <div class="balance-type" [class.pay]="vendor.balance_type === 'credit'"
-            [class.collect]="vendor.balance_type === 'debit'">
-            {{ vendor.balance_type === 'credit' ? 'You Pay ↑' : 'You Collect ↓' }}
+
+          <!-- Action Buttons -->
+          <div class="action-buttons-cell">
+            <button class="note-btn edit" (click)="openForm(vendor)">Edit</button>
+            <button class="note-btn delete-btn" (click)="deleteVendor(vendor.id, vendor.name)">Delete</button>
           </div>
         </div>
 
-        <!-- Action Buttons -->
-        <div class="action-buttons-cell">
-          <button class="note-btn edit" (click)="openForm(vendor)">Edit</button>
-          <button class="note-btn delete-btn" (click)="deleteVendor(vendor.id, vendor.name)">Delete</button>
+        <!-- No Data -->
+        <div class="no-data" *ngIf="paginatedData.length === 0">
+          No Vendors Found
         </div>
+
+      </div>
+    </div>
+
+    <!-- Bottom -->
+    <div class="bottom">
+      <div class="summary">
+        <div class="badge pay">You Pay ₹ {{ getTotalPay() }}</div>
+        <div class="badge collect">You Collect ₹ {{ getTotalCollect() }}</div>
       </div>
 
-      <!-- No Data -->
-      <div class="no-data" *ngIf="paginatedData.length === 0">
-        No Vendors Found
+      <!-- Pagination -->
+      <div class="pagination">
+        <button (click)="prevPage()" [disabled]="currentPage === 1">Prev</button>
+        <span>Page {{ currentPage }} of {{ totalPages() }}</span>
+        <button (click)="nextPage()" [disabled]="currentPage === totalPages()">Next</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Overlay -->
+  <div class="overlay" *ngIf="showForm" (click)="closeForm()"></div>
+
+  <!-- Side Form -->
+  <form (ngSubmit)="addVendor()">
+    <div class="side-form vendor-form" [class.open]="showForm">
+
+      <div class="vendor-header">
+        <h3>{{ isEditMode ? 'Edit Vendor' : 'Add Vendor' }}</h3>
+        <button class="vendor-save-btn header-save-btn" type="submit">
+          {{ isEditMode ? 'Update Vendor' : 'Save Vendor' }}
+        </button>
       </div>
 
-    </div>
-  </div>
+      <div class="vendor-body">
 
-  <!-- Bottom -->
-  <div class="bottom">
-    <div class="summary">
-      <div class="badge pay">You Pay ₹ {{ getTotalPay() }}</div>
-      <div class="badge collect">You Collect ₹ {{ getTotalCollect() }}</div>
-    </div>
+        <!-- Basic Details -->
+        <h4 class="vendor-title">Basic Details</h4>
+        <div class="vendor-card">
+          <div class="vendor-group">
+            <label class="vendor-required">Name</label>
+            <input type="text" placeholder="Ratan TATA" [(ngModel)]="newVendor.name" name="name" required>
+          </div>
 
-    <!-- Pagination -->
-    <div class="pagination">
-      <button (click)="prevPage()" [disabled]="currentPage === 1">Prev</button>
-      <span>Page {{ currentPage }} of {{ totalPages() }}</span>
-      <button (click)="nextPage()" [disabled]="currentPage === totalPages()">Next</button>
-    </div>
-  </div>
+          <div class="vendor-row">
+            <div class="vendor-col">
+              <label>Phone</label>
+              <div class="vendor-phone-wrapper">
+                <div class="vendor-prefix">+91</div>
+                <input type="tel" maxlength="10" [(ngModel)]="newVendor.phone" name="phone" required
+                  (input)="onlyNumber($event)">
+              </div>
+            </div>
 
-</div>
-
-<!-- Overlay -->
-<div class="overlay" *ngIf="showForm" (click)="closeForm()"></div>
-
-<!-- Side Form -->
-<form (ngSubmit)="addVendor()">
-  <div class="side-form vendor-form" [class.open]="showForm">
-
-    <div class="vendor-header">
-      <h3>{{ isEditMode ? 'Edit Vendor' : 'Add Vendor' }}</h3>
-      <button class="vendor-save-btn header-save-btn" type="submit">
-        {{ isEditMode ? 'Update Vendor' : 'Save Vendor' }}
-      </button>
-    </div>
-
-    <div class="vendor-body">
-
-      <!-- Basic Details -->
-      <h4 class="vendor-title">Basic Details</h4>
-      <div class="vendor-card">
-        <div class="vendor-group">
-          <label class="vendor-required">Name</label>
-          <input type="text" placeholder="Ratan TATA" [(ngModel)]="newVendor.name" name="name" required>
+            <div class="vendor-col">
+              <label>Email</label>
+              <input type="email" placeholder="Enter email" [(ngModel)]="newVendor.email" name="email">
+            </div>
+          </div>
         </div>
 
-        <div class="vendor-row">
-          <div class="vendor-col">
-            <label>Phone</label>
-            <div class="vendor-phone-wrapper">
-              <div class="vendor-prefix">+91</div>
-              <input type="tel" maxlength="10" [(ngModel)]="newVendor.phone" name="phone" required
-                (input)="onlyNumber($event)">
+        <!-- Company Details -->
+        <h4 class="vendor-title mt-2">Company Details</h4>
+        <div class="vendor-card">
+          <div class="vendor-row">
+            <div class="vendor-col">
+              <label>Company</label>
+              <input type="text" placeholder="Company Name" [(ngModel)]="newVendor.company_name" name="company_name">
+            </div>
+
+            <div class="vendor-col">
+              <label>GSTIN</label>
+              <div class="vendor-gstin-wrapper">
+                <input type="text" placeholder="29AABCT1332L000" [(ngModel)]="newVendor.gstin" name="gstin"
+                  maxlength="15" (input)="checkGST($event)">
+              </div>
+              <small *ngIf="gstLoading" style="color: blue;">Fetching GST details...</small>
+              <small *ngIf="gstError" style="color: red;">{{ gstError }}</small>
             </div>
           </div>
 
-          <div class="vendor-col">
-            <label>Email</label>
-            <input type="email" placeholder="Enter email" [(ngModel)]="newVendor.email" name="email">
-          </div>
-        </div>
-      </div>
-
-      <!-- Company Details -->
-      <h4 class="vendor-title mt-2">Company Details</h4>
-      <div class="vendor-card">
-        <div class="vendor-row">
-          <div class="vendor-col">
-            <label>Company</label>
-            <input type="text" placeholder="Company Name" [(ngModel)]="newVendor.company_name" name="company_name">
-          </div>
-
-          <div class="vendor-col">
-            <label>GSTIN</label>
-            <div class="vendor-gstin-wrapper">
-              <input type="text" placeholder="29AABCT1332L000" [(ngModel)]="newVendor.gstin" name="gstin" maxlength="15"
-                (input)="checkGST($event)">
+          <!-- Billing Address -->
+          <h5 class="vendor-sub-title">Billing Address</h5>
+          <div class="vendor-row">
+            <div class="vendor-col">
+              <input type="text" placeholder="Address Line 1" [(ngModel)]="newVendor.address_line1"
+                name="address_line1">
             </div>
-            <small *ngIf="gstLoading" style="color: blue;">Fetching GST details...</small>
-            <small *ngIf="gstError" style="color: red;">{{ gstError }}</small>
+            <div class="vendor-col">
+              <input type="text" placeholder="Address Line 2" [(ngModel)]="newVendor.address_line2"
+                name="address_line2">
+            </div>
           </div>
-        </div>
 
-        <!-- Billing Address -->
-        <h5 class="vendor-sub-title">Billing Address</h5>
-        <div class="vendor-row">
-          <div class="vendor-col">
-            <input type="text" placeholder="Address Line 1" [(ngModel)]="newVendor.address_line1" name="address_line1">
+          <div class="vendor-row">
+            <div class="vendor-col">
+              <input type="text" placeholder="Pincode" [(ngModel)]="newVendor.pincode" name="pincode">
+            </div>
+            <div class="vendor-col">
+              <input type="text" placeholder="Select State" [(ngModel)]="newVendor.state" name="state">
+            </div>
           </div>
-          <div class="vendor-col">
-            <input type="text" placeholder="Address Line 2" [(ngModel)]="newVendor.address_line2" name="address_line2">
-          </div>
-        </div>
 
-        <div class="vendor-row">
-          <div class="vendor-col">
-            <input type="text" placeholder="Pincode" [(ngModel)]="newVendor.pincode" name="pincode">
-          </div>
-          <div class="vendor-col">
-            <input type="text" placeholder="Select State" [(ngModel)]="newVendor.state" name="state">
-          </div>
-        </div>
-
-        <div class="vendor-row">
-          <div class="vendor-col">
-            <input type="text" placeholder="City" [(ngModel)]="newVendor.city" name="city">
-          </div>
-          <div class="vendor-col">
-            <input type="text" value="India" disabled>
+          <div class="vendor-row">
+            <div class="vendor-col">
+              <input type="text" placeholder="City" [(ngModel)]="newVendor.city" name="city">
+            </div>
+            <div class="vendor-col">
+              <input type="text" value="India" disabled>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="vendor-footer">
-      <button class="vendor-save-btn" type="submit">
-        {{ isEditMode ? 'Update Vendor' : 'Save Vendor' }}
-      </button>
-      <button class="vendor-cancel-btn" type="button" (click)="closeForm()">Cancel</button>
+      <div class="vendor-footer">
+        <button class="vendor-save-btn" type="submit">
+          {{ isEditMode ? 'Update Vendor' : 'Save Vendor' }}
+        </button>
+        <button class="vendor-cancel-btn" type="button" (click)="closeForm()">Cancel</button>
+      </div>
     </div>
-  </div>
-</form>
+  </form>
