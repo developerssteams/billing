@@ -14,7 +14,7 @@ body {
   border-radius: 16px;
   padding: 24px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  max-width: 1400px;
+  max-width: 100%;
   margin: 0 auto;
 }
 
@@ -73,7 +73,7 @@ body {
   background: #2563eb;
 }
 
-/* Table Wrapper - SCROLL */
+/* Table Wrapper - SCROLL on mobile only */
 .table-wrapper {
   width: 100%;
   overflow-x: auto;
@@ -82,19 +82,21 @@ body {
   border-radius: 12px;
 }
 
+/* 🔥 FULL WIDTH - No min-width on desktop */
 .table {
-  min-width: 900px;
+  width: 100%;
 }
 
-/* Row Grid */
+/* 🔥 ROW GRID - Responsive fr units (full width) */
 .row {
   display: grid;
-  grid-template-columns: 300px 280px 180px 160px;
+  grid-template-columns: 2.5fr 2fr 1.5fr 1.5fr;
   padding: 16px 20px;
   border-bottom: 1px solid #f0f0f0;
   align-items: center;
   gap: 20px;
   background: white;
+  width: 100%;
 }
 
 .row:hover {
@@ -136,11 +138,13 @@ body {
   font-size: 15px;
   color: #1f2937;
   margin-bottom: 4px;
+  word-break: break-word;
 }
 
 .user-company {
   font-size: 12px;
   color: #6b7280;
+  word-break: break-word;
 }
 
 /* Contact Section */
@@ -519,11 +523,11 @@ body {
   transition: 0.1s ease;
 }
 
-.custom-radio input:checked + .radio-circle {
+.custom-radio input:checked+.radio-circle {
   border-color: #3b82f6;
 }
 
-.custom-radio input:checked + .radio-circle::after {
+.custom-radio input:checked+.radio-circle::after {
   transform: translate(-50%, -50%) scale(1);
 }
 
@@ -626,8 +630,13 @@ body {
     justify-content: center;
   }
 
+  /* 🔥 Mobile pe scroll aayega */
   .table {
-    min-width: 850px;
+    min-width: 700px;
+  }
+
+  .row {
+    min-width: 700px;
   }
 
   .side-form {
@@ -661,7 +670,13 @@ body {
 
 @media (max-width: 480px) {
   .table {
-    min-width: 800px;
+    min-width: 650px;
+  }
+
+  .row {
+    min-width: 650px;
+    gap: 12px;
+    padding: 12px 16px;
   }
 
   .avatar {
