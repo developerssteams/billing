@@ -24,8 +24,7 @@
             <label><span class="req">*</span>Trade/Brand Name :</label>
         </div>
         <div class="input-col">
-            <input type="text" class="form-control" [(ngModel)]="company.trade_name" (input)="syncCompanyName()"
-                required>
+            <input type="text" class="form-control" [(ngModel)]="company.trade_name" (input)="syncCompanyName()" required>
         </div>
     </div>
 
@@ -36,6 +35,26 @@
         </div>
         <div class="input-col">
             <input type="text" class="form-control" [(ngModel)]="company.company_name" required>
+        </div>
+    </div>
+
+    <!-- Business Type -->
+    <div class="form-row">
+        <div class="label-col">
+            <label><span class="req">*</span>Business Type :</label>
+        </div>
+        <div class="input-col">
+            <select class="form-control" [(ngModel)]="company.business_type" required>
+                <option value="">Select Business Type</option>
+                <option value="Proprietorship">Proprietorship</option>
+                <option value="Partnership">Partnership</option>
+                <option value="Private Limited">Private Limited</option>
+                <option value="Public Limited">Public Limited</option>
+                <option value="LLP">LLP</option>
+                <option value="Trust">Trust</option>
+                <option value="Society">Society</option>
+                <option value="Other">Other</option>
+            </select>
         </div>
     </div>
 
@@ -53,8 +72,7 @@
                 <option value="+971">+971 (UAE)</option>
                 <option value="+65">+65 (Singapore)</option>
             </select>
-            <input type="text" class="form-control" [(ngModel)]="company.phone" placeholder="Company Phone Number"
-                required>
+            <input type="text" class="form-control" [(ngModel)]="company.phone" placeholder="Company Phone Number" required>
         </div>
     </div>
 
@@ -64,57 +82,34 @@
             <label><span class="req">*</span>Company Email :</label>
         </div>
         <div class="input-col">
-            <input type="email" class="form-control" [(ngModel)]="company.email" placeholder="Company Email Address"
-                required>
+            <input type="email" class="form-control" [(ngModel)]="company.email" placeholder="Company Email Address" required>
         </div>
     </div>
 
     <!-- GST -->
-    <!-- GST -->
     <div class="form-row">
-
         <div class="label-col">
             <label><span class="req">*</span>GSTIN :</label>
         </div>
-
         <div class="input-col gst-group">
-
             <input type="text" class="form-control" placeholder="Enter GSTIN Number" [(ngModel)]="company.gstin"
                 maxlength="15" style="text-transform: uppercase;" required>
-
-            <button class="fetch-btn" (click)="fetchGSTDetails(company.gstin)"
-                [disabled]="gstLoading || company.business_type">
-
+            <button class="fetch-btn" (click)="fetchGSTDetails(company.gstin)" [disabled]="gstLoading || company.business_type">
                 {{ gstLoading ? 'Fetching...' : 'Fetch Details' }}
-
             </button>
-
         </div>
-
-        <!-- LOADING -->
-        <small *ngIf="gstLoading" style="color: blue;">
-            Fetching GST details...
-        </small>
-
-        <!-- ERROR -->
-        <small *ngIf="gstError" style="color:red">
-            {{ gstError }}
-        </small>
-
-        <!-- SUCCESS -->
-        <small *ngIf="company.business_type" style="color: green;">
-            GST Details Already Loaded
-        </small>
-
+        <small *ngIf="gstLoading" style="color: blue;">Fetching GST details...</small>
+        <small *ngIf="gstError" style="color:red">{{ gstError }}</small>
+        <small *ngIf="company.business_type && !gstLoading" style="color: green;">GST Details Loaded ✓</small>
     </div>
 
-    <!-- Business Type -->
+    <!-- PAN -->
     <div class="form-row">
         <div class="label-col">
-            <label><span class="req">*</span>Business Type :</label>
+            <label><span class="req">*</span>PAN Number :</label>
         </div>
         <div class="input-col">
-            <input type="text" class="form-control" [(ngModel)]="company.business_type">
+            <input type="text" class="form-control" [(ngModel)]="company.pan" placeholder="PAN Number" maxlength="10" style="text-transform: uppercase;" required>
         </div>
     </div>
 
@@ -124,58 +119,47 @@
             <label>Website :</label>
         </div>
         <div class="input-col">
-            <input type="text" class="form-control" [(ngModel)]="company.website" placeholder="Website">
+            <input type="text" class="form-control" [(ngModel)]="company.website" placeholder="https://www.example.com">
         </div>
     </div>
 
-    <!-- PAN -->
+    <!-- Address -->
     <div class="form-row">
         <div class="label-col">
-            <label><span class="req">*</span>PAN Number :</label>
+            <label><span class="req">*</span>Address :</label>
         </div>
         <div class="input-col">
-            <input type="text" class="form-control" [(ngModel)]="company.pan" placeholder="PAN Number" required>
-        </div>
-    </div>
-
-    <!-- Address (Combined from address_line1 and address_line2) -->
-    <div class="form-row">
-        <div class="label-col">
-            <label>Address :</label>
-        </div>
-        <div class="input-col">
-            <textarea class="form-control" [(ngModel)]="company.address" placeholder="Company Address"
-                rows="3"></textarea>
+            <textarea class="form-control" [(ngModel)]="company.address" placeholder="Company Address" rows="3" required></textarea>
         </div>
     </div>
 
     <!-- City -->
     <div class="form-row">
         <div class="label-col">
-            <label>City :</label>
+            <label><span class="req">*</span>City :</label>
         </div>
         <div class="input-col">
-            <input type="text" class="form-control" [(ngModel)]="company.city" placeholder="City">
+            <input type="text" class="form-control" [(ngModel)]="company.city" placeholder="City" required>
         </div>
     </div>
 
     <!-- State -->
     <div class="form-row">
         <div class="label-col">
-            <label>State :</label>
+            <label><span class="req">*</span>State :</label>
         </div>
         <div class="input-col">
-            <input type="text" class="form-control" [(ngModel)]="company.state" placeholder="State">
+            <input type="text" class="form-control" [(ngModel)]="company.state" placeholder="State" required>
         </div>
     </div>
 
     <!-- Pincode -->
     <div class="form-row">
         <div class="label-col">
-            <label>Pincode :</label>
+            <label><span class="req">*</span>Pincode :</label>
         </div>
         <div class="input-col">
-            <input type="text" class="form-control" [(ngModel)]="company.pincode" placeholder="Pincode">
+            <input type="text" class="form-control" [(ngModel)]="company.pincode" placeholder="Pincode" maxlength="6" required>
         </div>
     </div>
 

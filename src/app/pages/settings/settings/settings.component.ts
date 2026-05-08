@@ -16,41 +16,39 @@ export class SettingsComponent {
 
   constructor(private http: HttpClient) { }
 
-  /* ================= LOGO ================= */
   logoPreview: string | ArrayBuffer | null = null;
   selectedFile: any;
   isLoading: boolean = false;
+  gstLoading: boolean = false;
+  gstError: string = '';
 
-  // Company details with user_id
   user: any = JSON.parse(localStorage.getItem('user') || '{}');
   companyId: number | null = null;
 
+  // 🔥 COMPANY DATA - MATCHING YOUR DATABASE COLUMNS
   company: any = {
     id: null,
     user_id: null,
-    gstin: '',
-    trade_name: '',
     company_name: '',
-    country_code: '+91',
+    trade_name: '',
+    business_type: '',
+    address: '',
+    city: '',
+    state: '',
+    pincode: '',
+    gstin: '',
     phone: '',
     email: '',
-    address_line1: '',
-    address_line2: '',
-    address: '', // Combined address field
-    city: '',
-    pincode: '',
-    state: '',
-    website: '',
     pan: '',
-    business_type: '',
+    website: '',
+    country_code: '+91',
     logo: ''
   };
 
   ngOnInit() {
     console.log("USER ID:", this.user?.id);
-    console.log("USER INFO:", this.user);
-
     if (this.user?.id) {
+      this.company.user_id = this.user.id;
       this.getCompanyDetails();
     }
   }
@@ -67,34 +65,29 @@ export class SettingsComponent {
 
           if (res.status && res.data) {
             const data = res.data;
-
-            // Combine address_line1 and address_line2
-            const fullAddress = this.combineAddress(data.address_line1, data.address_line2);
-
+            
             this.company = {
               id: data.id || null,
               user_id: data.user_id || this.user.id,
-              trade_name: data.trade_name || '',
               company_name: data.company_name || '',
-              country_code: data.country_code || '+91',
+              trade_name: data.trade_name || '',
+              business_type: data.business_type || '',
+              address: data.address || '',
+              city: data.city || '',
+              state: data.state || '',
+              pincode: data.pincode || '',
+              gstin: data.gstin || '',
               phone: data.phone || '',
               email: data.email || '',
-              gstin: data.gstin || '',
-              address_line1: data.address_line1 || '',
-              address_line2: data.address_line2 || '',
-              address: fullAddress,
-              city: data.city || '',
-              pincode: data.pincode || '',
-              state: data.state || '',
-              website: data.website || '',
               pan: data.pan || '',
-              business_type: data.business_type || '',
+              website: data.website || '',
+              country_code: data.country_code || '+91',
               logo: data.logo || ''
             };
 
             // Set logo preview if exists
             if (this.company.logo) {
-              this.logoPreview = 'http://localhost/uploads/' + this.company.logo;
+              this.logoPreview = this.company.logo;
             }
           }
         },
@@ -105,43 +98,11 @@ export class SettingsComponent {
       });
   }
 
-  /* ================= COMBINE ADDRESS ================= */
-  combineAddress(address1: string, address2: string): string {
-    let combined = '';
-    if (address1 && address1.trim()) {
-      combined += address1.trim();
+  /* ================= SYNC TRADE NAME TO COMPANY NAME ================= */
+  syncCompanyName() {
+    if (!this.company.company_name) {
+      this.company.company_name = this.company.trade_name;
     }
-    if (address2 && address2.trim()) {
-      combined += (combined ? ' ' : '') + address2.trim();
-    }
-    return combined;
-  }
-
-  /* ================= SPLIT ADDRESS ================= */
-  splitAddress(address: string): { line1: string, line2: string } {
-    if (!address || !address.trim()) {
-      return { line1: '', line2: '' };
-    }
-
-    // Try to split by comma and space
-    const parts = address.split(', ');
-    if (parts.length >= 2) {
-      return {
-        line1: parts[0],
-        line2: parts.slice(1).join(', ')
-      };
-    }
-
-    // Try to split by comma only
-    const parts2 = address.split(',');
-    if (parts2.length >= 2) {
-      return {
-        line1: parts2[0],
-        line2: parts2.slice(1).join(',').trim()
-      };
-    }
-
-    return { line1: address, line2: '' };
   }
 
   /* ================= LOGO UPLOAD ================= */
@@ -164,266 +125,71 @@ export class SettingsComponent {
     reader.readAsDataURL(file);
   }
 
-  /* ================= GST FETCH ================= */
-
-  gstLoading: boolean = false;
-
-  gstError: string = '';
-
-  syncCompanyName() {
-
-    this.company.company_name =
-      this.company.trade_name;
-
-  }
-
+  /* ================= FETCH GST DETAILS ================= */
   fetchGSTDetails(gstin: string) {
-
-    // ==================================================
-    // GST VALIDATION
-    // ==================================================
-
     if (!gstin || gstin.length !== 15) {
-
-      this.gstError =
-        "Enter valid 15 digit GSTIN";
-
+      this.gstError = "Enter valid 15 digit GSTIN";
       return;
-
     }
 
-    // ==================================================
-    // START LOADING
-    // ==================================================
-
     this.gstLoading = true;
-
     this.gstError = '';
 
-    // ==================================================
-    // API CALL
-    // ==================================================
-
-    this.http.get(
-      `https://billsezy.com/Api/gst-fetch.php?gstin=${gstin}`
-    ).subscribe(
-
+    this.http.get(`https://billsezy.com/Api/gst-fetch.php?gstin=${gstin}`).subscribe(
       (res: any) => {
-
         console.log("GST RESPONSE:", res);
-
         this.gstLoading = false;
-
-        // ==================================================
-        // SUCCESS
-        // ==================================================
 
         if (res?.status && res?.data) {
-
           const data = res.data;
 
-          console.log("GST DATA:", data);
-
-          // ==================================================
-          // COMPANY NAME
-          // ==================================================
-
+          // Trade/Company Name
           if (data.tradeNam) {
-
-            this.company.trade_name =
-              data.tradeNam;
-
-            this.company.company_name =
-              data.tradeNam;
-
+            this.company.trade_name = data.tradeNam;
+            this.company.company_name = data.tradeNam;
           } else if (data.lgnm) {
-
-            this.company.trade_name =
-              data.lgnm;
-
-            this.company.company_name =
-              data.lgnm;
-
+            this.company.trade_name = data.lgnm;
+            this.company.company_name = data.lgnm;
           }
 
-          // ==================================================
-          // ADDRESS
-          // ==================================================
-
+          // Address
           if (data.pradr?.addr) {
-
             const addr = data.pradr.addr;
-
-            const bno =
-              addr.bno || '';
-
-            const flno =
-              addr.flno || '';
-
-            const st =
-              addr.st || '';
-
-            const bn =
-              addr.bn || '';
-
-            const loc =
-              addr.loc || '';
-
-            const dst =
-              addr.dst || '';
-
-            const pincode =
-              addr.pncd || '';
-
-            const state =
-              addr.stcd || '';
-
-            // ==================================================
-            // FULL ADDRESS
-            // ==================================================
-
+            
             let fullAddress = '';
-
-            if (bno) {
-              fullAddress += bno + ', ';
-            }
-
-            if (flno) {
-              fullAddress += flno + ', ';
-            }
-
-            if (bn) {
-              fullAddress += bn + ', ';
-            }
-
-            if (st) {
-              fullAddress += st + ', ';
-            }
-
-            if (loc) {
-              fullAddress += loc + ', ';
-            }
-
-            if (dst) {
-              fullAddress += dst;
-            }
-
-            // REMOVE LAST COMMA
-
-            fullAddress = fullAddress
-              .replace(/,\s*$/, '')
-              .trim();
-
-            // ==================================================
-            // SAVE ADDRESS
-            // ==================================================
-
+            if (addr.bno) fullAddress += addr.bno + ', ';
+            if (addr.flno) fullAddress += addr.flno + ', ';
+            if (addr.bn) fullAddress += addr.bn + ', ';
+            if (addr.st) fullAddress += addr.st + ', ';
+            if (addr.loc) fullAddress += addr.loc + ', ';
+            if (addr.dst) fullAddress += addr.dst;
+            
+            fullAddress = fullAddress.replace(/,\s*$/, '').trim();
             this.company.address = fullAddress;
-
-            this.company.address_line1 =
-              fullAddress;
-
-            this.company.address_line2 = '';
-
-            // ==================================================
-            // CITY
-            // ==================================================
-
-            this.company.city =
-              dst || loc || '';
-
-            // ==================================================
-            // STATE
-            // ==================================================
-
-            this.company.state =
-              state;
-
-            // ==================================================
-            // PINCODE
-            // ==================================================
-
-            this.company.pincode =
-              pincode;
-
+            this.company.city = addr.dst || addr.loc || '';
+            this.company.state = addr.stcd || '';
+            this.company.pincode = addr.pncd || '';
           }
 
-          // ==================================================
-          // BUSINESS TYPE
-          // ==================================================
-
+          // Business Type
           if (data.ctb) {
-
-            // Example:
-            // Private Limited Company
-            // Partnership
-            // Proprietorship
-
-            this.company.business_type =
-              data.ctb;
-
-          } else if (
-            data.nba &&
-            data.nba.length > 0
-          ) {
-
-            // Nature of business
-
-            this.company.business_type =
-              data.nba.join(', ');
-
-          } else {
-
-            this.company.business_type =
-              '';
-
+            this.company.business_type = data.ctb;
+          } else if (data.nba && data.nba.length > 0) {
+            this.company.business_type = data.nba.join(', ');
           }
-
-          // ==================================================
-          // CLEAR ERROR
-          // ==================================================
 
           this.gstError = '';
-
-          // ==================================================
-          // SUCCESS MESSAGE
-          // ==================================================
-
-          alert(
-            'GST details fetched successfully!'
-          );
-
+          alert('GST details fetched successfully!');
         } else {
-
-          // ==================================================
-          // INVALID GST
-          // ==================================================
-
-          this.gstError =
-            res?.message ||
-            'Invalid GST Number';
-
+          this.gstError = res?.message || 'Invalid GST Number';
         }
-
       },
-
-      // ==================================================
-      // API ERROR
-      // ==================================================
-
       (error: any) => {
-
         this.gstLoading = false;
-
-        this.gstError =
-          'Failed to fetch GST details';
-
+        this.gstError = 'Failed to fetch GST details';
         console.error(error);
-
       }
-
     );
-
   }
 
   /* ================= SAVE COMPANY ================= */
@@ -463,30 +229,26 @@ export class SettingsComponent {
 
     this.isLoading = true;
 
-    // Split address back into line1 and line2
-    const addressParts = this.splitAddress(this.company.address);
-
     const formData = new FormData();
     formData.append('user_id', userId.toString());
-
+    
     if (this.company.id) {
       formData.append('id', this.company.id.toString());
     }
-
+    
     formData.append('trade_name', this.company.trade_name);
     formData.append('company_name', this.company.company_name);
-    formData.append('country_code', this.company.country_code);
+    formData.append('business_type', this.company.business_type);
+    formData.append('address', this.company.address);
+    formData.append('city', this.company.city);
+    formData.append('state', this.company.state);
+    formData.append('pincode', this.company.pincode);
+    formData.append('gstin', this.company.gstin);
     formData.append('phone', this.company.phone);
     formData.append('email', this.company.email);
-    formData.append('gstin', this.company.gstin);
-    formData.append('address_line1', addressParts.line1);
-    formData.append('address_line2', addressParts.line2);
-    formData.append('city', this.company.city);
-    formData.append('pincode', this.company.pincode);
-    formData.append('state', this.company.state);
-    formData.append('website', this.company.website);
     formData.append('pan', this.company.pan);
-    formData.append('business_type', this.company.business_type);
+    formData.append('website', this.company.website);
+    formData.append('country_code', this.company.country_code);
 
     if (this.selectedFile) {
       formData.append('logo', this.selectedFile);
