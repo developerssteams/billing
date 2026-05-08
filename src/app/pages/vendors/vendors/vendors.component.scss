@@ -57,7 +57,6 @@
   font-size: 14px;
   font-weight: 500;
   outline: none;
-
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -101,26 +100,26 @@
   cursor: pointer;
 }
 
-
-
 .btn-primary {
   background: blue;
   color: white;
 }
 
+/* 🔥 CHANGE #1: Table scroll ke liye */
 .table {
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
 
+/* 🔥 CHANGE #2: Row me min-width add kiya */
 .row {
   display: grid;
   grid-template-columns: 2fr 2fr 1.5fr 2fr;
   padding: 15px;
   border-bottom: 1px solid #eee;
   align-items: center;
-  min-width: 650px; /* YEH ADD KARO - table scroll ke liye */
+  min-width: 650px;
 }
 
 .header-row {
@@ -227,11 +226,8 @@
   right: -40%;
   width: 40%;
   height: 100vh;
-  /* 🔥 CHANGE THIS */
   display: flex;
-  /* 🔥 ADD */
   flex-direction: column;
-  /* 🔥 ADD */
   background: #f5f6f8;
   z-index: 1000;
   transition: right 0.3s ease;
@@ -270,22 +266,18 @@
 /* ========================= */
 /* 🔹 BODY */
 /* ========================= */
-/* Body full height */
 .vendor-body {
   padding: 20px;
   flex: 1;
-  /* 🔥 CHANGE */
   display: flex;
   flex-direction: column;
   overflow-y: scroll;
-  /* 🔥 ADD */
 }
 
 /* Scroll area */
 .vendor-content {
   flex: 1;
   overflow-y: auto;
-  /* 🔥 SCROLL YAHI AAYEGA */
   padding: 20px;
 }
 
@@ -296,7 +288,6 @@
   flex-shrink: 0;
   display: flex;
   gap: 20px;
-  /* 🔥 IMPORTANT */
 }
 
 
@@ -433,11 +424,8 @@
 
 .vendor-save-btn {
   width: auto;
-  /* 🔥 change */
   padding: 0 20px;
-  /* button size */
   height: 42px;
-  /* thoda compact */
   border-radius: 10px;
   background: linear-gradient(90deg, #1a00ff, #0000cc);
   color: #fff;
@@ -497,9 +485,7 @@
 /* label */
 .custom-radio {
   display: inline-flex;
-  /* 🔥 flex use kar */
   align-items: center;
-  /* 🔥 vertical center */
   gap: 8px;
   cursor: pointer;
   font-size: 14px;
@@ -601,7 +587,6 @@
 .toggle span {
   flex: 1;
   text-align: right;
-  /* default right (No state) */
   padding-right: 6px;
 }
 
@@ -648,6 +633,8 @@
   font-size: 12px;
   margin-top: 6px;
 }
+
+/* 🔥 CHANGE #3: Mobile Responsive (Sirf layout ke liye, colors nahi badle) */
 @media (max-width: 768px) {
   .container {
     padding: 12px;
@@ -655,7 +642,7 @@
   
   .row {
     padding: 10px;
-    min-width: 600px; /* Mobile me thoda kam width */
+    min-width: 600px;
   }
   
   .search {
@@ -671,6 +658,11 @@
     width: 100%;
   }
   
+  .btn-primary {
+    width: 100%;
+    text-align: center;
+  }
+  
   .bottom {
     flex-direction: column;
     gap: 12px;
@@ -683,34 +675,8 @@
   .pagination {
     justify-content: center;
   }
-}
-
-/* 4. Extra small devices (480px se chhota) */
-@media (max-width: 480px) {
-  .row {
-    min-width: 550px;
-    font-size: 13px;
-  }
   
-  .avatar {
-    width: 32px;
-    height: 32px;
-    font-size: 12px;
-  }
-  
-  .note-btn {
-    padding: 4px 8px;
-    font-size: 11px;
-  }
-  
-  .badge {
-    padding: 6px 12px;
-    font-size: 12px;
-  }
-}
-
-/* 5. Form ko bhi mobile friendly bana do (optional but helpful) */
-@media (max-width: 768px) {
+  /* Form mobile friendly */
   .vendor-form {
     right: -100%;
     width: 100%;
@@ -738,5 +704,33 @@
   
   .header-save-btn {
     width: 100%;
+  }
+}
+
+/* 🔥 CHANGE #4: Extra small devices */
+@media (max-width: 480px) {
+  .row {
+    min-width: 550px;
+    font-size: 13px;
+  }
+  
+  .avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+  
+  .note-btn {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+  
+  .badge {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  
+  .header {
+    font-size: 18px;
   }
 }
