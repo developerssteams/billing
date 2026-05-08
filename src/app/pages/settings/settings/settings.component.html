@@ -24,7 +24,7 @@
             <label><span class="req">*</span>Trade/Brand Name :</label>
         </div>
         <div class="input-col">
-            <input type="text" class="form-control" [(ngModel)]="company.trade_name" (input)="syncCompanyName()"
+            <input type="text" class="form-control" placeholder="Enter Your Company Trade Name" [(ngModel)]="company.trade_name" (input)="syncCompanyName()"
                 required>
         </div>
     </div>
@@ -35,7 +35,7 @@
             <label><span class="req">*</span>Company Name :</label>
         </div>
         <div class="input-col">
-            <input type="text" class="form-control" [(ngModel)]="company.company_name" required>
+            <input type="text" class="form-control" placeholder="Enter Your Company Name" [(ngModel)]="company.company_name" required>
         </div>
     </div>
 
@@ -114,7 +114,7 @@
             <label><span class="req">*</span>Business Type :</label>
         </div>
         <div class="input-col">
-            <input type="text" class="form-control" [(ngModel)]="company.business_type">
+            <input type="text" class="form-control" placeholder="Enter Business Type" [(ngModel)]="company.business_type">
         </div>
     </div>
 
