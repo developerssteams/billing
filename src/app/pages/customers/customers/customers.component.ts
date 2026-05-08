@@ -2,12 +2,11 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { CustomerFormComponent } from '../../../components/customer-form/customer-form.component';
 
 @Component({
   selector: 'app-customers',
-  imports: [CommonModule, FormsModule, PageHeaderComponent, CustomerFormComponent],
+  imports: [CommonModule, FormsModule, CustomerFormComponent],
   templateUrl: './customers.component.html',
   styleUrls: ['./customers.component.scss']
 })
