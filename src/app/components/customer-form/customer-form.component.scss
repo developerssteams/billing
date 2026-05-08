@@ -4,12 +4,15 @@
 .customer-form {
   position: fixed;
   top: 0;
-  right: -100%;
+  right: -40%;
   width: 40%;
   height: 100vh;
+  /* 🔥 CHANGE THIS */
   display: flex;
+  /* 🔥 ADD */
   flex-direction: column;
-  background: #f8fafc;
+  /* 🔥 ADD */
+  background: #f5f6f8;
   z-index: 1000;
   transition: right 0.3s ease;
   box-shadow: -8px 0 25px rgba(0, 0, 0, 0.2);
@@ -25,89 +28,57 @@
 .customer-header {
   background: #fff;
   padding: 16px 20px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #eee;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
 }
 
 .customer-header h3 {
   margin: 0;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
-  color: #0f172a;
 }
 
-/* Header Buttons */
-.header-buttons {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.header-close-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  color: #64748b;
-  font-size: 16px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-}
-
-.header-close-btn:hover {
-  background: #fee2e2;
-  color: #dc2626;
-  border-color: #fecaca;
-}
-
-.header-save-btn {
-  background: #3b82f6;
-  color: white;
+.customer-close-btn {
   border: none;
-  padding: 6px 16px;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 13px;
+  background: none;
+  font-size: 18px;
   cursor: pointer;
-  transition: all 0.2s;
-  height: 32px;
-}
-
-.header-save-btn:hover {
-  background: #2563eb;
 }
 
 /* ========================= */
 /* 🔹 BODY */
 /* ========================= */
+/* Body full height */
 .customer-body {
+  padding: 20px;
+  flex: 1;
+  /* 🔥 CHANGE */
+  display: flex;
+  flex-direction: column;
+  overflow-y: scroll;
+  /* 🔥 ADD */
+}
+
+/* Scroll area */
+.customer-content {
   flex: 1;
   overflow-y: auto;
+  /* 🔥 SCROLL YAHI AAYEGA */
   padding: 20px;
-  scrollbar-width: thin;
 }
 
-.customer-body::-webkit-scrollbar {
-  width: 6px;
+.customer-footer {
+  padding: 15px 20px;
+  background: #fff;
+  border-top: 1px solid #eee;
+  flex-shrink: 0;
+  display: flex;
+  gap: 20px;
+  /* 🔥 IMPORTANT */
 }
 
-.customer-body::-webkit-scrollbar-track {
-  background: #e2e8f0;
-  border-radius: 10px;
-}
-
-.customer-body::-webkit-scrollbar-thumb {
-  background: #94a3b8;
-  border-radius: 10px;
-}
 
 /* ========================= */
 /* 🔹 TITLE */
@@ -115,12 +86,7 @@
 .customer-title {
   font-size: 16px;
   font-weight: 600;
-  margin: 0 0 12px 0;
-  color: #334155;
-}
-
-.mt-2 {
-  margin-top: 20px;
+  margin-bottom: 12px;
 }
 
 /* ========================= */
@@ -128,14 +94,16 @@
 /* ========================= */
 .customer-card {
   background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  margin-bottom: 20px;
+  padding: 22px;
+  border-radius: 14px;
+  border: 1px solid #eee;
 }
 
+/* ========================= */
+/* 🔹 FORM GROUP */
+/* ========================= */
 .customer-group {
-  margin-bottom: 16px;
+  margin-bottom: 15px;
 }
 
 /* ========================= */
@@ -143,15 +111,13 @@
 /* ========================= */
 .customer-form label {
   font-size: 13px;
-  font-weight: 500;
-  color: #475569;
+  color: #555;
   margin-bottom: 6px;
-  display: block;
 }
 
 .customer-required::before {
   content: "* ";
-  color: #ef4444;
+  color: red;
 }
 
 /* ========================= */
@@ -160,18 +126,16 @@
 .customer-form input {
   width: 100%;
   height: 42px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
   padding: 0 12px;
   font-size: 14px;
   background: #fff;
-  transition: all 0.2s;
 }
 
 .customer-form input:focus {
+  border-color: #0d6efd;
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 /* ========================= */
@@ -180,7 +144,7 @@
 .customer-row {
   display: flex;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-top: 10px;
 }
 
 .customer-col {
@@ -195,51 +159,139 @@
   align-items: center;
 }
 
+/* +91 box */
 .customer-prefix {
   height: 42px;
   padding: 0 12px;
-  background: #f1f5f9;
-  border: 1px solid #cbd5e1;
+  background: #f3f3f3;
+  border: 1px solid #ddd;
   border-right: none;
-  border-radius: 8px 0 0 8px;
+  border-radius: 10px 0 0 10px;
   display: flex;
   align-items: center;
   font-size: 14px;
-  font-weight: 500;
-  color: #334155;
 }
 
+/* input */
 .customer-phone-input {
-  border-radius: 0 8px 8px 0 !important;
+  border-radius: 0 10px 10px 0 !important;
   border-left: none;
   flex: 1;
 }
 
+
 /* ========================= */
-/* 🔹 GST WRAPPER */
+/* 🔹 NG-SELECT FIX */
 /* ========================= */
+.customer-form ::ng-deep .ng-select-container {
+  height: 42px !important;
+  border-radius: 10px !important;
+  border: 1px solid #ddd !important;
+  padding: 0 8px;
+}
+
+.customer-form ::ng-deep .ng-select-container:hover {
+  border-color: #0d6efd !important;
+}
+
+.customer-form ::ng-deep .ng-dropdown-panel {
+  border-radius: 10px !important;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.customer-form ::ng-deep .ng-option {
+  padding: 10px !important;
+}
+
+.customer-form ::ng-deep .ng-option:hover {
+  background: #f5f5f5 !important;
+}
+
+/* ========================= */
+/* 🔹 BUTTON */
+/* ========================= */
+
+.customer-save-btn {
+  width: auto;
+  /* 🔥 change */
+  padding: 0 20px;
+  /* button size */
+  height: 42px;
+  /* thoda compact */
+  border-radius: 10px;
+  background: #165a50;
+  color: #fff;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* Cancel */
+.customer-cancel-btn {
+  padding: 10px 18px;
+  border-radius: 8px;
+  background: #f3f4f6;
+  color: #333;
+  border: 1px solid #ddd;
+  cursor: pointer;
+}
+
+/* hover */
+.customer-cancel-btn:hover {
+  background: #e5e7eb;
+}
+
+/* GST wrapper */
 .customer-gstin-wrapper {
   display: flex;
-  gap: 8px;
+  gap: 10px;
 }
 
 .customer-gstin-wrapper input {
   flex: 1;
 }
 
-/* ========================= */
-/* 🔹 SUB TITLE */
-/* ========================= */
+
+/* Sub title */
 .customer-sub-title {
+  margin: 15px 0 10px;
   font-size: 14px;
   font-weight: 600;
-  margin: 16px 0 12px 0;
-  color: #475569;
 }
 
-/* ========================= */
-/* 🔹 BALANCE HINT */
-/* ========================= */
+/* label */
+.label-title {
+  font-size: 14px;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* group */
+.radio-group {
+  display: flex;
+  gap: 20px;
+  margin: 10px 0;
+}
+
+/* label */
+.custom-radio {
+  display: inline-flex;
+  /* 🔥 flex use kar */
+  align-items: center;
+  /* 🔥 vertical center */
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* hide default radio */
+.custom-radio input {
+  display: none;
+}
+
+/* Balance Hint Styles */
 .balance-hint {
   display: block;
   margin-top: 8px;
@@ -253,14 +305,6 @@
 .balance-hint.negative {
   color: #dc2626;
 }
-
-.text-gray-500 {
-  color: #6b7280;
-  font-size: 12px;
-  display: block;
-  margin-top: 5px;
-}
-
 /* ========================= */
 /* 🔹 RCM TOGGLE SWITCH */
 /* ========================= */
@@ -336,8 +380,212 @@
 }
 
 /* ========================= */
-/* 🔹 CHECKBOX */
+/* 🔹 RESPONSIVE BREAKPOINTS - ADDED ONLY THESE */
 /* ========================= */
+
+/* Tablet (769px to 1024px) - 65% width */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .customer-form {
+    width: 65%;
+    right: -65%;
+  }
+  
+  .customer-form.open {
+    right: 0;
+  }
+}
+
+/* Mobile (max-width: 768px) - Full width */
+@media (max-width: 768px) {
+  .customer-form {
+    width: 100%;
+    right: -100%;
+  }
+  
+  .customer-form.open {
+    right: 0;
+  }
+  
+  .toggle-switch {
+    width: 80px;
+    height: 36px;
+  }
+  
+  .toggle-slider {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .toggle-switch.active .toggle-slider {
+    transform: translateX(44px);
+  }
+  
+  .toggle-text {
+    font-size: 11px;
+  }
+}
+
+/* Extra small devices (max-width: 480px) */
+@media (max-width: 480px) {
+  .customer-card {
+    padding: 16px;
+  }
+  
+  .customer-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .customer-footer {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .customer-save-btn,
+  .customer-cancel-btn {
+    width: 100%;
+  }
+}
+
+/* outer circle */
+.radio-circle {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #cbd5e1;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+}
+
+/* inner dot */
+.radio-circle::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  background: #2563eb;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: 0.2s ease;
+}
+
+/* checked state */
+.custom-radio input:checked+.radio-circle {
+  border-color: #2563eb;
+}
+
+.custom-radio input:checked+.radio-circle::after {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* input */
+.input-box {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.input-box input {
+  width: 100%;
+  height: 42px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 0 12px;
+  padding-right: 170px;
+}
+
+/* right text */
+.balance-text {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.red {
+  color: red;
+}
+
+.green {
+  color: green;
+}
+
+/* section */
+.section {
+  margin-top: 20px;
+}
+
+/* toggle box */
+.toggle {
+  width: 70px;
+  height: 32px;
+  background: #d1d5db;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+  cursor: pointer;
+  position: relative;
+  font-size: 12px;
+  color: #555;
+}
+
+/* text */
+.toggle span {
+  flex: 1;
+  text-align: right;
+  /* default right (No state) */
+  padding-right: 6px;
+}
+
+/* active (Yes state) */
+.toggle.active {
+  background: #2563eb;
+  color: #fff;
+}
+
+/* move text left when active */
+.toggle.active span {
+  text-align: left;
+  padding-left: 6px;
+}
+
+/* circle */
+.circle {
+  width: 22px;
+  height: 22px;
+  background: #fff;
+  border-radius: 50%;
+  position: absolute;
+  left: 4px;
+  transition: 0.3s;
+}
+
+/* move circle to right when active */
+.toggle.active .circle {
+  left: calc(100% - 26px);
+}
+
+/* dropdown */
+.dropdown select {
+  width: 100%;
+  height: 40px;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  padding: 0 10px;
+}
+
+.error-text {
+  color: #ef4444;
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+/* Same as Billing Checkbox Styles */
 .same-address-checkbox {
   margin-bottom: 24px;
   padding: 16px;
@@ -352,6 +600,7 @@
   background: #fafbff;
 }
 
+/* Modern Checkbox Design */
 .checkbox-label {
   display: inline-flex;
   align-items: center;
@@ -368,6 +617,7 @@
   color: #3b82f6;
 }
 
+/* Hide default checkbox */
 .checkbox-label input {
   position: absolute;
   opacity: 0;
@@ -376,6 +626,7 @@
   cursor: pointer;
 }
 
+/* Custom checkbox design */
 .checkbox-label .checkmark-custom {
   position: relative;
   display: inline-block;
@@ -389,16 +640,19 @@
   flex-shrink: 0;
 }
 
+/* Checkbox hover effect */
 .checkbox-label:hover .checkmark-custom {
   border-color: #3b82f6;
   background-color: #eff6ff;
 }
 
+/* Checked state */
 .checkbox-label input:checked ~ .checkmark-custom {
   background-color: #3b82f6;
   border-color: #3b82f6;
 }
 
+/* Checkmark icon */
 .checkbox-label .checkmark-custom::after {
   content: '';
   position: absolute;
@@ -412,13 +666,42 @@
   transform: rotate(45deg);
 }
 
+/* Show checkmark when checked */
 .checkbox-label input:checked ~ .checkmark-custom::after {
   display: block;
 }
 
-/* ========================= */
-/* 🔹 DELIVERY ADDRESS */
-/* ========================= */
+/* Checkbox text */
+.checkbox-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  letter-spacing: 0.3px;
+}
+
+.checkbox-label:hover .checkbox-text {
+  color: #3b82f6;
+}
+
+/* Hint Text */
+.checkbox-hint {
+  display: block;
+  margin-top: 10px;
+  margin-left: 32px;
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.checkbox-hint.success {
+  color: #10b981;
+}
+
+.checkbox-hint.success::before {
+  content: '✓ ';
+  font-weight: bold;
+}
+
+/* Delivery Address Fields */
 .delivery-address-fields {
   margin-top: 20px;
   padding: 20px;
@@ -439,6 +722,7 @@
   }
 }
 
+/* Billing Address Preview */
 .billing-address-preview {
   margin-top: 16px;
   padding: 16px;
@@ -479,169 +763,4 @@
   line-height: 1.5;
   padding-left: 8px;
   border-left: 2px solid #86efac;
-}
-
-/* ========================= */
-/* 🔹 FOOTER BUTTONS */
-/* ========================= */
-.customer-footer {
-  padding: 16px 20px;
-  background: #fff;
-  border-top: 1px solid #e2e8f0;
-  display: flex;
-  gap: 12px;
-  flex-shrink: 0;
-}
-
-.customer-footer .customer-save-btn {
-  flex: 1;
-  height: 44px;
-  border-radius: 8px;
-  background: #3b82f6;
-  color: white;
-  border: none;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.customer-footer .customer-save-btn:hover {
-  background: #2563eb;
-}
-
-.customer-cancel-btn {
-  flex: 1;
-  height: 44px;
-  border-radius: 8px;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  color: #334155;
-  font-weight: 500;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.customer-cancel-btn:hover {
-  background: #e2e8f0;
-}
-
-/* ========================= */
-/* 🔹 RESPONSIVE BREAKPOINTS */
-/* ========================= */
-
-/* Mobile (max-width: 768px) - Full width */
-@media (max-width: 768px) {
-  .customer-form {
-    width: 100%;
-    right: -100%;
-  }
-  
-  .customer-form.open {
-    right: 0;
-  }
-  
-  .customer-row {
-    flex-direction: column;
-    gap: 12px;
-  }
-  
-  .customer-footer {
-    flex-direction: column-reverse;
-    gap: 10px;
-  }
-  
-  .customer-footer .customer-save-btn,
-  .customer-cancel-btn {
-    width: 100%;
-    flex: none;
-  }
-  
-  .customer-header {
-    flex-direction: row;
-    justify-content: space-between;
-  }
-  
-  .toggle-switch {
-    width: 80px;
-    height: 36px;
-  }
-  
-  .toggle-slider {
-    width: 28px;
-    height: 28px;
-  }
-  
-  .toggle-switch.active .toggle-slider {
-    transform: translateX(44px);
-  }
-  
-  .toggle-text {
-    font-size: 11px;
-  }
-  
-  .customer-card {
-    padding: 16px;
-  }
-}
-
-/* Tablet (769px to 1024px) - 65% width */
-@media (min-width: 769px) and (max-width: 1024px) {
-  .customer-form {
-    width: 65%;
-    right: -65%;
-  }
-  
-  .customer-form.open {
-    right: 0;
-  }
-  
-  .customer-row {
-    flex-direction: row;
-    gap: 12px;
-  }
-  
-  .customer-footer {
-    flex-direction: row;
-    gap: 12px;
-  }
-  
-  .customer-footer .customer-save-btn,
-  .customer-cancel-btn {
-    flex: 1;
-    width: auto;
-  }
-  
-  .customer-header {
-    flex-direction: row;
-    justify-content: space-between;
-  }
-}
-
-/* Laptop/Desktop (min-width: 1025px) - 40% width */
-@media (min-width: 1025px) {
-  .customer-form {
-    width: 40%;
-    right: -40%;
-  }
-  
-  .customer-form.open {
-    right: 0;
-  }
-  
-  .customer-row {
-    flex-direction: row;
-    gap: 12px;
-  }
-  
-  .customer-footer {
-    flex-direction: row;
-    gap: 12px;
-  }
-  
-  .customer-header {
-    flex-direction: row;
-    justify-content: space-between;
-  }
 }

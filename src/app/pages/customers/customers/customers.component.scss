@@ -109,6 +109,15 @@ body {
   padding: 14px 20px;
 }
 
+.header-save-btn {
+  background: #165a50;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+}
 /* User Section */
 .user {
   display: flex;
