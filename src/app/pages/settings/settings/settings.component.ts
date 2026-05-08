@@ -17,6 +17,7 @@ export class SettingsComponent {
   constructor(private http: HttpClient) { }
 
   logoPreview: string | ArrayBuffer | null = null;
+
   selectedFile: any;
   isLoading: boolean = false;
   gstLoading: boolean = false;
@@ -86,24 +87,14 @@ export class SettingsComponent {
               logo: data.logo || '',
               signature: data.signature || ''
             };
-
-            if (
-              this.company.logo &&
-              this.company.logo !== 'null'
-            ) {
-
-              this.logoPreview =
-                this.company.logo;
-
+            // Set logo preview
+            if (this.company.logo && this.company.logo !== 'null') {
+              this.logoPreview = this.company.logo;
             }
-            if (
-              this.company.signature &&
-              this.company.signature !== 'null'
-            ) {
 
-              this.signaturePreview =
-                this.company.signature;
-
+            // 🔥 ADD THIS - Set signature preview
+            if (this.company.signature && this.company.signature !== 'null') {
+              this.signaturePreview = this.company.signature;
             }
 
           }
@@ -121,33 +112,24 @@ export class SettingsComponent {
   selectedSignature: any;
   /* ================= SIGNATURE UPLOAD ================= */
 
-  onSignatureChange(event: any) {
-
+  /* ================= SIGNATURE UPLOAD ================= */
+onSignatureChange(event: any) {
     const file = event.target.files[0];
-
     if (!file) return;
-
+    
     if (!file.type.startsWith('image/')) {
-
-      alert('Please upload an image file');
-
-      return;
-
+        alert('Please upload an image file');
+        return;
     }
-
+    
     this.selectedSignature = file;
-
+    
     const reader = new FileReader();
-
     reader.onload = () => {
-
-      this.signaturePreview = reader.result;
-
+        this.signaturePreview = reader.result;
     };
-
     reader.readAsDataURL(file);
-
-  }
+}
   /* ================= SYNC TRADE NAME TO COMPANY NAME ================= */
   syncCompanyName() {
     if (!this.company.company_name) {
