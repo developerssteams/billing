@@ -35,8 +35,8 @@ export class ExpensesListComponent {
   isEditMode: boolean = false;
   editExpenseId: number | null = null;
 
-  // User ID
-  userId: number = 1;
+  // 🔥 User ID - Get from localStorage or auth service
+  userId: number = 1; // Change this to actual logged-in user ID
 
   paymentTypes = [
     'UPI',
@@ -76,6 +76,7 @@ export class ExpensesListComponent {
   togglePaymentFields() {
     this.showPaymentFields = !this.showPaymentFields;
 
+    // agar unmark kiya toh payment fields reset
     if (!this.showPaymentFields) {
       this.expense.mode = '';
       this.expense.payment_date = '';
@@ -97,85 +98,65 @@ export class ExpensesListComponent {
       .filter(item => item.status === 'pending')
       .reduce((total, item) => total + Number(item.amount), 0);
   }
-  
+
   //--------------------------------
-  // CATEGORY API - FIXED
+  // CATEGORY API (With user_id)
   //--------------------------------
+  //--------------------------------
+  // CATEGORY API (With user_id)
+  //--------------------------------
+  // Replace your getCategories() with this
   getCategories() {
-    console.log("🟢 Fetching categories for user_id:", this.userId);
-    
-    // Try multiple possible URLs
-    const urls = [
-      `https://billsezy.com/Api/get-expense-categories.php?user_id=${this.userId}`,
-      `https://billsezy.com/Api/get_expense_categories.php?user_id=${this.userId}`,
-      `https://billsezy.com/Api/get-expense-categories.php`
-    ];
-    
-    // Use first URL
-    fetch(urls[0])
+    console.log("Fetching categories...");
+
+    // Use fetch instead of HttpClient for better debugging
+    fetch(`https://billsezy.com/Api/get-expense-categories.php?user_id=${this.userId}`)
       .then(res => {
-        console.log("📡 Response status:", res.status);
+        console.log("Response status:", res.status);
         return res.json();
       })
       .then(res => {
-        console.log("📦 Categories API Response:", res);
-        
+        console.log("API Response:", res);
+
         if (res.status === true && Array.isArray(res.data)) {
           this.categoryList = res.data;
-          console.log("✅ Categories loaded:", this.categoryList.length);
-        } else if (Array.isArray(res)) {
-          this.categoryList = res;
-          console.log("✅ Categories loaded (direct array):", this.categoryList.length);
-        } else if (res.data && Array.isArray(res.data)) {
-          this.categoryList = res.data;
+          console.log("Categories loaded:", this.categoryList.length, this.categoryList);
         } else {
           this.categoryList = [];
-          console.warn("⚠️ No categories found");
+          console.warn("No categories found");
         }
       })
       .catch(err => {
-        console.error("❌ Category fetch error:", err);
+        console.error("Fetch error:", err);
         this.categoryList = [];
       });
   }
-
   addCategory(name: string) {
-    if (!name.trim()) return;
-    
-    const payload = { 
-      name: name.trim(),
-      user_id: this.userId 
+    const payload = {
+      name: name,
+      user_id: this.userId
     };
-    
-    console.log("🟢 Adding category:", payload);
 
-    fetch('https://billsezy.com/Api/add-expense-category.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
-      .then(res => res.json())
-      .then(res => {
-        console.log("📦 Add Category Response:", res);
-        
-        if (res.status === true) {
-          // Refresh category list
-          this.getCategories();
-          
-          // Set selected category
-          this.expense.category = name;
-          this.selectedCategory = name;
-          this.categoryInput = '';
-          this.showDropdown = false;
-          
-          alert(res.message || 'Category added successfully ✅');
-        } else {
-          alert(res.message || 'Failed to add category');
+    this.http.post<any>('https://billsezy.com/Api/add-expense-category.php', payload)
+      .subscribe({
+        next: (res) => {
+          if (res.status) {
+            this.getCategories(); // Refresh list
+
+            this.expense.category = name;
+            this.selectedCategory = name;
+            this.categoryInput = '';
+            this.showDropdown = false;
+
+            alert(res.message);
+          } else {
+            alert(res.message);
+          }
+        },
+        error: (err) => {
+          console.log('Add category error:', err);
+          alert('Server Error ❌');
         }
-      })
-      .catch(err => {
-        console.error("❌ Add category error:", err);
-        alert('Server Error ❌');
       });
   }
 
@@ -184,9 +165,10 @@ export class ExpensesListComponent {
   //--------------------------------
   openForm(expense?: any) {
     if (expense) {
+      // Edit Mode
       this.isEditMode = true;
       this.editExpenseId = expense.id;
-      
+
       this.expense = {
         amount: expense.amount || '',
         expense_date: expense.expense_date || '',
@@ -196,16 +178,17 @@ export class ExpensesListComponent {
         status: expense.status || '',
         payment_date: expense.payment_date || ''
       };
-      
+
       this.selectedCategory = expense.category || '';
       this.showPaymentFields = expense.status === 'paid';
-      
+
     } else {
+      // Add Mode
       this.isEditMode = false;
       this.editExpenseId = null;
       this.resetForm();
     }
-    
+
     this.showForm = true;
   }
 
@@ -235,13 +218,14 @@ export class ExpensesListComponent {
 
   onFileSelect(event: any) {
     const selectedFiles: FileList = event.target.files;
+
     if (selectedFiles) {
       this.files = Array.from(selectedFiles);
     }
   }
 
   //--------------------------------
-  // GET EXPENSES
+  // GET EXPENSES (With user_id)
   //--------------------------------
   getExpenses() {
     this.http.get<any>(`https://billsezy.com/Api/get_expense.php?user_id=${this.userId}`)
@@ -258,6 +242,7 @@ export class ExpensesListComponent {
               notes: item.notes,
               payment_date: item.payment_date
             }));
+
             this.applyFilters();
           }
         },
@@ -268,7 +253,7 @@ export class ExpensesListComponent {
   }
 
   //--------------------------------
-  // ADD/UPDATE EXPENSE
+  // ADD/UPDATE EXPENSE (With user_id)
   //--------------------------------
   addExpense() {
     if (!this.expense.amount || !this.expense.category) {
@@ -346,11 +331,15 @@ export class ExpensesListComponent {
       });
   }
 
+  //--------------------------------
+  // DELETE EXPENSE (With user_id)
+  //--------------------------------
   deleteExpense(id: number, category: string) {
     if (confirm(`Are you sure you want to delete this expense "${category}"?`)) {
-      this.http.post<any>('https://billsezy.com/Api/delete_expense.php', { 
+
+      this.http.post<any>('https://billsezy.com/Api/delete_expense.php', {
         id: id,
-        user_id: this.userId 
+        user_id: this.userId
       })
         .subscribe({
           next: (res) => {
@@ -385,14 +374,17 @@ export class ExpensesListComponent {
     }
 
     if (this.selectedCategoryFilter) {
-      data = data.filter(item => item.category === this.selectedCategoryFilter);
+      data = data.filter(
+        item => item.category === this.selectedCategoryFilter
+      );
     }
 
     if (this.searchText.trim()) {
-      data = data.filter(item =>
-        item.category?.toLowerCase().includes(this.searchText.toLowerCase()) ||
-        item.notes?.toLowerCase().includes(this.searchText.toLowerCase()) ||
-        item.mode?.toLowerCase().includes(this.searchText.toLowerCase())
+      data = data.filter(
+        item =>
+          item.category?.toLowerCase().includes(this.searchText.toLowerCase()) ||
+          item.notes?.toLowerCase().includes(this.searchText.toLowerCase()) ||
+          item.mode?.toLowerCase().includes(this.searchText.toLowerCase())
       );
     }
 
@@ -450,9 +442,12 @@ export class ExpensesListComponent {
   addCategoryFromInput(event: any) {
     const categoryName = this.categoryInput.trim();
 
-    if (categoryName && !this.categoryList.some(
-      (cat) => cat.name?.toLowerCase() === categoryName.toLowerCase()
-    )) {
+    if (
+      categoryName &&
+      !this.categoryList.some(
+        (cat) => cat.name.toLowerCase() === categoryName.toLowerCase()
+      )
+    ) {
       this.addCategory(categoryName);
     }
 
