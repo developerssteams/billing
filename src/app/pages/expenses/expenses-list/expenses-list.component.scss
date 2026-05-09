@@ -796,7 +796,7 @@ small {
 
   /* Footer Buttons Stack - Cancel then Save */
   .expense-form-footer {
-    flex-direction: column-reverse;
+    flex-direction: column;
     gap: 10px;
     padding: 14px;
   }
