@@ -323,7 +323,7 @@
   color: #0f172a;
 }
 
-/* Header Save Button */
+/* Header Save Button - Small */
 .expense-form-header .expense-save-btn {
   background: #165a50;
   color: white;
@@ -554,7 +554,7 @@ small {
 }
 
 /* ========================= */
-/* FORM FOOTER BUTTONS */
+/* FORM FOOTER BUTTONS - SMALL */
 /* ========================= */
 
 /* Form Footer Container */
@@ -566,41 +566,41 @@ small {
   gap: 12px;
   flex-shrink: 0;
 }
-
-/* Footer Save Button - Same size as Header */
+/* Footer Save Button - Small */
 .expense-form-footer .expense-save-btn {
-  flex: 1;
-  height: 32px;
-  border-radius: 6px;
   background: #165a50;
   color: white;
   border: none;
+  padding: 5px 14px;
+  height: 32px;
+  width: auto;
+  min-width: 70px;
+  border-radius: 6px;
   font-weight: 500;
   font-size: 12px;
   cursor: pointer;
   transition: all 0.2s;
-  text-align: center;
-  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .expense-form-footer .expense-save-btn:hover {
   background: #0e443d;
 }
-
-/* Footer Cancel Button - Same size */
 .expense-cancel-btn {
   flex: 1;
-  height: 32px;
+  height: 36px;  /* Changed from 38px to 36px */
   border-radius: 6px;
   background: #f1f5f9;
   border: 1px solid #e2e8f0;
   color: #334155;
   font-weight: 500;
-  font-size: 12px;
+  font-size: 13px;
   cursor: pointer;
   transition: all 0.2s;
   text-align: center;
-  padding: 0 12px;
+  padding: 0 16px;
 }
 
 .expense-cancel-btn:hover {
@@ -794,19 +794,19 @@ small {
     font-size: 12px;
   }
 
-  /* Footer Buttons - Mobile (Same order, not reversed) */
+  /* Footer Buttons Stack - Cancel then Save */
   .expense-form-footer {
-    flex-direction: row;
+    flex-direction: column;
     gap: 10px;
     padding: 14px;
   }
 
   .expense-form-footer .expense-save-btn,
   .expense-cancel-btn {
-    flex: 1;
-    width: auto;
-    height: 40px;
-    font-size: 13px;
+    width: 100%;
+    flex: none;
+    height: 44px;
+    font-size: 14px;
   }
 
   .exp-footer {
@@ -850,18 +850,6 @@ small {
 
   .expense-card {
     padding: 16px;
-  }
-
-  /* Extra Small - Footer Buttons */
-  .expense-form-footer {
-    flex-direction: row;
-    gap: 8px;
-  }
-
-  .expense-form-footer .expense-save-btn,
-  .expense-cancel-btn {
-    height: 38px;
-    font-size: 12px;
   }
 }
 
