@@ -206,11 +206,12 @@ export class AddProductComponent {
   }
 
   // =========================
-  // 🔥 FETCH CATEGORIES (With User ID)
+  // 🔥 FETCH CATEGORIES (With User ID) - FIXED API ENDPOINT
   // =========================
   getCategories() {
     console.log("Fetching categories for user_id:", this.userId);
 
+    // 🔥 FIXED: Use get_categories.php instead of get_category.php
     fetch(`https://billsezy.com/Api/get_categories.php?user_id=${this.userId}`)
       .then(res => res.json())
       .then(res => {
@@ -311,7 +312,7 @@ export class AddProductComponent {
   createProduct() {
     const payload = {
       ...this.newProduct,
-      user_id: this.userId  // Add user_id to product
+      user_id: this.userId
     };
 
     fetch('https://billsezy.com/Api/add_product.php', {
@@ -343,7 +344,7 @@ export class AddProductComponent {
     const payload = {
       id: this.editProductId,
       ...this.newProduct,
-      user_id: this.userId  // Add user_id to update
+      user_id: this.userId
     };
 
     fetch('https://billsezy.com/Api/update_product.php', {
