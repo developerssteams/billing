@@ -849,4 +849,8 @@ small {
   .expense-form-footer {
     flex-direction: column;
   }
+  .expense-form-header .expense-save-btn {
+    display: none;
+  }
+
 }
