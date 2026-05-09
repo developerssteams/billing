@@ -67,7 +67,6 @@
   margin-bottom: 15px;
 }
 
-.exp-input,
 .exp-select,
 .exp-date {
   padding: 10px;
@@ -76,7 +75,12 @@
   flex: 1;
   min-width: 200px;
 }
-
+.exp-input {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  width: 300px;  /* Fixed width, not full */
+}
 /* TABLE WRAPPER */
 .exp-table {
   width: 100%;
@@ -623,6 +627,7 @@ small {
     opacity: 0;
     transform: translateY(-5px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
