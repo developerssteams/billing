@@ -156,22 +156,25 @@
   border: none;
   cursor: pointer;
 }
-
 .ps-edit {
   background: #fef3c7;
   color: #991b1b;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.ps-edit :hover {
+.ps-edit:hover {
   background: #fde68a;
 }
 
 .ps-delete {
   background: #fee2e2;
   color: #991b1b;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.ps-delete :hover {
+.ps-delete:hover {
   background: #fecaca;
 }
 
