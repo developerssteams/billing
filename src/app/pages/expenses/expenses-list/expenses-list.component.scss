@@ -602,8 +602,11 @@ small {
   font-size: 13px;
   cursor: pointer;
   transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  padding: 0 16px;
+  padding: 5px 14px;
 }
 
 .expense-cancel-btn:hover {
