@@ -35,6 +35,9 @@ export class ExpensesListComponent {
   isEditMode: boolean = false;
   editExpenseId: number | null = null;
 
+  // 🔥 User ID - Get from localStorage or auth service
+  userId: number = 1; // Change this to actual logged-in user ID
+
   paymentTypes = [
     'UPI',
     'Cash',
@@ -97,10 +100,10 @@ export class ExpensesListComponent {
   }
   
   //--------------------------------
-  // CATEGORY API
+  // CATEGORY API (With user_id)
   //--------------------------------
   getCategories() {
-    this.http.get<any>('https://billsezy.com/Api/get-expense-categories.php')
+    this.http.get<any>(`https://billsezy.com/Api/get-expense-categories.php?user_id=${this.userId}`)
       .subscribe({
         next: (res) => {
           if (res.status && Array.isArray(res.data)) {
@@ -118,13 +121,16 @@ export class ExpensesListComponent {
   }
 
   addCategory(name: string) {
-    const payload = { name };
+    const payload = { 
+      name: name,
+      user_id: this.userId 
+    };
 
     this.http.post<any>('https://billsezy.com/Api/add-expense-category.php', payload)
       .subscribe({
         next: (res) => {
           if (res.status) {
-            this.categoryList.push({ name });
+            this.getCategories(); // Refresh list
 
             this.expense.category = name;
             this.selectedCategory = name;
@@ -135,6 +141,10 @@ export class ExpensesListComponent {
           } else {
             alert(res.message);
           }
+        },
+        error: (err) => {
+          console.log('Add category error:', err);
+          alert('Server Error ❌');
         }
       });
   }
@@ -204,10 +214,10 @@ export class ExpensesListComponent {
   }
 
   //--------------------------------
-  // GET EXPENSES
+  // GET EXPENSES (With user_id)
   //--------------------------------
   getExpenses() {
-    this.http.get<any>('https://billsezy.com/Api/get_expense.php')
+    this.http.get<any>(`https://billsezy.com/Api/get_expense.php?user_id=${this.userId}`)
       .subscribe({
         next: (res) => {
           if (res.status && Array.isArray(res.data)) {
@@ -232,7 +242,7 @@ export class ExpensesListComponent {
   }
 
   //--------------------------------
-  // ADD/UPDATE EXPENSE
+  // ADD/UPDATE EXPENSE (With user_id)
   //--------------------------------
   addExpense() {
     if (!this.expense.amount || !this.expense.category) {
@@ -249,6 +259,7 @@ export class ExpensesListComponent {
 
   createExpense() {
     const payload = {
+      user_id: this.userId,
       amount: this.expense.amount,
       expense_date: this.expense.expense_date,
       category: this.expense.category,
@@ -280,6 +291,7 @@ export class ExpensesListComponent {
   updateExpense() {
     const payload = {
       id: this.editExpenseId,
+      user_id: this.userId,
       amount: this.expense.amount,
       expense_date: this.expense.expense_date,
       category: this.expense.category,
@@ -309,12 +321,15 @@ export class ExpensesListComponent {
   }
 
   //--------------------------------
-  // DELETE EXPENSE
+  // DELETE EXPENSE (With user_id)
   //--------------------------------
   deleteExpense(id: number, category: string) {
     if (confirm(`Are you sure you want to delete this expense "${category}"?`)) {
       
-      this.http.post<any>('https://billsezy.com/Api/delete_expense.php', { id: id })
+      this.http.post<any>('https://billsezy.com/Api/delete_expense.php', { 
+        id: id,
+        user_id: this.userId 
+      })
         .subscribe({
           next: (res) => {
             if (res.status) {
