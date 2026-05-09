@@ -847,6 +847,6 @@ small {
   
   /* Button order: Cancel then Save on mobile */
   .expense-form-footer {
-    flex-direction: column-reverse;
+    flex-direction: column;
   }
 }
