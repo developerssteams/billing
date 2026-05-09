@@ -162,9 +162,17 @@
   color: #991b1b;
 }
 
+.ps-edit :hover {
+  background: #fde68a;
+}
+
 .ps-delete {
   background: #fee2e2;
   color: #991b1b;
+}
+
+.ps-delete :hover {
+  background: #fecaca;
 }
 
 /* Pagination */
