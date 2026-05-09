@@ -301,8 +301,29 @@
 .expense-form.open {
   right: 0;
 }
+.expense-form-header .expense-save-btn {
+  background: #165a50;
+  color: white;
+  border: none;
+  padding: 6px 16px;
+  height: 36px;
+  width: auto;
+  min-width: 80px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
 
-/* Form Header */
+.expense-form-header .expense-save-btn:hover {
+  background: #0e443d;
+}
+
+/* Header - Desktop layout */
 .expense-form-header {
   background: #fff;
   padding: 16px 20px;
@@ -310,21 +331,6 @@
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid #e2e8f0;
-}
-
-.expense-form-header h3 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: #0f172a;
-}
-
-/* Form Header Save Button */
-.expense-form-header .expense-save-btn {
-  background: #165a50;
-  padding: 6px 16px;
-  height: 36px;
-  font-size: 13px;
 }
 
 /* Form Body */
