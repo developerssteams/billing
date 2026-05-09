@@ -2,6 +2,7 @@ import { Component, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { AuthService } from 'src/app/services/auth.service';  // ✅ Import AuthService
 
 @Component({
   selector: 'app-settings',
@@ -13,23 +14,36 @@ import { HttpClient } from '@angular/common/http';
 export class SettingsComponent {
 
   @ViewChild('fileInput') fileInput!: ElementRef;
-  @ViewChild('signatureInput') signatureInput!: ElementRef;  // 🔥 ADDED - Signature input reference
+  @ViewChild('signatureInput') signatureInput!: ElementRef;
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService  // ✅ Inject AuthService
+  ) { }
 
   logoPreview: string | ArrayBuffer | null = null;
-  signaturePreview: string | ArrayBuffer | null = null;  // 🔥 ADDED - Signature preview variable
+  signaturePreview: string | ArrayBuffer | null = null;
 
   selectedFile: any;
-  selectedSignature: any;  // 🔥 ADDED - Selected signature file
+  selectedSignature: any;
   isLoading: boolean = false;
   gstLoading: boolean = false;
   gstError: string = '';
 
-  user: any = JSON.parse(localStorage.getItem('user') || '{}');
+  // 🔥 Get user from AuthService
+  get user(): any {
+    return this.authService.getUser() || {};
+  }
+
+  // 🔥 Get user_id dynamically
+  get userId(): number {
+    const userId = this.authService.getUserId();
+    return userId || 1;
+  }
+
   companyId: number | null = null;
 
-  // 🔥 COMPANY DATA - MATCHING YOUR DATABASE COLUMNS
+  // COMPANY DATA
   company: any = {
     id: null,
     user_id: null,
@@ -51,9 +65,11 @@ export class SettingsComponent {
   };
 
   ngOnInit() {
-    console.log("USER ID:", this.user?.id);
-    if (this.user?.id) {
-      this.company.user_id = this.user.id;
+    console.log("Current User ID from AuthService:", this.userId);
+    console.log("User from AuthService:", this.user);
+    
+    if (this.userId) {
+      this.company.user_id = this.userId;
       this.getCompanyDetails();
     }
   }
@@ -61,19 +77,22 @@ export class SettingsComponent {
   /* ================= GET COMPANY DETAILS ================= */
   getCompanyDetails() {
     this.isLoading = true;
-    const userId = this.user.id;
+    const userId = this.userId;
+
+    console.log("Fetching company details for user_id:", userId);
 
     this.http.get(`https://billsezy.com/Api/get_company_details.php?user_id=${userId}`)
       .subscribe({
         next: (res: any) => {
           this.isLoading = false;
+          console.log("Company Details Response:", res);
 
           if (res.status && res.data) {
             const data = res.data;
 
             this.company = {
               id: data.id || null,
-              user_id: data.user_id || this.user.id,
+              user_id: data.user_id || this.userId,
               company_name: data.company_name || '',
               trade_name: data.trade_name || '',
               business_type: data.business_type || '',
@@ -90,16 +109,18 @@ export class SettingsComponent {
               logo: data.logo || '',
               signature: data.signature || ''
             };
+            
             // Set logo preview
             if (this.company.logo && this.company.logo !== 'null') {
               this.logoPreview = this.company.logo;
             }
 
-            // 🔥 Set signature preview
+            // Set signature preview
             if (this.company.signature && this.company.signature !== 'null') {
               this.signaturePreview = this.company.signature;
             }
-
+          } else {
+            console.log("No company data found for user:", userId);
           }
         },
         error: (err) => {
@@ -173,7 +194,6 @@ export class SettingsComponent {
         if (res?.status && res?.data) {
           const data = res.data;
 
-          // Trade/Company Name
           if (data.tradeNam) {
             this.company.trade_name = data.tradeNam;
             this.company.company_name = data.tradeNam;
@@ -182,7 +202,6 @@ export class SettingsComponent {
             this.company.company_name = data.lgnm;
           }
 
-          // Address
           if (data.pradr?.addr) {
             const addr = data.pradr.addr;
 
@@ -201,7 +220,6 @@ export class SettingsComponent {
             this.company.pincode = addr.pncd || '';
           }
 
-          // Business Type
           if (data.ctb) {
             this.company.business_type = data.ctb;
           } else if (data.nba && data.nba.length > 0) {
@@ -224,246 +242,117 @@ export class SettingsComponent {
 
   /* ================= SAVE COMPANY ================= */
   saveCompany() {
-
-    const userId = this.user?.id;
+    const userId = this.userId;
 
     if (!userId) {
-
       alert("User not logged in");
-
       return;
-
     }
 
-    // ======================================================
     // VALIDATION
-    // ======================================================
-
     if (!this.company.trade_name) {
-
       alert('Trade/Brand Name is required');
-
       return;
-
     }
 
     if (!this.company.company_name) {
-
       alert('Company Name is required');
-
       return;
-
     }
 
     if (!this.company.phone) {
-
       alert('Company Phone is required');
-
       return;
-
     }
 
     if (!this.company.email) {
-
       alert('Company Email is required');
-
       return;
-
     }
 
     if (!this.company.gstin) {
-
       alert('GSTIN is required');
-
       return;
-
     }
 
     if (!this.company.pan) {
-
       alert('PAN Number is required');
-
       return;
-
     }
 
     this.isLoading = true;
 
-    // ======================================================
     // FORM DATA
-    // ======================================================
-
     const formData = new FormData();
 
-    formData.append(
-      'user_id',
-      userId.toString()
-    );
+    formData.append('user_id', userId.toString());
 
     if (this.company.id) {
-
-      formData.append(
-        'id',
-        this.company.id.toString()
-      );
-
+      formData.append('id', this.company.id.toString());
     }
 
-    formData.append(
-      'trade_name',
-      this.company.trade_name
-    );
+    formData.append('trade_name', this.company.trade_name);
+    formData.append('company_name', this.company.company_name);
+    formData.append('business_type', this.company.business_type);
+    formData.append('address', this.company.address);
+    formData.append('city', this.company.city);
+    formData.append('state', this.company.state);
+    formData.append('pincode', this.company.pincode);
+    formData.append('gstin', this.company.gstin);
+    formData.append('phone', this.company.phone);
+    formData.append('email', this.company.email);
+    formData.append('pan', this.company.pan);
+    formData.append('website', this.company.website);
+    formData.append('country_code', this.company.country_code);
 
-    formData.append(
-      'company_name',
-      this.company.company_name
-    );
+    // CLEAN COMPANY NAME FOR FILE NAMES
+    const cleanName = this.company.company_name
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '_');
 
-    formData.append(
-      'business_type',
-      this.company.business_type
-    );
-
-    formData.append(
-      'address',
-      this.company.address
-    );
-
-    formData.append(
-      'city',
-      this.company.city
-    );
-
-    formData.append(
-      'state',
-      this.company.state
-    );
-
-    formData.append(
-      'pincode',
-      this.company.pincode
-    );
-
-    formData.append(
-      'gstin',
-      this.company.gstin
-    );
-
-    formData.append(
-      'phone',
-      this.company.phone
-    );
-
-    formData.append(
-      'email',
-      this.company.email
-    );
-
-    formData.append(
-      'pan',
-      this.company.pan
-    );
-
-    formData.append(
-      'website',
-      this.company.website
-    );
-
-    formData.append(
-      'country_code',
-      this.company.country_code
-    );
-
-    // ======================================================
-    // CLEAN COMPANY NAME
-    // ======================================================
-
-    const cleanName =
-      this.company.company_name
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g, '_');
-
-    // ======================================================
-    // LOGO
-    // ======================================================
-
+    // LOGO UPLOAD
     if (this.selectedFile) {
-
-      const logoExt =
-        this.selectedFile.name
-          .split('.')
-          .pop();
-
-      const logoFileName =
-        `${cleanName}_logo.${logoExt}`;
-
-      formData.append(
-        'logo',
-        this.selectedFile,
-        logoFileName
-      );
-
+      const logoExt = this.selectedFile.name.split('.').pop();
+      const logoFileName = `${cleanName}_logo.${logoExt}`;
+      formData.append('logo', this.selectedFile, logoFileName);
     }
 
-    // ======================================================
-    // SIGNATURE
-    // ======================================================
-
+    // SIGNATURE UPLOAD
     if (this.selectedSignature) {
-        const signExt = this.selectedSignature.name.split('.').pop();
-        const signFileName = `${cleanName}_sign.${signExt}`;
-        formData.append('signature', this.selectedSignature, signFileName);
+      const signExt = this.selectedSignature.name.split('.').pop();
+      const signFileName = `${cleanName}_sign.${signExt}`;
+      formData.append('signature', this.selectedSignature, signFileName);
     }
 
-    // ======================================================
-    // API
-    // ======================================================
+    // API CALL
+    this.http.post('https://billsezy.com/Api/save_company_details.php', formData)
+      .subscribe({
+        next: (res: any) => {
+          this.isLoading = false;
+          console.log("Save Response:", res);
 
-    this.http.post(
-      'https://billsezy.com/Api/save_company_details.php',
-      formData
-    ).subscribe({
-
-      next: (res: any) => {
-
-        this.isLoading = false;
-
-        console.log(res);
-
-        if (res.status) {
-
-          alert(res.message);
-
-          this.getCompanyDetails();
-
-        } else {
-
-          alert(
-            res.message || 'Save failed'
-          );
-
+          if (res.status) {
+            alert(res.message);
+            this.getCompanyDetails();  // Refresh data
+            this.selectedFile = null;   // Clear selected file
+            this.selectedSignature = null;  // Clear selected signature
+            
+            // Clear file input
+            if (this.fileInput) {
+              this.fileInput.nativeElement.value = '';
+            }
+            if (this.signatureInput) {
+              this.signatureInput.nativeElement.value = '';
+            }
+          } else {
+            alert(res.message || 'Save failed');
+          }
+        },
+        error: (error) => {
+          this.isLoading = false;
+          console.log("Save Error:", error);
+          alert(error?.error?.message || "Server Error ❌");
         }
-
-      },
-
-      error: (error) => {
-
-        this.isLoading = false;
-
-        console.log(error);
-
-        console.log("FULL ERROR:", error);
-
-        console.log("ERROR BODY:", error.error);
-
-        alert(
-          error?.error?.message ||
-          "Server Error ❌"
-        );
-
-      }
-
-    });
-
+      });
   }
 }
