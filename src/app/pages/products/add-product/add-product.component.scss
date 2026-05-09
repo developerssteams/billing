@@ -57,7 +57,10 @@
   background: #165a50;
   color: white;
 }
-
+.ps-btn-save {
+  background: #165a50;
+  color: white;
+}
 .ps-btn-light {
   background: #eef1f6;
 }
@@ -591,7 +594,9 @@ select:focus {
     width: 60%;
     text-align: center;
   }
-
+.ps-btn-save {
+display: none;
+}
   .ps-table {
     overflow-x: auto;
   }
@@ -648,7 +653,9 @@ select:focus {
   .ps-filter-right .ps-btn-primary {
     width: 100%;
   }
-
+.ps-btn-save {
+display: none;
+}
   .ps-row {
     min-width: 650px;
     padding: 10px 8px;
