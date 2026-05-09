@@ -830,3 +830,23 @@ small {
     right: 0;
   }
 }
+@media (max-width: 768px) {
+  .expense-form-footer {
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px;
+  }
+  
+  .expense-save-btn,
+  .expense-cancel-btn {
+    width: 100%;
+    flex: none;
+    height: 48px;
+    font-size: 15px;
+  }
+  
+  /* Button order: Cancel then Save on mobile */
+  .expense-form-footer {
+    flex-direction: column-reverse;
+  }
+}
