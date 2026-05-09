@@ -159,10 +159,12 @@
 
 .ps-edit {
   background: #fef3c7;
+  color: #991b1b;
 }
 
-.ps-more {
-  background: #eee;
+.ps-delete {
+  background: #fee2e2;
+  color: #991b1b;
 }
 
 /* Pagination */
@@ -374,6 +376,7 @@ select:focus {
   position: relative;
   width: 100%;
 }
+
 .cat-selected {
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -396,6 +399,7 @@ select:focus {
   color: #666;
   transition: transform 0.2s;
 }
+
 /* Rotate arrow when open */
 .cat-dropdown.open .cat-selected .arrow {
   transform: rotate(180deg);
@@ -433,13 +437,14 @@ select:focus {
 
 /* Animation */
 @keyframes fadeIn {
-  from { 
-    opacity: 0; 
-    transform: translateY(-5px); 
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
   }
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -449,15 +454,17 @@ select:focus {
 }
 
 @keyframes fadeInUp {
-  from { 
-    opacity: 0; 
-    transform: translateY(5px); 
+  from {
+    opacity: 0;
+    transform: translateY(5px);
   }
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
+
 /* Dropdown Input */
 .cat-input {
   width: 100%;
@@ -486,6 +493,7 @@ select:focus {
 .cat-item:hover {
   background: #f5f7ff;
 }
+
 /* Add New Button */
 .cat-add {
   margin-top: 8px;
@@ -541,71 +549,71 @@ select:focus {
     flex-direction: column;
     gap: 10px;
   }
-  
+
   .ps-filter-left {
     display: flex;
     width: 100%;
     gap: 8px;
   }
-  
+
   .ps-filter-left .ps-input {
     width: 60%;
   }
-  
+
   .ps-filter-left .ps-select {
     width: 40%;
   }
-  
+
   .ps-filter-right {
     display: flex;
     width: 100%;
     gap: 8px;
     margin-left: 0;
   }
-  
+
   .ps-filter-right .ps-btn-light {
     width: 40%;
     text-align: center;
   }
-  
+
   .ps-filter-right .ps-btn-primary {
     width: 60%;
     text-align: center;
   }
-  
+
   .ps-table {
     overflow-x: auto;
   }
-  
+
   .ps-row {
     min-width: 750px;
   }
-  
+
   .ps-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
   }
-  
+
   .ps-form {
     width: 100%;
     right: -100%;
   }
-  
+
   .ps-form.open {
     right: 0;
   }
-  
+
   .form-row {
     flex-direction: column;
     gap: 15px;
   }
-  
+
   .ps-form-footer {
     flex-direction: column;
     gap: 10px;
   }
-  
+
   .ps-form-footer .ps-btn {
     width: 100%;
   }
@@ -615,49 +623,49 @@ select:focus {
   .ps-filter-left {
     flex-direction: column;
   }
-  
+
   .ps-filter-left .ps-input,
   .ps-filter-left .ps-select {
     width: 100%;
   }
-  
+
   .ps-filter-right {
     flex-direction: column;
   }
-  
+
   .ps-filter-right .ps-btn-light,
   .ps-filter-right .ps-btn-primary {
     width: 100%;
   }
-  
+
   .ps-row {
     min-width: 650px;
     padding: 10px 8px;
   }
-  
+
   .ps-avatar {
     width: 32px;
     height: 32px;
     font-size: 12px;
   }
-  
+
   .ps-name {
     font-size: 13px;
   }
-  
+
   .ps-icon-btn {
     padding: 5px 8px;
     font-size: 11px;
   }
-  
+
   .ps-title {
     font-size: 18px;
   }
-  
+
   .ps-form-clean {
     padding: 15px;
   }
-  
+
   .form-group {
     margin-bottom: 15px;
   }
@@ -669,7 +677,7 @@ select:focus {
     width: 60%;
     right: -60%;
   }
-  
+
   .ps-form.open {
     right: 0;
   }
