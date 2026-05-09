@@ -30,8 +30,8 @@ export class AddProductComponent {
   categoryInput: string = '';
   selectedCategoryFilter: string = '';
 
-  // 🔹 User ID (Get from localStorage or auth service)
-  userId: number = 1; // Change this to actual logged-in user ID
+  // 🔹 User ID
+  userId: number = 1;
 
   // 🔹 GST Rate List
   gstRateList: any[] = [
@@ -51,11 +51,9 @@ export class AddProductComponent {
 
   openForm(product?: any) {
     if (product) {
-      // Edit Mode
       this.isEditMode = true;
       this.editProductId = product.id;
       
-      // Create a copy of the product data
       this.newProduct = {
         name: product.name || '',
         sell: product.sell || '',
@@ -70,7 +68,6 @@ export class AddProductComponent {
       this.selectedCategory = product.category || '';
       
     } else {
-      // Add Mode
       this.isEditMode = false;
       this.editProductId = null;
       this.resetForm();
@@ -118,7 +115,6 @@ export class AddProductComponent {
     this.updatePagination();
   }
 
-  // 🔹 Form Object
   newProduct: any = {
     name: '',
     sell: '',
@@ -130,15 +126,11 @@ export class AddProductComponent {
     gstRate: ''
   };
 
-  // 🔹 INIT
   ngOnInit() {
     this.getProducts();
     this.getCategories();
   }
 
-  // =========================
-  // 🔥 CLICK OUTSIDE CLOSE
-  // =========================
   @HostListener('document:click', ['$event'])
   closeDropdownOutside(event: any) {
     const dropdown = document.querySelector('.cat-dropdown');
@@ -147,9 +139,6 @@ export class AddProductComponent {
     }
   }
 
-  // =========================
-  // 🔍 SEARCH
-  // =========================
   searchProduct() {
     this.filteredData = this.productData.filter(item =>
       item.name?.toLowerCase().includes(this.searchText.toLowerCase()) ||
@@ -160,13 +149,9 @@ export class AddProductComponent {
     this.updatePagination();
   }
 
-  // =========================
-  // 📄 PAGINATION
-  // =========================
   updatePagination() {
     const start = (this.currentPage - 1) * this.itemsPerPage;
     const end = start + this.itemsPerPage;
-
     this.paginatedData = this.filteredData.slice(start, end);
   }
 
@@ -188,10 +173,6 @@ export class AddProductComponent {
     return Math.ceil(this.filteredData.length / this.itemsPerPage) || 1;
   }
 
-  // =========================
-  // 🔥 CATEGORY DROPDOWN
-  // =========================
-
   toggleDropdown(event: Event) {
     event.stopPropagation();
     this.showDropdown = !this.showDropdown;
@@ -199,20 +180,16 @@ export class AddProductComponent {
 
   selectCategory(name: string, event: Event) {
     event.stopPropagation();
-
     this.selectedCategory = name;
     this.newProduct.category = name;
     this.showDropdown = false;
   }
 
-  // =========================
-  // 🔥 FETCH CATEGORIES (With User ID) - FIXED API ENDPOINT
-  // =========================
+  // 🔥 FIXED: get_category.php (correct file name)
   getCategories() {
-    console.log("Fetching categories for user_id:", this.userId);
+    console.log("Fetching categories from get_category.php for user_id:", this.userId);
 
-    // 🔥 FIXED: Use get_categories.php instead of get_category.php
-    fetch(`https://billsezy.com/Api/get_categories.php?user_id=${this.userId}`)
+    fetch(`https://billsezy.com/Api/get_category.php?user_id=${this.userId}`)
       .then(res => res.json())
       .then(res => {
         console.log("Categories API Response:", res);
@@ -222,21 +199,21 @@ export class AddProductComponent {
           console.log("Categories loaded:", this.categoryList.length);
         } else {
           console.error("Failed to load categories:", res.message);
+          this.categoryList = [];
         }
       })
-      .catch(err => console.error("API ERROR:", err));
+      .catch(err => {
+        console.error("API ERROR:", err);
+        this.categoryList = [];
+      });
   }
 
-  // =========================
-  // 🔥 ADD CATEGORY (With User ID)
-  // =========================
   addCategoryFromInput(event?: Event) {
     if (event) event.stopPropagation();
 
     const name = this.categoryInput.trim();
     if (!name) return;
 
-    // 🔥 DUPLICATE CHECK
     const exists = this.categoryList.find(
       c => c.name?.toLowerCase() === name.toLowerCase()
     );
@@ -249,7 +226,6 @@ export class AddProductComponent {
       return;
     }
 
-    // 🔥 ADD CATEGORY WITH USER_ID
     const payload = {
       name: name,
       user_id: this.userId
@@ -267,15 +243,11 @@ export class AddProductComponent {
         console.log("Add Category Response:", res);
 
         if (res.status === true) {
-          // Refresh categories list
           this.getCategories();
-
           this.selectedCategory = name;
           this.newProduct.category = name;
-
           this.categoryInput = '';
           this.showDropdown = false;
-          
           alert('Category added successfully ✅');
         } else {
           alert(res.message || 'Failed to add category');
@@ -287,9 +259,6 @@ export class AddProductComponent {
       });
   }
 
-  // =========================
-  // 🔥 ADD/UPDATE PRODUCT
-  // =========================
   isLoading = false;
 
   addProduct() {
@@ -299,7 +268,6 @@ export class AddProductComponent {
     }
 
     if (this.isLoading) return;
-
     this.isLoading = true;
 
     if (this.isEditMode && this.editProductId) {
@@ -323,7 +291,6 @@ export class AddProductComponent {
       .then(res => res.json())
       .then(res => {
         this.isLoading = false;
-
         if (res.status === true) {
           this.getProducts();
           this.resetForm();
@@ -355,7 +322,6 @@ export class AddProductComponent {
       .then(res => res.json())
       .then(res => {
         this.isLoading = false;
-
         if (res.status === true) {
           this.getProducts();
           this.resetForm();
@@ -372,12 +338,8 @@ export class AddProductComponent {
       });
   }
 
-  // =========================
-  // 🔥 DELETE PRODUCT
-  // =========================
   deleteProduct(id: number, name: string) {
     if (confirm(`Are you sure you want to delete "${name}"?`)) {
-      
       fetch('https://billsezy.com/Api/delete_product.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -399,9 +361,6 @@ export class AddProductComponent {
     }
   }
 
-  // =========================
-  // 🔥 FETCH PRODUCTS (With User ID)
-  // =========================
   getProducts() {
     fetch(`https://billsezy.com/Api/get_product.php?user_id=${this.userId}`)
       .then(res => res.json())
