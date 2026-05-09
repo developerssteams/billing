@@ -566,6 +566,7 @@ small {
   gap: 12px;
   flex-shrink: 0;
 }
+
 /* Footer Save Button - Small */
 .expense-form-footer .expense-save-btn {
   background: #165a50;
@@ -588,9 +589,11 @@ small {
 .expense-form-footer .expense-save-btn:hover {
   background: #0e443d;
 }
+
 .expense-cancel-btn {
   flex: 1;
-  height: 36px;  /* Changed from 38px to 36px */
+  height: 32px;
+  width: auto;
   border-radius: 6px;
   background: #f1f5f9;
   border: 1px solid #e2e8f0;
@@ -657,6 +660,7 @@ small {
     opacity: 0;
     transform: translateY(-5px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
