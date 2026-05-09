@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { CustomerFormComponent } from '../../../components/customer-form/customer-form.component';
+import { AuthService } from 'src/app/services/auth.service';  // ✅ Import AuthService
 
 @Component({
   selector: 'app-customers',
@@ -11,7 +12,10 @@ import { CustomerFormComponent } from '../../../components/customer-form/custome
   styleUrls: ['./customers.component.scss']
 })
 export class CustomersComponent {
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService  // ✅ Inject AuthService
+  ) { }
 
   searchText = '';
 
@@ -29,10 +33,14 @@ export class CustomersComponent {
   isEditMode = false;
   selectedCustomer: any = null;
 
-  // User ID
-  userId: number = 1;
+  // 🔥 Get user_id from AuthService dynamically
+  get userId(): number {
+    const userId = this.authService.getUserId();
+    return userId || 1;
+  }
 
   ngOnInit() {
+    console.log("Current User ID from AuthService:", this.userId);
     this.filteredData = this.customerData;
     this.updatePaginatedData();
     this.getCustomers();
@@ -105,7 +113,10 @@ export class CustomersComponent {
       fetch('https://billsezy.com/Api/delete_customer.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: id, user_id: this.userId })
+        body: JSON.stringify({ 
+          id: id, 
+          user_id: this.userId  // ✅ Dynamic user_id
+        })
       })
         .then(res => res.json())
         .then(res => {
@@ -117,13 +128,16 @@ export class CustomersComponent {
           }
         })
         .catch(err => {
+          console.error('Delete error:', err);
           alert('Server Error ❌');
         });
     }
   }
 
-  // Get Customers
+  // Get Customers (With user_id)
   getCustomers() {
+    console.log('Fetching customers for user_id:', this.userId);
+    
     fetch(`https://billsezy.com/Api/get_customers.php?user_id=${this.userId}`)
       .then(res => res.json())
       .then(res => {
@@ -132,9 +146,12 @@ export class CustomersComponent {
           this.filteredData = [...this.customerData];
           this.currentPage = 1;
           this.updatePaginatedData();
+          console.log('Customers loaded:', this.customerData.length);
+        } else {
+          console.error('Failed to load customers:', res.message);
         }
       })
-      .catch(err => console.error(err));
+      .catch(err => console.error('Fetch error:', err));
   }
 
   // Summary - Positive = You Collect, Negative = You Pay
