@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { AuthService } from 'src/app/services/auth.service';  // ✅ Import AuthService
 
 @Component({
   selector: 'app-expenses-list',
@@ -16,7 +17,10 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 })
 export class ExpensesListComponent {
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService  // ✅ Inject AuthService
+  ) { }
 
   activeTab = 'all';
   searchText = '';
@@ -35,8 +39,11 @@ export class ExpensesListComponent {
   isEditMode: boolean = false;
   editExpenseId: number | null = null;
 
-  // 🔥 User ID
-  userId: number = 1;
+  // 🔥 Get user_id from AuthService dynamically
+  get userId(): number {
+    const userId = this.authService.getUserId();
+    return userId || 1;
+  }
 
   paymentTypes = [
     'UPI',
@@ -64,6 +71,7 @@ export class ExpensesListComponent {
   paginatedData: any[] = [];
 
   ngOnInit() {
+    console.log("Current User ID from AuthService:", this.userId);
     this.filteredData = [...this.baseData];
     this.updatePaginatedData();
     this.getExpenses();
@@ -99,7 +107,7 @@ export class ExpensesListComponent {
   }
 
   //--------------------------------
-  // CATEGORY API - FIXED WORKING VERSION
+  // CATEGORY API (With user_id)
   //--------------------------------
   getCategories() {
     console.log("🟢 Fetching categories for user_id:", this.userId);
@@ -161,7 +169,7 @@ export class ExpensesListComponent {
     
     const payload = {
       name: name.trim(),
-      user_id: this.userId
+      user_id: this.userId  // ✅ Dynamic user_id
     };
     
     console.log("🟢 Adding category:", payload);
@@ -265,9 +273,11 @@ export class ExpensesListComponent {
   }
 
   //--------------------------------
-  // GET EXPENSES
+  // GET EXPENSES (With user_id)
   //--------------------------------
   getExpenses() {
+    console.log('Fetching expenses for user_id:', this.userId);
+    
     this.http.get<any>(`https://billsezy.com/Api/get_expense.php?user_id=${this.userId}`)
       .subscribe({
         next: (res) => {
@@ -283,6 +293,7 @@ export class ExpensesListComponent {
               payment_date: item.payment_date
             }));
             this.applyFilters();
+            console.log('Expenses loaded:', this.baseData.length);
           }
         },
         error: (err) => {
@@ -292,7 +303,7 @@ export class ExpensesListComponent {
   }
 
   //--------------------------------
-  // ADD/UPDATE EXPENSE
+  // ADD/UPDATE EXPENSE (With user_id)
   //--------------------------------
   addExpense() {
     if (!this.expense.amount || !this.expense.category) {
@@ -309,7 +320,7 @@ export class ExpensesListComponent {
 
   createExpense() {
     const payload = {
-      user_id: this.userId,
+      user_id: this.userId,  // ✅ Dynamic user_id
       amount: this.expense.amount,
       expense_date: this.expense.expense_date,
       category: this.expense.category,
@@ -318,6 +329,8 @@ export class ExpensesListComponent {
       payment_date: this.expense.payment_date,
       status: this.showPaymentFields ? 'paid' : 'pending'
     };
+
+    console.log('Creating expense for user:', this.userId, payload);
 
     this.http.post<any>('https://billsezy.com/Api/add_expense.php', payload)
       .subscribe({
@@ -341,7 +354,7 @@ export class ExpensesListComponent {
   updateExpense() {
     const payload = {
       id: this.editExpenseId,
-      user_id: this.userId,
+      user_id: this.userId,  // ✅ Dynamic user_id
       amount: this.expense.amount,
       expense_date: this.expense.expense_date,
       category: this.expense.category,
@@ -350,6 +363,8 @@ export class ExpensesListComponent {
       payment_date: this.expense.payment_date,
       status: this.showPaymentFields ? 'paid' : 'pending'
     };
+
+    console.log('Updating expense for user:', this.userId, payload);
 
     this.http.post<any>('https://billsezy.com/Api/update_expense.php', payload)
       .subscribe({
@@ -374,7 +389,7 @@ export class ExpensesListComponent {
     if (confirm(`Are you sure you want to delete this expense "${category}"?`)) {
       this.http.post<any>('https://billsezy.com/Api/delete_expense.php', {
         id: id,
-        user_id: this.userId
+        user_id: this.userId  // ✅ Dynamic user_id
       })
         .subscribe({
           next: (res) => {
