@@ -97,6 +97,7 @@
 /* TABLE */
 .ps-table {
   width: 100%;
+  overflow-x: auto;
 }
 
 .ps-row {
@@ -199,22 +200,9 @@
   color: gray;
 }
 
-/* Responsive */
-@media(max-width:900px) {
-  .ps-row {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .ps-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-}
-
-
-
+/* ========================= */
+/* 🔹 SIDEBAR FORM */
+/* ========================= */
 .ps-form {
   position: fixed;
   top: 0;
@@ -363,6 +351,7 @@ select:focus {
 .input-group select:focus {
   outline: none;
 }
+
 /* ========================= */
 /* 🔹 CATEGORY DROPDOWN */
 /* ========================= */
@@ -503,29 +492,20 @@ select:focus {
   background: #ccc;
   border-radius: 10px;
 }
-/* ... tumhara existing CSS yahan tak hai ... */
-
-/* custom scrollbar */
-.cat-dropdown-menu::-webkit-scrollbar {
-  width: 5px;
-}
-
-.cat-dropdown-menu::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 10px;
-}
 
 /* ========================= */
-/* 🔹 YAHAN SE NAYA CSS PASTE KARO */
+/* 🔹 MOBILE RESPONSIVE - ONLY FILTER SECTION */
 /* ========================= */
 
 @media (max-width: 768px) {
+  /* Filter Section - Change Layout */
   .ps-filter {
     display: flex;
     flex-direction: column;
     gap: 10px;
   }
   
+  /* First Row: Search + Category Filter (60% + 40%) */
   .ps-filter-left {
     display: flex;
     width: 100%;
@@ -542,6 +522,7 @@ select:focus {
     flex: none;
   }
   
+  /* Second Row: Action Buttons (40% + 60%) */
   .ps-filter-right {
     display: flex;
     width: 100%;
@@ -559,6 +540,7 @@ select:focus {
     text-align: center;
   }
   
+  /* Table - Horizontal Scroll */
   .ps-table {
     overflow-x: auto;
   }
@@ -567,6 +549,14 @@ select:focus {
     min-width: 750px;
   }
   
+  /* Header Stack */
+  .ps-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  /* Form Full Screen */
   .ps-form {
     width: 100%;
     right: -100%;
@@ -576,11 +566,13 @@ select:focus {
     right: 0;
   }
   
+  /* Form Rows Stack */
   .form-row {
     flex-direction: column;
     gap: 12px;
   }
   
+  /* Form Footer Stack */
   .ps-form-footer {
     flex-direction: column-reverse;
     gap: 10px;
@@ -591,6 +583,7 @@ select:focus {
   }
 }
 
+/* Extra Small Devices */
 @media (max-width: 480px) {
   .ps-filter-left {
     flex-direction: column;
@@ -621,12 +614,21 @@ select:focus {
     font-size: 12px;
   }
   
+  .ps-name {
+    font-size: 13px;
+  }
+  
   .ps-icon-btn {
     padding: 5px 8px;
     font-size: 11px;
   }
+  
+  .ps-title {
+    font-size: 18px;
+  }
 }
 
+/* Tablet - Form Width Adjust */
 @media (min-width: 769px) and (max-width: 1024px) {
   .ps-form {
     width: 60%;
