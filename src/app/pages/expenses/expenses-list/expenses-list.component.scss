@@ -75,12 +75,14 @@
   flex: 1;
   min-width: 200px;
 }
+
 .exp-input {
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 8px;
-  width: 300px;  /* Fixed width, not full */
+  width: 300px;
 }
+
 /* TABLE WRAPPER */
 .exp-table {
   width: 100%;
@@ -163,7 +165,7 @@
   margin-top: 4px;
 }
 
-/* ACTION BUTTONS - Same as Products */
+/* ACTION BUTTONS */
 .exp-actions {
   display: flex;
   gap: 8px;
@@ -301,6 +303,25 @@
 .expense-form.open {
   right: 0;
 }
+
+/* Form Header */
+.expense-form-header {
+  background: #fff;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.expense-form-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+/* Header Save Button */
 .expense-form-header .expense-save-btn {
   background: #165a50;
   color: white;
@@ -321,16 +342,6 @@
 
 .expense-form-header .expense-save-btn:hover {
   background: #0e443d;
-}
-
-/* Header - Desktop layout */
-.expense-form-header {
-  background: #fff;
-  padding: 16px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #e2e8f0;
 }
 
 /* Form Body */
@@ -549,7 +560,8 @@ small {
   gap: 12px;
 }
 
-.expense-save-btn {
+/* Footer Save Button */
+.expense-form-footer .expense-save-btn {
   flex: 1;
   height: 44px;
   border-radius: 8px;
@@ -560,12 +572,14 @@ small {
   font-size: 14px;
   cursor: pointer;
   transition: all 0.2s;
+  text-align: center;
 }
 
-.expense-save-btn:hover {
+.expense-form-footer .expense-save-btn:hover {
   background: #0e443d;
 }
 
+/* Footer Cancel Button */
 .expense-cancel-btn {
   flex: 1;
   height: 44px;
@@ -577,6 +591,7 @@ small {
   font-size: 14px;
   cursor: pointer;
   transition: all 0.2s;
+  text-align: center;
 }
 
 .expense-cancel-btn:hover {
@@ -633,7 +648,6 @@ small {
     opacity: 0;
     transform: translateY(-5px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
@@ -751,7 +765,7 @@ small {
     right: 0;
   }
 
-  /* 🔥 Hide Header Save Button on Mobile */
+  /* Hide Header Save Button on Mobile */
   .expense-form-header .expense-save-btn {
     display: none;
   }
@@ -771,14 +785,19 @@ small {
     font-size: 12px;
   }
 
+  /* Footer Buttons Stack - Cancel then Save */
   .expense-form-footer {
-    flex-direction: column;
+    flex-direction: column-reverse;
     gap: 10px;
+    padding: 16px;
   }
 
-  .expense-save-btn,
+  .expense-form-footer .expense-save-btn,
   .expense-cancel-btn {
     width: 100%;
+    flex: none;
+    height: 48px;
+    font-size: 15px;
   }
 
   .exp-footer {
@@ -835,28 +854,12 @@ small {
   .expense-form.open {
     right: 0;
   }
-}
-@media (max-width: 768px) {
-  .expense-form-footer {
-    flex-direction: column;
-    gap: 10px;
-    padding: 16px;
-  }
-  
-  .expense-save-btn,
-  .expense-cancel-btn {
-    width: 100%;
-    flex: none;
-    height: 48px;
-    font-size: 15px;
-  }
-  
-  /* Button order: Cancel then Save on mobile */
-  .expense-form-footer {
-    flex-direction: column;
-  }
-  .expense-form-header .expense-save-btn {
-    display: none;
-  }
 
+  /* Tablet Header Button */
+  .expense-form-header .expense-save-btn {
+    padding: 5px 12px;
+    height: 32px;
+    font-size: 12px;
+    min-width: 70px;
+  }
 }
