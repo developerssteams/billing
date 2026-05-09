@@ -98,32 +98,42 @@ export class ExpensesListComponent {
       .filter(item => item.status === 'pending')
       .reduce((total, item) => total + Number(item.amount), 0);
   }
-  
+
+  //--------------------------------
+  // CATEGORY API (With user_id)
+  //--------------------------------
   //--------------------------------
   // CATEGORY API (With user_id)
   //--------------------------------
   getCategories() {
+    console.log("Fetching categories for user_id:", this.userId);
+
+    // Try this URL first
     this.http.get<any>(`https://billsezy.com/Api/get-expense-categories.php?user_id=${this.userId}`)
       .subscribe({
         next: (res) => {
+          console.log("Categories Response:", res);
+
           if (res.status && Array.isArray(res.data)) {
             this.categoryList = res.data;
+            console.log("Categories loaded:", this.categoryList.length);
           } else if (Array.isArray(res)) {
             this.categoryList = res;
           } else {
             this.categoryList = [];
+            console.warn("No categories found or invalid response format");
           }
         },
         error: (err) => {
           console.log('Category fetch error:', err);
+          this.categoryList = [];
         }
       });
   }
-
   addCategory(name: string) {
-    const payload = { 
+    const payload = {
       name: name,
-      user_id: this.userId 
+      user_id: this.userId
     };
 
     this.http.post<any>('https://billsezy.com/Api/add-expense-category.php', payload)
@@ -157,7 +167,7 @@ export class ExpensesListComponent {
       // Edit Mode
       this.isEditMode = true;
       this.editExpenseId = expense.id;
-      
+
       this.expense = {
         amount: expense.amount || '',
         expense_date: expense.expense_date || '',
@@ -167,17 +177,17 @@ export class ExpensesListComponent {
         status: expense.status || '',
         payment_date: expense.payment_date || ''
       };
-      
+
       this.selectedCategory = expense.category || '';
       this.showPaymentFields = expense.status === 'paid';
-      
+
     } else {
       // Add Mode
       this.isEditMode = false;
       this.editExpenseId = null;
       this.resetForm();
     }
-    
+
     this.showForm = true;
   }
 
@@ -325,10 +335,10 @@ export class ExpensesListComponent {
   //--------------------------------
   deleteExpense(id: number, category: string) {
     if (confirm(`Are you sure you want to delete this expense "${category}"?`)) {
-      
-      this.http.post<any>('https://billsezy.com/Api/delete_expense.php', { 
+
+      this.http.post<any>('https://billsezy.com/Api/delete_expense.php', {
         id: id,
-        user_id: this.userId 
+        user_id: this.userId
       })
         .subscribe({
           next: (res) => {
