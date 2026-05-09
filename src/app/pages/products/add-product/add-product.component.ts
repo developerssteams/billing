@@ -30,6 +30,9 @@ export class AddProductComponent {
   categoryInput: string = '';
   selectedCategoryFilter: string = '';
 
+  // 🔹 User ID (Get from localStorage or auth service)
+  userId: number = 1; // Change this to actual logged-in user ID
+
   // 🔹 GST Rate List
   gstRateList: any[] = [
     { id: 1, name: '0% (Nil Rated)', value: 0 },
@@ -61,7 +64,7 @@ export class AddProductComponent {
         purchase: product.purchase || '',
         taxType: product.taxType || 'with',
         category: product.category || '',
-        gstRate: product.gstRate || ''  // ✅ Added GST Rate
+        gstRate: product.gstRate || ''
       };
       
       this.selectedCategory = product.category || '';
@@ -92,7 +95,7 @@ export class AddProductComponent {
       purchase: '',
       taxType: 'with',
       category: '',
-      gstRate: ''  // ✅ Reset GST Rate
+      gstRate: ''
     };
     this.selectedCategory = '';
     this.categoryInput = '';
@@ -124,7 +127,7 @@ export class AddProductComponent {
     purchase: '',
     taxType: 'with',
     category: '',
-    gstRate: ''  // ✅ Added GST Rate
+    gstRate: ''
   };
 
   // 🔹 INIT
@@ -203,36 +206,36 @@ export class AddProductComponent {
   }
 
   // =========================
-  // 🔥 FETCH CATEGORIES
+  // 🔥 FETCH CATEGORIES (With User ID)
   // =========================
   getCategories() {
-    console.log("API CALL START");
+    console.log("Fetching categories for user_id:", this.userId);
 
-    fetch('https://billsezy.com/Api/get_category.php')
+    fetch(`https://billsezy.com/Api/get_categories.php?user_id=${this.userId}`)
       .then(res => res.json())
       .then(res => {
+        console.log("Categories API Response:", res);
 
-        console.log("API RESPONSE:", res);
-
-        if (res.status) {
+        if (res.status === true) {
           this.categoryList = res.data || [];
+          console.log("Categories loaded:", this.categoryList.length);
+        } else {
+          console.error("Failed to load categories:", res.message);
         }
-
       })
       .catch(err => console.error("API ERROR:", err));
   }
 
   // =========================
-  // 🔥 ADD CATEGORY
+  // 🔥 ADD CATEGORY (With User ID)
   // =========================
   addCategoryFromInput(event?: Event) {
-
     if (event) event.stopPropagation();
 
     const name = this.categoryInput.trim();
     if (!name) return;
 
-    // 🔥 DUPLICATE CHECK (SAFE)
+    // 🔥 DUPLICATE CHECK
     const exists = this.categoryList.find(
       c => c.name?.toLowerCase() === name.toLowerCase()
     );
@@ -245,16 +248,25 @@ export class AddProductComponent {
       return;
     }
 
+    // 🔥 ADD CATEGORY WITH USER_ID
+    const payload = {
+      name: name,
+      user_id: this.userId
+    };
+
+    console.log("Adding category:", payload);
+
     fetch('https://billsezy.com/Api/add_category.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name })
+      body: JSON.stringify(payload)
     })
       .then(res => res.json())
       .then(res => {
+        console.log("Add Category Response:", res);
 
-        if (res.status) {
-
+        if (res.status === true) {
+          // Refresh categories list
           this.getCategories();
 
           this.selectedCategory = name;
@@ -262,11 +274,16 @@ export class AddProductComponent {
 
           this.categoryInput = '';
           this.showDropdown = false;
-
+          
+          alert('Category added successfully ✅');
+        } else {
+          alert(res.message || 'Failed to add category');
         }
-
       })
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.error("Error adding category:", err);
+        alert('Server Error ❌');
+      });
   }
 
   // =========================
@@ -292,10 +309,15 @@ export class AddProductComponent {
   }
 
   createProduct() {
+    const payload = {
+      ...this.newProduct,
+      user_id: this.userId  // Add user_id to product
+    };
+
     fetch('https://billsezy.com/Api/add_product.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(this.newProduct)
+      body: JSON.stringify(payload)
     })
       .then(res => res.json())
       .then(res => {
@@ -320,7 +342,8 @@ export class AddProductComponent {
   updateProduct() {
     const payload = {
       id: this.editProductId,
-      ...this.newProduct
+      ...this.newProduct,
+      user_id: this.userId  // Add user_id to update
     };
 
     fetch('https://billsezy.com/Api/update_product.php', {
@@ -357,7 +380,7 @@ export class AddProductComponent {
       fetch('https://billsezy.com/Api/delete_product.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: id })
+        body: JSON.stringify({ id: id, user_id: this.userId })
       })
         .then(res => res.json())
         .then(res => {
@@ -376,20 +399,18 @@ export class AddProductComponent {
   }
 
   // =========================
-  // 🔥 FETCH PRODUCTS
+  // 🔥 FETCH PRODUCTS (With User ID)
   // =========================
   getProducts() {
-    fetch('https://billsezy.com/Api/get_product.php')
+    fetch(`https://billsezy.com/Api/get_product.php?user_id=${this.userId}`)
       .then(res => res.json())
       .then(res => {
-
         if (res.status === true) {
           this.productData = res.data || [];
           this.filteredData = [...this.productData];
           this.currentPage = 1;
           this.updatePagination();
         }
-
       })
       .catch(err => console.error(err));
   }
