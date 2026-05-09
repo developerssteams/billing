@@ -1,6 +1,7 @@
 import { Component, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from 'src/app/services/auth.service';  // ✅ Import AuthService
 
 @Component({
   selector: 'app-products-services',
@@ -10,6 +11,8 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./add-product.component.scss']
 })
 export class AddProductComponent {
+
+  constructor(private authService: AuthService) { }  // ✅ Inject AuthService
 
   // 🔹 Search
   searchText = '';
@@ -30,8 +33,11 @@ export class AddProductComponent {
   categoryInput: string = '';
   selectedCategoryFilter: string = '';
 
-  // 🔹 User ID
-  userId: number = 1;
+  // 🔥 Get user_id from AuthService dynamically
+  get userId(): number {
+    const userId = this.authService.getUserId();
+    return userId || 1;
+  }
 
   // 🔹 GST Rate List
   gstRateList: any[] = [
@@ -127,6 +133,7 @@ export class AddProductComponent {
   };
 
   ngOnInit() {
+    console.log("Current User ID from AuthService:", this.userId);
     this.getProducts();
     this.getCategories();
   }
@@ -180,7 +187,6 @@ export class AddProductComponent {
   // =========================
   // 🔥 CATEGORY DROPDOWN WITH POSITION DETECTION
   // =========================
-  // Update toggleDropdown method
   toggleDropdown(event: Event) {
     event.stopPropagation();
     this.showDropdown = !this.showDropdown;
@@ -191,9 +197,9 @@ export class AddProductComponent {
       }, 10);
     }
   }
+
   dropdownUpward: boolean = false;
-  // 🔥 Check if dropdown should open upward or downward
-  // Add this method to check position
+
   checkDropdownPosition() {
     const dropdown = document.querySelector('.cat-dropdown');
     const menu = document.querySelector('.cat-dropdown-menu');
@@ -220,7 +226,7 @@ export class AddProductComponent {
   }
 
   // =========================
-  // 🔥 FETCH CATEGORIES
+  // 🔥 FETCH CATEGORIES (With user_id)
   // =========================
   getCategories() {
     console.log("Fetching categories from get_category.php for user_id:", this.userId);
@@ -245,7 +251,7 @@ export class AddProductComponent {
   }
 
   // =========================
-  // 🔥 ADD CATEGORY
+  // 🔥 ADD CATEGORY (With user_id)
   // =========================
   addCategoryFromInput(event?: Event) {
     if (event) event.stopPropagation();
@@ -322,8 +328,10 @@ export class AddProductComponent {
   createProduct() {
     const payload = {
       ...this.newProduct,
-      user_id: this.userId
+      user_id: this.userId  // ✅ Dynamic user_id
     };
+
+    console.log('Creating product for user:', this.userId, payload);
 
     fetch('https://billsezy.com/Api/add_product.php', {
       method: 'POST',
@@ -353,8 +361,10 @@ export class AddProductComponent {
     const payload = {
       id: this.editProductId,
       ...this.newProduct,
-      user_id: this.userId
+      user_id: this.userId  // ✅ Dynamic user_id
     };
+
+    console.log('Updating product for user:', this.userId, payload);
 
     fetch('https://billsezy.com/Api/update_product.php', {
       method: 'POST',
@@ -385,7 +395,10 @@ export class AddProductComponent {
       fetch('https://billsezy.com/Api/delete_product.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: id, user_id: this.userId })
+        body: JSON.stringify({ 
+          id: id, 
+          user_id: this.userId  // ✅ Dynamic user_id
+        })
       })
         .then(res => res.json())
         .then(res => {
@@ -404,6 +417,8 @@ export class AddProductComponent {
   }
 
   getProducts() {
+    console.log('Fetching products for user_id:', this.userId);
+    
     fetch(`https://billsezy.com/Api/get_product.php?user_id=${this.userId}`)
       .then(res => res.json())
       .then(res => {
@@ -412,6 +427,7 @@ export class AddProductComponent {
           this.filteredData = [...this.productData];
           this.currentPage = 1;
           this.updatePagination();
+          console.log('Products loaded:', this.productData.length);
         }
       })
       .catch(err => console.error(err));
