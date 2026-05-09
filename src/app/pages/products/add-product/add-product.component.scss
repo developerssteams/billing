@@ -374,7 +374,6 @@ select:focus {
   position: relative;
   width: 100%;
 }
-
 .cat-selected {
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -395,39 +394,89 @@ select:focus {
 .cat-selected .arrow {
   font-size: 12px;
   color: #666;
+  transition: transform 0.2s;
+}
+/* Rotate arrow when open */
+.cat-dropdown.open .cat-selected .arrow {
+  transform: rotate(180deg);
 }
 
-/* DROPDOWN MENU */
+/* DROPDOWN MENU - Auto Position (opens upward if not enough space) */
 .cat-dropdown-menu {
   position: absolute;
-  top: 105%;
   left: 0;
   width: 100%;
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
   z-index: 999;
   padding: 8px;
   max-height: 250px;
   overflow-y: auto;
+  animation: fadeIn 0.2s ease;
 }
 
+/* Default: opens downward */
+.cat-dropdown-menu {
+  top: 100%;
+  bottom: auto;
+  margin-top: 4px;
+}
+
+/* If space below is less than 200px, opens upward */
+.cat-dropdown-menu.upward {
+  top: auto;
+  bottom: 100%;
+  margin-top: 0;
+  margin-bottom: 4px;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(-5px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+/* Upward animation */
+.cat-dropdown-menu.upward {
+  animation: fadeInUp 0.2s ease;
+}
+
+@keyframes fadeInUp {
+  from { 
+    opacity: 0; 
+    transform: translateY(5px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+/* Dropdown Input */
 .cat-input {
   width: 100%;
-  padding: 8px 12px;
+  padding: 10px 12px;
   border-radius: 8px;
   border: 1px solid #ddd;
   outline: none;
   font-size: 14px;
   margin-bottom: 8px;
+  box-sizing: border-box;
 }
 
 .cat-input:focus {
   border-color: #3b5bdb;
 }
 
+/* Category Items */
 .cat-item {
-  padding: 8px 12px;
+  padding: 10px 12px;
   border-radius: 8px;
   cursor: pointer;
   transition: 0.2s;
@@ -437,10 +486,10 @@ select:focus {
 .cat-item:hover {
   background: #f5f7ff;
 }
-
+/* Add New Button */
 .cat-add {
   margin-top: 8px;
-  padding: 8px 12px;
+  padding: 10px 12px;
   border-top: 1px solid #eee;
   font-weight: 500;
   cursor: pointer;
@@ -453,6 +502,7 @@ select:focus {
   background: #eff6ff;
 }
 
+/* Empty State */
 .cat-empty {
   text-align: center;
   padding: 20px;
@@ -462,6 +512,25 @@ select:focus {
 .cat-icon {
   font-size: 24px;
   margin-bottom: 6px;
+}
+
+/* Scrollbar */
+.cat-dropdown-menu::-webkit-scrollbar {
+  width: 5px;
+}
+
+.cat-dropdown-menu::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.cat-dropdown-menu::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+}
+
+.cat-dropdown-menu::-webkit-scrollbar-thumb:hover {
+  background: #999;
 }
 
 /* ========================= */

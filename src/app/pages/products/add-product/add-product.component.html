@@ -22,7 +22,6 @@
     </div>
 
     <div class="ps-filter-right">
-      <!-- <button class="ps-btn ps-btn-light">Actions</button> -->
       <button class="ps-btn ps-btn-primary" (click)="openForm()">
         + New Item
       </button>
@@ -74,11 +73,10 @@
       <!-- CATEGORY -->
       <div>{{ item.category || '-' }}</div>
 
-
       <!-- ACTION -->
       <div class="ps-action-wrap">
         <button class="ps-icon-btn ps-edit" (click)="openForm(item)">Edit</button>
-        <button class="ps-icon-btn ps-btn-light ps-delete" (click)="deleteProduct(item.id, item.name)">Delete</button>
+        <button class="ps-icon-btn ps-delete" (click)="deleteProduct(item.id, item.name)">Delete</button>
       </div>
 
     </div>
@@ -111,7 +109,10 @@
 
 </div>
 
+<!-- Overlay -->
 <div class="overlay" *ngIf="showForm" (click)="closeForm()"></div>
+
+<!-- Form -->
 <form (ngSubmit)="addProduct()">
 
   <div class="ps-form" [class.open]="showForm">
@@ -119,7 +120,6 @@
     <!-- HEADER -->
     <div class="ps-form-header">
       <h3>{{ isEditMode ? 'Edit Product' : 'Add Product' }}</h3>
-
       <button type="submit" class="ps-btn ps-btn-primary">
         {{ isEditMode ? 'Update' : 'Save' }}
       </button>
@@ -141,13 +141,13 @@
             <input type="text" name="name" placeholder="Enter Item Name" [(ngModel)]="newProduct.name" required>
           </div>
 
-          <!-- Row -->
+          <!-- Row 1: Selling Price + Unit -->
           <div class="form-row">
 
             <!-- Selling Price -->
             <div class="form-col">
               <label>Selling Price</label>
-              <input type="number" name="sell" placeholder="₹ Enter Selling Price" [(ngModel)]="newProduct.sell">
+              <input type="number" name="sell" placeholder="Enter Selling Price" [(ngModel)]="newProduct.sell">
             </div>
 
             <!-- Unit -->
@@ -166,7 +166,7 @@
 
           </div>
 
-          <!-- SECOND ROW -->
+          <!-- Row 2: HSN + Purchase Price -->
           <div class="form-row">
 
             <!-- HSN -->
@@ -180,14 +180,11 @@
               </div>
             </div>
 
-            <!-- Purchase -->
+            <!-- Purchase Price -->
             <div class="form-col">
               <label>Purchase Price</label>
-
               <div class="input-group">
-                <input type="number" name="purchase" placeholder="Enter Purchase Price"
-                  [(ngModel)]="newProduct.purchase">
-
+                <input type="number" name="purchase" placeholder="Enter Purchase Price" [(ngModel)]="newProduct.purchase">
                 <select name="taxType" [(ngModel)]="newProduct.taxType">
                   <option value="with">with Tax</option>
                   <option value="without">without Tax</option>
@@ -197,51 +194,44 @@
 
           </div>
 
-          <!-- Category & GST Rate - Row -->
+          <!-- Row 3: Category + GST Rate -->
           <div class="form-row">
 
-            <!-- CATEGORY -->
+            <!-- CATEGORY with Auto Position Dropdown -->
             <div class="form-col">
               <label>Category</label>
-
-              <div class="cat-dropdown">
-
-                <!-- Selected -->
+              <div class="cat-dropdown" [class.open]="showDropdown">
                 <div class="cat-selected" (click)="toggleDropdown($event)">
                   {{ selectedCategory || 'Select Category' }}
                   <span class="arrow">▼</span>
                 </div>
 
-                <!-- DROPDOWN -->
-                <div class="cat-dropdown-menu" *ngIf="showDropdown">
-
-                  <!-- INPUT -->
-                  <input class="cat-input" name="categoryInput" placeholder="Type category..."
-                    [(ngModel)]="categoryInput" (click)="$event.stopPropagation()"
+                <div class="cat-dropdown-menu" *ngIf="showDropdown" [class.upward]="dropdownUpward">
+                  <input class="cat-input" 
+                    name="categoryInput" 
+                    placeholder="Type category..."
+                    [(ngModel)]="categoryInput" 
+                    (click)="$event.stopPropagation()"
                     (keydown.enter)="addCategoryFromInput($event); $event.preventDefault()">
 
-                  <!-- NO DATA -->
                   <div *ngIf="categoryList.length === 0" class="cat-empty">
                     <div class="cat-icon">📦</div>
-                    <div>No data</div>
+                    <div>No categories found</div>
+                    <div style="font-size: 12px; margin-top: 5px;">Type and press Enter to add</div>
                   </div>
 
-                  <!-- LIST -->
                   <div class="cat-item" *ngFor="let cat of categoryList" (click)="selectCategory(cat.name, $event)">
                     {{ cat.name }}
                   </div>
 
-                  <!-- ADD -->
                   <div class="cat-add" *ngIf="categoryInput" (click)="addCategoryFromInput($event)">
                     + Add "{{ categoryInput }}"
                   </div>
-
                 </div>
-
               </div>
             </div>
 
-            <!-- ✅ GST Rate Dropdown -->
+            <!-- GST Rate Dropdown -->
             <div class="form-col">
               <label>GST Rate (%)</label>
               <select name="gstRate" [(ngModel)]="newProduct.gstRate">

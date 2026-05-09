@@ -53,7 +53,7 @@ export class AddProductComponent {
     if (product) {
       this.isEditMode = true;
       this.editProductId = product.id;
-      
+
       this.newProduct = {
         name: product.name || '',
         sell: product.sell || '',
@@ -64,15 +64,15 @@ export class AddProductComponent {
         category: product.category || '',
         gstRate: product.gstRate || ''
       };
-      
+
       this.selectedCategory = product.category || '';
-      
+
     } else {
       this.isEditMode = false;
       this.editProductId = null;
       this.resetForm();
     }
-    
+
     this.showForm = true;
   }
 
@@ -136,6 +136,10 @@ export class AddProductComponent {
     const dropdown = document.querySelector('.cat-dropdown');
     if (dropdown && !dropdown.contains(event.target)) {
       this.showDropdown = false;
+      const dropdownElem = document.querySelector('.cat-dropdown');
+      if (dropdownElem) {
+        dropdownElem.classList.remove('open');
+      }
     }
   }
 
@@ -173,9 +177,34 @@ export class AddProductComponent {
     return Math.ceil(this.filteredData.length / this.itemsPerPage) || 1;
   }
 
+  // =========================
+  // 🔥 CATEGORY DROPDOWN WITH POSITION DETECTION
+  // =========================
+  // Update toggleDropdown method
   toggleDropdown(event: Event) {
     event.stopPropagation();
     this.showDropdown = !this.showDropdown;
+
+    if (this.showDropdown) {
+      setTimeout(() => {
+        this.checkDropdownPosition();
+      }, 10);
+    }
+  }
+  dropdownUpward: boolean = false;
+  // 🔥 Check if dropdown should open upward or downward
+  // Add this method to check position
+  checkDropdownPosition() {
+    const dropdown = document.querySelector('.cat-dropdown');
+    const menu = document.querySelector('.cat-dropdown-menu');
+
+    if (dropdown && menu) {
+      const rect = dropdown.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const menuHeight = 260;
+
+      this.dropdownUpward = spaceBelow < menuHeight;
+    }
   }
 
   selectCategory(name: string, event: Event) {
@@ -183,9 +212,16 @@ export class AddProductComponent {
     this.selectedCategory = name;
     this.newProduct.category = name;
     this.showDropdown = false;
+
+    const dropdown = document.querySelector('.cat-dropdown');
+    if (dropdown) {
+      dropdown.classList.remove('open');
+    }
   }
 
-  // 🔥 FIXED: get_category.php (correct file name)
+  // =========================
+  // 🔥 FETCH CATEGORIES
+  // =========================
   getCategories() {
     console.log("Fetching categories from get_category.php for user_id:", this.userId);
 
@@ -208,6 +244,9 @@ export class AddProductComponent {
       });
   }
 
+  // =========================
+  // 🔥 ADD CATEGORY
+  // =========================
   addCategoryFromInput(event?: Event) {
     if (event) event.stopPropagation();
 
@@ -259,6 +298,9 @@ export class AddProductComponent {
       });
   }
 
+  // =========================
+  // 🔥 ADD/UPDATE PRODUCT
+  // =========================
   isLoading = false;
 
   addProduct() {
@@ -373,5 +415,25 @@ export class AddProductComponent {
         }
       })
       .catch(err => console.error(err));
+  }
+
+  // =========================
+  // 🔥 WINDOW RESIZE - Recheck dropdown position
+  // =========================
+  @HostListener('window:resize')
+  onWindowResize() {
+    if (this.showDropdown) {
+      this.checkDropdownPosition();
+    }
+  }
+
+  // =========================
+  // 🔥 SCROLL EVENT - Recheck dropdown position
+  // =========================
+  @HostListener('window:scroll')
+  onWindowScroll() {
+    if (this.showDropdown) {
+      this.checkDropdownPosition();
+    }
   }
 }
