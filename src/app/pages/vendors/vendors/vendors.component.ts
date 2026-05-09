@@ -2,16 +2,19 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
+import { AuthService } from 'src/app/services/auth.service';  // ✅ Import AuthService
 
 @Component({
   selector: 'app-vendors',
-  imports: [CommonModule, FormsModule,],
+  imports: [CommonModule, FormsModule],
   templateUrl: './vendors.component.html',
   styleUrls: ['./vendors.component.scss']
 })
 export class VendorsComponent {
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService  // ✅ Inject AuthService
+  ) { }
 
   searchText = '';
   gstLoading: boolean = false;
@@ -45,14 +48,19 @@ export class VendorsComponent {
     opening_balance: 0
   };
 
-  // User ID (get from localStorage or auth service)
-  userId: number = 1; // Change this to actual logged-in user ID
+  // 🔥 Get user_id from AuthService dynamically
+  get userId(): number {
+    const userId = this.authService.getUserId();
+    return userId || 1;
+  }
 
   ngOnInit() {
+    console.log("Current User ID from AuthService:", this.userId);
     this.filteredData = this.vendorData;
     this.updatePaginatedData();
     this.getVendors();
   }
+
   // 🔹 Get absolute amount for display (no sign)
   getDisplayAmount(amount: number): number {
     return Math.abs(amount);
@@ -67,6 +75,7 @@ export class VendorsComponent {
   getBalanceClass(amount: number): string {
     return amount >= 0 ? 'collect' : 'pay';
   }
+
   // 🔹 Get balance type based on opening balance value
   getBalanceType(amount: number): string {
     return amount >= 0 ? 'debit' : 'credit';
@@ -175,7 +184,7 @@ export class VendorsComponent {
         pincode: vendor.pincode || '',
         state: vendor.state || '',
         city: vendor.city || '',
-        opening_balance: Math.abs(vendor.opening_balance) || 0  // Store absolute value
+        opening_balance: Math.abs(vendor.opening_balance) || 0
       };
     } else {
       // Add Mode
@@ -230,9 +239,8 @@ export class VendorsComponent {
   }
 
   createVendor() {
-    // Positive amount means You Collect, Negative means You Pay
     const payload = {
-      user_id: this.userId,
+      user_id: this.userId,  // ✅ Dynamic user_id
       name: this.newVendor.name,
       phone: this.newVendor.phone,
       email: this.newVendor.email,
@@ -246,7 +254,7 @@ export class VendorsComponent {
       opening_balance: Number(this.newVendor.opening_balance) || 0
     };
 
-    console.log('Creating vendor:', payload);
+    console.log('Creating vendor for user:', this.userId, payload);
 
     fetch('https://billsezy.com/Api/add_vendor.php', {
       method: 'POST',
@@ -274,6 +282,7 @@ export class VendorsComponent {
   updateVendor() {
     const payload = {
       id: this.editVendorId,
+      user_id: this.userId,  // ✅ Dynamic user_id
       name: this.newVendor.name,
       phone: this.newVendor.phone,
       email: this.newVendor.email,
@@ -287,7 +296,7 @@ export class VendorsComponent {
       opening_balance: Number(this.newVendor.opening_balance) || 0
     };
 
-    console.log('Updating vendor:', payload);
+    console.log('Updating vendor for user:', this.userId, payload);
 
     fetch('https://billsezy.com/Api/update-vendor.php', {
       method: 'POST',
@@ -317,7 +326,7 @@ export class VendorsComponent {
     if (confirm(`Are you sure you want to delete "${name}"?`)) {
       const payload = {
         id: id,
-        user_id: this.userId
+        user_id: this.userId  // ✅ Dynamic user_id
       };
 
       fetch('https://billsezy.com/Api/delete_vendor.php', {
@@ -341,16 +350,19 @@ export class VendorsComponent {
     }
   }
 
-  // 🔥 GET VENDORS
+  // 🔥 GET VENDORS (With user_id)
   getVendors() {
+    console.log('Fetching vendors for user_id:', this.userId);
+    
     fetch(`https://billsezy.com/Api/get_vendor.php?user_id=${this.userId}`)
       .then(res => res.json())
       .then(res => {
         if (res.status === true) {
-          this.vendorData = res.data;
+          this.vendorData = res.data || [];
           this.filteredData = [...this.vendorData];
           this.currentPage = 1;
           this.updatePaginatedData();
+          console.log('Vendors loaded:', this.vendorData.length);
         }
       })
       .catch(err => console.error(err));
