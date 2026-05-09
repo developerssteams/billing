@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
-import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-eway-bills',
   standalone: true,
-  imports: [PageHeaderComponent, CommonModule],
+  imports: [ CommonModule],
   templateUrl: './eway-bills.component.html',
   styleUrl: './eway-bills.component.scss',
 })
