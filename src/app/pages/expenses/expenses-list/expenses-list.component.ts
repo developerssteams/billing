@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 
 @Component({
   selector: 'app-expenses-list',
@@ -11,7 +10,6 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
     CommonModule,
     FormsModule,
     HttpClientModule,
-    PageHeaderComponent
   ],
   templateUrl: './expenses-list.component.html',
   styleUrls: ['./expenses-list.component.scss']
