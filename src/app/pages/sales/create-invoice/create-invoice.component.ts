@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CustomerFormComponent } from '../../../components/customer-form/customer-form.component';
+import { AuthService } from 'src/app/services/auth.service';  // ✅ Import AuthService
 
 @Component({
   selector: 'app-create-invoice',
@@ -92,6 +93,7 @@ export class CreateInvoiceComponent implements OnInit {
     discountAmount: 0,
     totalAmount: 0
   };
+  
   // Add these properties in your component class
   isEditingDeliveryAddress: boolean = false;
   isSaving: boolean = false;
@@ -104,21 +106,28 @@ export class CreateInvoiceComponent implements OnInit {
     country: ''
   };
 
-  // API URL for updating customer address
-  updateCustomerApiUrl = 'https://billsezy.com/Api/update_customer_address.php';
   // API URLs
   customerApiUrl = 'https://billsezy.com/Api/get_customers.php';
   categoryApiUrl = 'https://billsezy.com/Api/get_category.php';
   productApiUrl = 'https://billsezy.com/Api/get_product.php';
   saveApiUrl = 'https://billsezy.com/Api/add-invoice.php';
   companyApiUrl = 'https://billsezy.com/Api/get_company_details.php';
+  updateCustomerApiUrl = 'https://billsezy.com/Api/update_customer_address.php';
+
+  // 🔥 Get user_id from AuthService
+  get userId(): number {
+    const userId = this.authService.getUserId();
+    return userId || 1;
+  }
 
   constructor(
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private authService: AuthService  // ✅ Inject AuthService
   ) { }
 
   ngOnInit(): void {
+    console.log("Current User ID from AuthService:", this.userId);
     this.getCompanyDetails();
     this.getCustomers();
     this.getCategories();
@@ -128,7 +137,7 @@ export class CreateInvoiceComponent implements OnInit {
 
   // ================= GET COMPANY DETAILS =================
   getCompanyDetails() {
-    const userId = localStorage.getItem('user_id') || '1';
+    const userId = this.userId;  // ✅ Dynamic user_id
 
     this.http.get<any>(`${this.companyApiUrl}?user_id=${userId}`).subscribe({
       next: (response) => {
@@ -157,6 +166,7 @@ export class CreateInvoiceComponent implements OnInit {
       }
     });
   }
+
   selectCustomer(customer: any) {
     this.selectedCustomer = customer;
     this.searchText = customer.company_name || customer.name;
@@ -312,23 +322,22 @@ export class CreateInvoiceComponent implements OnInit {
     }
   }
 
-  // ================= CUSTOMERS =================
+  // ================= CUSTOMERS (With user_id) =================
   getCustomers() {
-    this.http.get<any>(this.customerApiUrl).subscribe({
+    console.log('Fetching customers for user_id:', this.userId);
+    
+    this.http.get<any>(`${this.customerApiUrl}?user_id=${this.userId}`).subscribe({
       next: (response) => {
         if (response.status) {
           this.customers = response.data;
           this.filteredCustomers = [...response.data];
+          console.log('Customers loaded:', this.customers.length);
         }
       },
       error: (err) => {
         console.error('Error fetching customers:', err);
-        this.customers = [
-          { id: 1, name: 'Rajesh Kumar', company_name: 'Rajesh Enterprises', gstin: '27AAACA1234E1ZR', state: 'Maharashtra' },
-          { id: 2, name: 'Amit Sharma', company_name: 'Sharma Suppliers', gstin: '29ABCDE1234F1ZH', state: 'Gujarat' },
-          { id: 3, name: 'Priya Mehta', company_name: 'TechGrid Solutions', gstin: '24XYZAB5678C1DX', state: 'Maharashtra' }
-        ];
-        this.filteredCustomers = [...this.customers];
+        this.customers = [];
+        this.filteredCustomers = [];
       }
     });
   }
@@ -384,21 +393,20 @@ export class CreateInvoiceComponent implements OnInit {
     this.closeCustomerForm();
   }
 
-  // ================= CATEGORIES =================
+  // ================= CATEGORIES (With user_id) =================
   getCategories() {
-    this.http.get<any>(this.categoryApiUrl).subscribe({
+    console.log('Fetching categories for user_id:', this.userId);
+    
+    this.http.get<any>(`${this.categoryApiUrl}?user_id=${this.userId}`).subscribe({
       next: (response) => {
         if (response.status) {
           this.categories = response.data;
+          console.log('Categories loaded:', this.categories.length);
         }
       },
       error: (err) => {
         console.error('Error fetching categories:', err);
-        this.categories = [
-          { id: 1, name: 'Electronics' },
-          { id: 2, name: 'Furniture' },
-          { id: 3, name: 'Stationery' }
-        ];
+        this.categories = [];
       }
     });
   }
@@ -418,24 +426,22 @@ export class CreateInvoiceComponent implements OnInit {
     this.discountPercent = 0;
   }
 
-  // ================= PRODUCTS =================
+  // ================= PRODUCTS (With user_id) =================
   getProducts() {
-    this.http.get<any>(this.productApiUrl).subscribe({
+    console.log('Fetching products for user_id:', this.userId);
+    
+    this.http.get<any>(`${this.productApiUrl}?user_id=${this.userId}`).subscribe({
       next: (response) => {
         if (response.status) {
           this.products = response.data;
           this.filteredProducts = [...response.data];
+          console.log('Products loaded:', this.products.length);
         }
       },
       error: (err) => {
         console.error('Error fetching products:', err);
-        this.products = [
-          { id: 1, name: 'Wireless Mouse', category: 'Electronics', sell: 599, purchase: 450, hsn: '847160', unit: 'Pcs', gst_rate: 18 },
-          { id: 2, name: 'Mechanical Keyboard', category: 'Electronics', sell: 2499, purchase: 1800, hsn: '847160', unit: 'Pcs', gst_rate: 18 },
-          { id: 3, name: 'Office Chair', category: 'Furniture', sell: 5999, purchase: 4200, hsn: '940139', unit: 'Nos', gst_rate: 12 },
-          { id: 4, name: 'Notebook', category: 'Stationery', sell: 49, purchase: 35, hsn: '482010', unit: 'Pcs', gst_rate: 5 }
-        ];
-        this.filteredProducts = [...this.products];
+        this.products = [];
+        this.filteredProducts = [];
       }
     });
   }
@@ -482,7 +488,7 @@ export class CreateInvoiceComponent implements OnInit {
     this.discountPercent = 0;
     this.filterProductsByCategory();
   }
-  // Update unit price for existing bill item
+
   updateItemUnitPrice(item: any, newPrice: number) {
     if (isNaN(newPrice)) newPrice = 0;
     if (newPrice < 0) newPrice = 0;
@@ -491,6 +497,7 @@ export class CreateInvoiceComponent implements OnInit {
     this.calculateTaxRates();
     this.refreshCalculations();
   }
+
   resetCurrentItem() {
     this.currentItem = {
       product: null,
@@ -641,11 +648,12 @@ export class CreateInvoiceComponent implements OnInit {
     }
     return 0;
   }
-  // Get Total Amount (Subtotal + Total Tax)
+
   getTotalAmount(): number {
     const total = this.getSubTotal() + this.getTotalTaxAmount();
     return this.roundToTwoDecimals(total);
   }
+
   getTotalTaxAmount(): number {
     return this.getCGSTAmount() + this.getSGSTAmount() + this.getIGSTAmount();
   }
@@ -661,16 +669,15 @@ export class CreateInvoiceComponent implements OnInit {
     this.roundOffValue = this.roundToTwoDecimals(roundedTotal - total);
     return this.roundOffValue;
   }
-  // Get CGST for a specific item (based on item's OWN GST rate)
+
   getItemCGST(item: any): number {
     if (!this.isInterState && item.gstRate > 0) {
-      // Use item's own gstRate, split into CGST
       const cgstRateForItem = item.gstRate / 2;
       return this.roundToTwoDecimals((item.taxableValue * cgstRateForItem) / 100);
     }
     return 0;
   }
-  // Get Total CGST Amount (sum of all items' CGST)
+
   getTotalCGSTAmount(): number {
     if (!this.isInterState) {
       return this.billItems.reduce((sum, item) => sum + this.getItemCGST(item), 0);
@@ -678,7 +685,6 @@ export class CreateInvoiceComponent implements OnInit {
     return 0;
   }
 
-  // Get Total SGST Amount (sum of all items' SGST)
   getTotalSGSTAmount(): number {
     if (!this.isInterState) {
       return this.billItems.reduce((sum, item) => sum + this.getItemSGST(item), 0);
@@ -686,39 +692,36 @@ export class CreateInvoiceComponent implements OnInit {
     return 0;
   }
 
-  // Get Total IGST Amount (sum of all items' IGST)
   getTotalIGSTAmount(): number {
     if (this.isInterState) {
       return this.billItems.reduce((sum, item) => sum + this.getItemIGST(item), 0);
     }
     return 0;
   }
-  // Get SGST for a specific item (based on item's own taxable value)
+
   getItemSGST(item: any): number {
     if (!this.isInterState && this.sgstRate > 0) {
-      // Use item's own taxableValue, not global total
       return this.roundToTwoDecimals((item.taxableValue * this.sgstRate) / 100);
     }
     return 0;
   }
-  // Get IGST for a specific item (based on item's own taxable value)
+
   getItemIGST(item: any): number {
     if (this.isInterState && this.igstRate > 0) {
-      // Use item's own taxableValue, not global total
       return this.roundToTwoDecimals((item.taxableValue * this.igstRate) / 100);
     }
     return 0;
   }
-  // Get Total with Tax for a specific item
+
   getItemTotalWithTax(item: any): number {
     const taxAmount = this.getItemCGST(item) + this.getItemSGST(item) + this.getItemIGST(item);
     return this.roundToTwoDecimals(item.taxableValue + taxAmount);
   }
 
-  // Get Total Taxable Amount (sum of all items)
   getTotalTaxableAmount(): number {
     return this.billItems.reduce((sum, item) => sum + item.taxableValue, 0);
   }
+
   getFinalTotalWithRoundOff(): number {
     let total = this.getTotalAfterAdditionalCharges();
     if (this.roundOff) {
@@ -772,7 +775,7 @@ export class CreateInvoiceComponent implements OnInit {
     const taxRate = item.gstRate || 0;
     item.gstAmount = this.roundToTwoDecimals((item.taxableValue * taxRate) / 100);
   }
-  // Get formatted billing address
+
   getBillingAddress(): string {
     if (!this.selectedCustomer) return '';
 
@@ -786,7 +789,6 @@ export class CreateInvoiceComponent implements OnInit {
     return parts.join(', ') || 'Address not available';
   }
 
-  // Get formatted delivery address (always shows delivery address, not billing)
   getDeliveryAddress(): string {
     if (!this.selectedCustomer) return '';
 
@@ -798,14 +800,12 @@ export class CreateInvoiceComponent implements OnInit {
     if (this.selectedCustomer.delivery_pincode) parts.push(this.selectedCustomer.delivery_pincode);
 
     if (parts.length === 0) {
-      // If no delivery address exists, show default message
       return 'No delivery address added. Click edit to add.';
     }
 
     return parts.join(', ');
   }
 
-  // Get short address for display (single line)
   getShortBillingAddress(): string {
     if (!this.selectedCustomer) return '';
 
@@ -817,7 +817,6 @@ export class CreateInvoiceComponent implements OnInit {
     return parts.join(', ') || 'Address not available';
   }
 
-  // Get short delivery address for display (single line)
   getShortDeliveryAddress(): string {
     if (!this.selectedCustomer) return '';
 
@@ -832,6 +831,7 @@ export class CreateInvoiceComponent implements OnInit {
 
     return parts.join(', ') || this.getShortBillingAddress();
   }
+
   getTotalItemsCount(): number {
     return this.billItems.reduce((sum, item) => sum + item.quantity, 0);
   }
@@ -850,11 +850,11 @@ export class CreateInvoiceComponent implements OnInit {
       this.router.navigate(['/sales/add-invoice']);
     }
   }
+
   // Toggle edit mode for delivery address
   toggleEditDeliveryAddress() {
     if (!this.selectedCustomer) return;
 
-    // Load current delivery address into edit form
     this.editDeliveryAddress = {
       address_line1: this.selectedCustomer.delivery_address_line1 || '',
       address_line2: this.selectedCustomer.delivery_address_line2 || '',
@@ -867,7 +867,6 @@ export class CreateInvoiceComponent implements OnInit {
     this.isEditingDeliveryAddress = true;
   }
 
-  // Cancel edit mode
   cancelEditDeliveryAddress() {
     this.isEditingDeliveryAddress = false;
     this.editDeliveryAddress = {
@@ -880,7 +879,6 @@ export class CreateInvoiceComponent implements OnInit {
     };
   }
 
-  // Save delivery address to database
   saveDeliveryAddress() {
     if (!this.selectedCustomer) return;
 
@@ -888,6 +886,7 @@ export class CreateInvoiceComponent implements OnInit {
 
     const payload = {
       customer_id: this.selectedCustomer.id,
+      user_id: this.userId,  // ✅ Add user_id for security
       delivery_address_line1: this.editDeliveryAddress.address_line1,
       delivery_address_line2: this.editDeliveryAddress.address_line2,
       delivery_city: this.editDeliveryAddress.city,
@@ -900,7 +899,7 @@ export class CreateInvoiceComponent implements OnInit {
       next: (response: any) => {
         this.isSaving = false;
 
-        if (response.status === 'success' || response.success) {
+        if (response.status === true || response.success) {
           // Update local customer object
           this.selectedCustomer.delivery_address_line1 = this.editDeliveryAddress.address_line1;
           this.selectedCustomer.delivery_address_line2 = this.editDeliveryAddress.address_line2;
@@ -930,7 +929,8 @@ export class CreateInvoiceComponent implements OnInit {
       }
     });
   }
-  // ================= SAVE TO DATABASE =================
+
+  // ================= SAVE TO DATABASE (With user_id) =================
   save() {
     if (this.billItems.length === 0) {
       alert('Please add at least one product!');
@@ -966,6 +966,7 @@ export class CreateInvoiceComponent implements OnInit {
     }));
 
     const payload = {
+      user_id: this.userId,  // ✅ Add user_id to invoice
       bill_no: 'INV-' + Date.now(),
       invoice_date: this.invoiceDate,
       due_date: this.dueDate,
@@ -1019,7 +1020,7 @@ export class CreateInvoiceComponent implements OnInit {
           saveBtn.innerText = 'Save';
           saveBtn.disabled = false;
         }
-        if (response.status === 'success' || response.success) {
+        if (response.status === true || response.success) {
           alert('Invoice Created Successfully!\nBill No: ' + (response.bill_no || payload.bill_no));
           this.resetForm();
           setTimeout(() => {
