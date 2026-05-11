@@ -48,9 +48,9 @@ export class CreateInvoiceComponent implements OnInit {
   selectedQty: number = 1;
 
   // Payment Options
-  paymentOption: string = 'full';
+  paymentMethod: string = 'Cash';
   paidAmount: number = 0;
-  isPaidReadonly: boolean = true;
+  isFullPaymentChecked: boolean = false;
 
   // Discount on product
   discountPercent: number = 0;
@@ -131,6 +131,33 @@ export class CreateInvoiceComponent implements OnInit {
     this.getCategories();
     this.getProducts();
     this.setDefaultDates();
+  }
+
+  // ================= FULL PAYMENT TOGGLE =================
+  onFullPaymentToggle() {
+    if (this.isFullPaymentChecked) {
+      this.paidAmount = this.getFinalTotalWithRoundOff();
+    } else {
+      this.paidAmount = 0;
+    }
+  }
+
+  onPaidAmountChange() {
+    const totalAmount = this.getFinalTotalWithRoundOff();
+    if (this.paidAmount > totalAmount) {
+      this.paidAmount = totalAmount;
+    }
+    if (this.paidAmount < 0) {
+      this.paidAmount = 0;
+    }
+    this.paidAmount = this.roundToTwoDecimals(this.paidAmount);
+    
+    // Uncheck full payment checkbox if amount is not equal to total
+    if (this.paidAmount !== totalAmount) {
+      this.isFullPaymentChecked = false;
+    } else if (this.paidAmount === totalAmount && this.paidAmount > 0) {
+      this.isFullPaymentChecked = true;
+    }
   }
 
   getCompanyDetails() {
@@ -227,29 +254,13 @@ export class CreateInvoiceComponent implements OnInit {
     return Math.round(value * 100) / 100;
   }
 
-  onPaymentOptionChange(option: string) {
-    this.paymentOption = option;
-    if (option === 'full') {
-      this.isPaidReadonly = true;
-      this.paidAmount = this.getFinalTotalWithRoundOff();
-    } else {
-      this.isPaidReadonly = false;
-      this.paidAmount = 0;
-    }
-    this.refreshCalculations();
-  }
-
-  onPaidAmountChange() {
-    if (this.paymentOption === 'custom') {
-      const totalAmount = this.getFinalTotalWithRoundOff();
-      if (this.paidAmount > totalAmount) this.paidAmount = totalAmount;
-      if (this.paidAmount < 0) this.paidAmount = 0;
-      this.paidAmount = this.roundToTwoDecimals(this.paidAmount);
-    }
-  }
-
   updatePaidAmount() {
-    if (this.paymentOption === 'full') {
+    // Handled by onFullPaymentToggle
+  }
+
+  refreshCalculations() {
+    this.calculateRoundOff();
+    if (this.isFullPaymentChecked) {
       this.paidAmount = this.getFinalTotalWithRoundOff();
     }
   }
@@ -627,11 +638,6 @@ export class CreateInvoiceComponent implements OnInit {
     this.refreshCalculations();
   }
 
-  refreshCalculations() {
-    this.calculateRoundOff();
-    this.updatePaidAmount();
-  }
-
   updateQuantity(item: any, newQuantity: number) {
     if (newQuantity < 1) return;
     item.quantity = newQuantity;
@@ -682,7 +688,7 @@ export class CreateInvoiceComponent implements OnInit {
     if (this.selectedCustomer.delivery_city) parts.push(this.selectedCustomer.delivery_city);
     if (this.selectedCustomer.delivery_state) parts.push(this.selectedCustomer.delivery_state);
     if (this.selectedCustomer.delivery_pincode) parts.push(this.selectedCustomer.delivery_pincode);
-    return parts.length ? parts.join(', ') : 'No delivery address added. Click edit to add.';
+    return parts.length ? parts.join(', ') : 'No delivery address added.';
   }
 
   toggleEditDeliveryAddress() {
@@ -763,10 +769,6 @@ export class CreateInvoiceComponent implements OnInit {
       return;
     }
 
-    if (this.paymentOption === 'full') {
-      this.paidAmount = this.getFinalTotalWithRoundOff();
-    }
-
     const remainingAmount = this.getFinalTotalWithRoundOff() - this.paidAmount;
     const invoiceStatus = remainingAmount === 0 ? 'Paid' : (this.paidAmount > 0 ? 'Partially Paid' : 'Unpaid');
 
@@ -823,7 +825,7 @@ export class CreateInvoiceComponent implements OnInit {
       round_off_enabled: this.roundOff ? 1 : 0,
       round_off_value: this.calculateRoundOff(),
       grand_total: this.getFinalTotalWithRoundOff(),
-      payment_option: this.paymentOption,
+      payment_method: this.paymentMethod,
       paid_amount: this.paidAmount,
       remaining_amount: remainingAmount,
       status: invoiceStatus,
@@ -831,7 +833,7 @@ export class CreateInvoiceComponent implements OnInit {
       total_items: this.getTotalItemsCount()
     };
 
-    const saveBtn = document.querySelector('.save-btn') as HTMLButtonElement;
+    const saveBtn = document.querySelector('.save-btn-bottom') as HTMLButtonElement;
     if (saveBtn) {
       saveBtn.innerText = 'Saving...';
       saveBtn.disabled = true;
@@ -840,7 +842,7 @@ export class CreateInvoiceComponent implements OnInit {
     this.http.post(this.saveApiUrl, payload).subscribe({
       next: (response: any) => {
         if (saveBtn) {
-          saveBtn.innerText = 'Save';
+          saveBtn.innerText = 'Save Invoice';
           saveBtn.disabled = false;
         }
         if (response.status === true || response.success) {
@@ -853,7 +855,7 @@ export class CreateInvoiceComponent implements OnInit {
       },
       error: (err) => {
         if (saveBtn) {
-          saveBtn.innerText = 'Save';
+          saveBtn.innerText = 'Save Invoice';
           saveBtn.disabled = false;
         }
         alert('Error: ' + (err.message || 'Connection failed'));
@@ -867,9 +869,9 @@ export class CreateInvoiceComponent implements OnInit {
     this.searchText = '';
     this.additionalCharges = 0;
     this.roundOff = false;
-    this.paymentOption = 'full';
+    this.paymentMethod = 'Cash';
     this.paidAmount = 0;
-    this.isPaidReadonly = true;
+    this.isFullPaymentChecked = false;
     this.selectedCategory = '';
     this.selectedProduct = null;
     this.productSearchText = '';
