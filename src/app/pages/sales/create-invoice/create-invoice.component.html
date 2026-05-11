@@ -321,6 +321,7 @@
             </div>
         </div>
 
+        <!-- Summary Card - Fixed Tax Display -->
         <div class="summary-card">
             <div class="summary-row">
                 <span>Subtotal:</span>
@@ -335,15 +336,15 @@
                 <span>₹{{ getTaxableAmount() | number:'1.2-2' }}</span>
             </div>
 
-            <!-- Conditional GST Display - CGST + SGST for Intra-state -->
+            <!-- CGST + SGST for Intra-state -->
             <ng-container *ngIf="!isInterState">
                 <div class="summary-row" *ngIf="cgstRate > 0">
                     <span>CGST ({{ cgstRate }}%):</span>
-                    <span></span>
+                    <span>₹{{ getTotalCGSTAmount() | number:'1.2-2' }}</span>
                 </div>
                 <div class="summary-row" *ngIf="sgstRate > 0">
                     <span>SGST ({{ sgstRate }}%):</span>
-                    <span></span>
+                    <span>₹{{ getTotalSGSTAmount() | number:'1.2-2' }}</span>
                 </div>
             </ng-container>
 
@@ -351,7 +352,7 @@
             <ng-container *ngIf="isInterState">
                 <div class="summary-row" *ngIf="igstRate > 0">
                     <span>IGST ({{ igstRate }}%):</span>
-                    <span></span>
+                    <span>₹{{ getTotalIGSTAmount() | number:'1.2-2' }}</span>
                 </div>
             </ng-container>
 
@@ -374,7 +375,6 @@
                 <span>₹{{ getFinalTotalWithRoundOff() | number:'1.2-2' }}</span>
             </div>
 
-            <!-- NEW ROW: Payment Selection Dropdown -->
             <div class="summary-row payment-selection-row">
                 <span>Payment Type:</span>
                 <span>
@@ -386,7 +386,6 @@
                 </span>
             </div>
 
-            <!-- Amount Paid Row -->
             <div class="summary-row paid">
                 <span>Amount Paid:</span>
                 <span>
@@ -400,13 +399,6 @@
                 <span>Balance Due:</span>
                 <span>₹{{ (getFinalTotalWithRoundOff() - paidAmount) | number:'1.2-2' }}</span>
             </div>
-
-
         </div>
     </div>
 </div>
-
-<app-customer-form [showForm]="showCustomerForm" [isEditMode]="isCustomerEditMode"
-    [editCustomerData]="selectedCustomerForEdit" (formClosed)="closeCustomerForm()"
-    (customerSaved)="onCustomerSaved($event)">
-</app-customer-form>

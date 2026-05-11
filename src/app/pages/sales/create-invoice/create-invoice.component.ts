@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CustomerFormComponent } from '../../../components/customer-form/customer-form.component';
-import { AuthService } from 'src/app/services/auth.service';  // ✅ Import AuthService
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-create-invoice',
@@ -94,7 +94,6 @@ export class CreateInvoiceComponent implements OnInit {
     totalAmount: 0
   };
   
-  // Add these properties in your component class
   isEditingDeliveryAddress: boolean = false;
   isSaving: boolean = false;
   editDeliveryAddress: any = {
@@ -114,7 +113,6 @@ export class CreateInvoiceComponent implements OnInit {
   companyApiUrl = 'https://billsezy.com/Api/get_company_details.php';
   updateCustomerApiUrl = 'https://billsezy.com/Api/update_customer_address.php';
 
-  // 🔥 Get user_id from AuthService
   get userId(): number {
     const userId = this.authService.getUserId();
     return userId || 1;
@@ -123,11 +121,11 @@ export class CreateInvoiceComponent implements OnInit {
   constructor(
     private router: Router,
     private http: HttpClient,
-    private authService: AuthService  // ✅ Inject AuthService
+    private authService: AuthService
   ) { }
 
   ngOnInit(): void {
-    console.log("Current User ID from AuthService:", this.userId);
+    console.log("Current User ID:", this.userId);
     this.getCompanyDetails();
     this.getCustomers();
     this.getCategories();
@@ -135,10 +133,8 @@ export class CreateInvoiceComponent implements OnInit {
     this.setDefaultDates();
   }
 
-  // ================= GET COMPANY DETAILS =================
   getCompanyDetails() {
-    const userId = this.userId;  // ✅ Dynamic user_id
-
+    const userId = this.userId;
     this.http.get<any>(`${this.companyApiUrl}?user_id=${userId}`).subscribe({
       next: (response) => {
         if (response.status && response.data) {
@@ -146,24 +142,9 @@ export class CreateInvoiceComponent implements OnInit {
           this.companyState = response.data.state || '';
           this.companyName = response.data.company_name || response.data.trade_name || '';
           this.companyGSTIN = response.data.gstin || '';
-
-          localStorage.setItem('companyDetails', JSON.stringify(this.companyDetails));
-          localStorage.setItem('companyState', this.companyState);
-          localStorage.setItem('companyName', this.companyName);
-        } else {
-          const savedState = localStorage.getItem('companyState');
-          if (savedState) {
-            this.companyState = savedState;
-          }
         }
       },
-      error: (err) => {
-        console.error('Error fetching company details:', err);
-        const savedState = localStorage.getItem('companyState');
-        if (savedState) {
-          this.companyState = savedState;
-        }
-      }
+      error: (err) => console.error('Error fetching company details:', err)
     });
   }
 
@@ -172,7 +153,6 @@ export class CreateInvoiceComponent implements OnInit {
     this.searchText = customer.company_name || customer.name;
     this.showDropdown = false;
 
-    // If delivery address is empty, initialize with billing address
     if (!customer.delivery_address_line1 && customer.address_line1) {
       this.selectedCustomer.delivery_address_line1 = customer.address_line1;
       this.selectedCustomer.delivery_address_line2 = customer.address_line2;
@@ -189,7 +169,6 @@ export class CreateInvoiceComponent implements OnInit {
   checkGSTType() {
     if (!this.selectedCustomer) {
       this.isInterState = false;
-      this.calculateTaxRates();
       return;
     }
 
@@ -197,77 +176,44 @@ export class CreateInvoiceComponent implements OnInit {
     const companyState = this.companyState || '';
 
     if (companyState && customerState) {
-      const normalizedCompanyState = companyState.trim().toLowerCase();
-      const normalizedCustomerState = customerState.trim().toLowerCase();
-      this.isInterState = normalizedCompanyState !== normalizedCustomerState;
+      this.isInterState = companyState.trim().toLowerCase() !== customerState.trim().toLowerCase();
     } else {
       this.isInterState = false;
     }
-
-    this.calculateTaxRates();
+    
+    this.calculateTaxRatesForAllItems();
   }
 
-  // Calculate tax rates based on products and state type
-  calculateTaxRates() {
-    // Get the tax rate from first product or selected product
-    let taxRate = 0;
-
+  calculateTaxRatesForAllItems() {
+    let taxRate = 18;
     if (this.billItems.length > 0) {
-      // Get tax rate from first product in bill
-      taxRate = this.billItems[0].gstRate || this.billItems[0].tax_rate || 0;
-    } else if (this.selectedProduct) {
-      taxRate = this.extractTaxRateFromProduct(this.selectedProduct);
-    } else {
-      // Default tax rate if no products
-      taxRate = 18;
+      taxRate = this.billItems[0].gstRate || 18;
     }
 
     if (this.isInterState) {
-      // Inter-state: Only IGST
       this.igstRate = taxRate;
       this.cgstRate = 0;
       this.sgstRate = 0;
     } else {
-      // Intra-state: CGST + SGST (split equally)
       this.cgstRate = taxRate / 2;
       this.sgstRate = taxRate / 2;
       this.igstRate = 0;
     }
-
-    console.log('Tax Rates Calculated:', {
-      isInterState: this.isInterState,
-      taxRate: taxRate,
-      cgstRate: this.cgstRate,
-      sgstRate: this.sgstRate,
-      igstRate: this.igstRate,
-      taxableAmount: this.getTaxableAmount()
+    
+    this.billItems.forEach(item => {
+      if (this.isInterState) {
+        item.igstRate = item.gstRate;
+        item.cgstRate = 0;
+        item.sgstRate = 0;
+      } else {
+        item.cgstRate = item.gstRate / 2;
+        item.sgstRate = item.gstRate / 2;
+        item.igstRate = 0;
+      }
+      this.recalculateItemTotal(item);
     });
-  }
-
-  updateTaxRatesForProduct(product: any) {
-    const taxRate = this.extractTaxRateFromProduct(product);
-
-    if (this.isInterState) {
-      this.igstRate = taxRate;
-      this.cgstRate = 0;
-      this.sgstRate = 0;
-    } else {
-      this.cgstRate = taxRate / 2;
-      this.sgstRate = taxRate / 2;
-      this.igstRate = 0;
-    }
-
-    // Update all existing bill items with new GST calculation
-    this.updateAllBillItemsGST();
+    
     this.refreshCalculations();
-  }
-
-  // Update all bill items GST amounts
-  updateAllBillItemsGST() {
-    for (let item of this.billItems) {
-      const taxRate = item.gstRate || item.tax_rate || 0;
-      item.gstAmount = this.roundToTwoDecimals((item.taxableValue * taxRate) / 100);
-    }
   }
 
   setDefaultDates() {
@@ -296,14 +242,9 @@ export class CreateInvoiceComponent implements OnInit {
   onPaidAmountChange() {
     if (this.paymentOption === 'custom') {
       const totalAmount = this.getFinalTotalWithRoundOff();
-      if (this.paidAmount > totalAmount) {
-        this.paidAmount = totalAmount;
-      }
-      if (this.paidAmount < 0) {
-        this.paidAmount = 0;
-      }
-      this.paidAmount = Math.round(this.paidAmount * 100) / 100;
-      this.refreshCalculations();
+      if (this.paidAmount > totalAmount) this.paidAmount = totalAmount;
+      if (this.paidAmount < 0) this.paidAmount = 0;
+      this.paidAmount = this.roundToTwoDecimals(this.paidAmount);
     }
   }
 
@@ -322,23 +263,15 @@ export class CreateInvoiceComponent implements OnInit {
     }
   }
 
-  // ================= CUSTOMERS (With user_id) =================
   getCustomers() {
-    console.log('Fetching customers for user_id:', this.userId);
-    
     this.http.get<any>(`${this.customerApiUrl}?user_id=${this.userId}`).subscribe({
       next: (response) => {
         if (response.status) {
           this.customers = response.data;
           this.filteredCustomers = [...response.data];
-          console.log('Customers loaded:', this.customers.length);
         }
       },
-      error: (err) => {
-        console.error('Error fetching customers:', err);
-        this.customers = [];
-        this.filteredCustomers = [];
-      }
+      error: (err) => console.error('Error fetching customers:', err)
     });
   }
 
@@ -382,32 +315,19 @@ export class CreateInvoiceComponent implements OnInit {
     this.getCustomers();
     setTimeout(() => {
       const foundCustomer = this.customers.find(c =>
-        c.name === customer.name ||
-        c.company_name === customer.company_name ||
-        c.id === customer.id
+        c.name === customer.name || c.company_name === customer.company_name || c.id === customer.id
       );
-      if (foundCustomer) {
-        this.selectCustomer(foundCustomer);
-      }
+      if (foundCustomer) this.selectCustomer(foundCustomer);
     }, 500);
     this.closeCustomerForm();
   }
 
-  // ================= CATEGORIES (With user_id) =================
   getCategories() {
-    console.log('Fetching categories for user_id:', this.userId);
-    
     this.http.get<any>(`${this.categoryApiUrl}?user_id=${this.userId}`).subscribe({
       next: (response) => {
-        if (response.status) {
-          this.categories = response.data;
-          console.log('Categories loaded:', this.categories.length);
-        }
+        if (response.status) this.categories = response.data;
       },
-      error: (err) => {
-        console.error('Error fetching categories:', err);
-        this.categories = [];
-      }
+      error: (err) => console.error('Error fetching categories:', err)
     });
   }
 
@@ -426,23 +346,15 @@ export class CreateInvoiceComponent implements OnInit {
     this.discountPercent = 0;
   }
 
-  // ================= PRODUCTS (With user_id) =================
   getProducts() {
-    console.log('Fetching products for user_id:', this.userId);
-    
     this.http.get<any>(`${this.productApiUrl}?user_id=${this.userId}`).subscribe({
       next: (response) => {
         if (response.status) {
           this.products = response.data;
           this.filteredProducts = [...response.data];
-          console.log('Products loaded:', this.products.length);
         }
       },
-      error: (err) => {
-        console.error('Error fetching products:', err);
-        this.products = [];
-        this.filteredProducts = [];
-      }
+      error: (err) => console.error('Error fetching products:', err)
     });
   }
 
@@ -476,7 +388,6 @@ export class CreateInvoiceComponent implements OnInit {
     this.currentItem.discountAmount = 0;
     this.currentItem.totalAmount = this.currentItem.unitPrice * this.currentItem.quantity;
     this.discountPercent = 0;
-    this.updateTaxRatesForProduct(product);
   }
 
   clearProduct() {
@@ -484,7 +395,7 @@ export class CreateInvoiceComponent implements OnInit {
     this.productSearchText = '';
     this.showProductDropdown = false;
     this.resetCurrentItem();
-    this.selectedQty = 0;
+    this.selectedQty = 1;
     this.discountPercent = 0;
     this.filterProductsByCategory();
   }
@@ -494,7 +405,6 @@ export class CreateInvoiceComponent implements OnInit {
     if (newPrice < 0) newPrice = 0;
     item.unitPrice = newPrice;
     this.recalculateItemTotal(item);
-    this.calculateTaxRates();
     this.refreshCalculations();
   }
 
@@ -513,12 +423,7 @@ export class CreateInvoiceComponent implements OnInit {
     if (product.gst_rate !== null && product.gst_rate !== undefined && product.gst_rate !== '') {
       return parseFloat(product.gst_rate);
     }
-    const taxType = product.tax_type || '';
-    const match = taxType.match(/(\d+(?:\.\d+)?)/);
-    if (match) {
-      return parseFloat(match[1]);
-    }
-    return 18; // Default 18% if not found
+    return 18;
   }
 
   addToBill() {
@@ -531,19 +436,25 @@ export class CreateInvoiceComponent implements OnInit {
     const taxRate = this.extractTaxRateFromProduct(productToAdd);
     const quantity = this.selectedQty > 0 ? this.selectedQty : 1;
     const discountValue = this.discountPercent;
-    const discountType = 'percentage';
     const unitPrice = productToAdd.sell || 0;
     const subtotal = unitPrice * quantity;
 
-    let discountAmount = 0;
-    if (discountType === 'percentage') {
-      discountAmount = (subtotal * discountValue) / 100;
-    } else {
-      discountAmount = discountValue;
-    }
-
+    let discountAmount = (subtotal * discountValue) / 100;
     const taxableValue = this.roundToTwoDecimals(subtotal - discountAmount);
-    const gstAmount = this.roundToTwoDecimals((taxableValue * taxRate) / 100);
+    
+    let cgstRate = 0, sgstRate = 0, igstRate = 0;
+    if (this.isInterState) {
+      igstRate = taxRate;
+    } else {
+      cgstRate = taxRate / 2;
+      sgstRate = taxRate / 2;
+    }
+    
+    const cgstAmount = (taxableValue * cgstRate) / 100;
+    const sgstAmount = (taxableValue * sgstRate) / 100;
+    const igstAmount = (taxableValue * igstRate) / 100;
+    const totalTax = cgstAmount + sgstAmount + igstAmount;
+    const totalAmount = taxableValue + totalTax;
 
     const billItem = {
       id: Date.now(),
@@ -553,114 +464,143 @@ export class CreateInvoiceComponent implements OnInit {
       quantity: quantity,
       unitPrice: unitPrice,
       discountValue: discountValue,
-      discountType: discountType,
+      discountType: 'percentage',
       discountAmount: this.roundToTwoDecimals(discountAmount),
+      subtotal: this.roundToTwoDecimals(subtotal),
       taxableValue: taxableValue,
-      totalAmount: taxableValue,
       gstRate: taxRate,
-      gstAmount: gstAmount,
+      cgstRate: cgstRate,
+      sgstRate: sgstRate,
+      igstRate: igstRate,
+      cgstAmount: this.roundToTwoDecimals(cgstAmount),
+      sgstAmount: this.roundToTwoDecimals(sgstAmount),
+      igstAmount: this.roundToTwoDecimals(igstAmount),
+      totalTax: this.roundToTwoDecimals(totalTax),
+      totalAmount: this.roundToTwoDecimals(totalAmount),
       category: productToAdd.category,
       unit: productToAdd.unit
     };
 
     this.billItems.push(billItem);
-
-    // Recalculate tax rates based on products
-    this.calculateTaxRates();
-
     this.clearProduct();
     this.selectedQty = 1;
     this.discountPercent = 0;
     this.resetCurrentItem();
-    this.globalDiscountPercent = 0;
-
     this.refreshCalculations();
   }
 
   removeItem(itemId: number) {
     this.billItems = this.billItems.filter(item => item.id !== itemId);
     if (this.billItems.length === 0) {
-      this.globalDiscountPercent = 0;
       this.cgstRate = 0;
       this.sgstRate = 0;
       this.igstRate = 0;
     } else {
-      this.calculateTaxRates();
+      this.calculateTaxRatesForAllItems();
     }
     this.refreshCalculations();
   }
 
-  // ================= DISCOUNT HANDLERS =================
   onDiscountValueChange(item: any) {
     let discountValue = parseFloat(item.discountValue);
     if (isNaN(discountValue)) discountValue = 0;
     if (discountValue < 0) discountValue = 0;
-    if (item.discountType === 'percentage' && discountValue > 100) {
-      discountValue = 100;
-    }
+    if (item.discountType === 'percentage' && discountValue > 100) discountValue = 100;
     item.discountValue = discountValue;
     this.recalculateItemTotal(item);
-    this.calculateTaxRates();
     this.refreshCalculations();
   }
 
   onDiscountTypeChange(item: any) {
-    if (item.discountType === 'percentage') {
-      if (item.discountValue > 100) item.discountValue = 100;
-    }
+    if (item.discountType === 'percentage' && item.discountValue > 100) item.discountValue = 100;
     this.recalculateItemTotal(item);
-    this.calculateTaxRates();
     this.refreshCalculations();
   }
 
-  // ================= CALCULATIONS =================
+  recalculateItemTotal(item: any) {
+    const subtotal = item.unitPrice * item.quantity;
+    let discountAmount = 0;
+    
+    if (item.discountType === 'percentage') {
+      discountAmount = (subtotal * item.discountValue) / 100;
+    } else {
+      discountAmount = item.discountValue;
+      if (discountAmount > subtotal) discountAmount = subtotal;
+    }
+    
+    const taxableValue = this.roundToTwoDecimals(subtotal - discountAmount);
+    
+    let cgstAmount = 0, sgstAmount = 0, igstAmount = 0;
+    
+    if (this.isInterState) {
+      igstAmount = (taxableValue * item.gstRate) / 100;
+      item.igstRate = item.gstRate;
+      item.cgstRate = 0;
+      item.sgstRate = 0;
+    } else {
+      cgstAmount = (taxableValue * (item.gstRate / 2)) / 100;
+      sgstAmount = (taxableValue * (item.gstRate / 2)) / 100;
+      item.cgstRate = item.gstRate / 2;
+      item.sgstRate = item.gstRate / 2;
+      item.igstRate = 0;
+    }
+    
+    const totalTax = cgstAmount + sgstAmount + igstAmount;
+    const totalAmount = taxableValue + totalTax;
+    
+    item.subtotal = this.roundToTwoDecimals(subtotal);
+    item.discountAmount = this.roundToTwoDecimals(discountAmount);
+    item.taxableValue = taxableValue;
+    item.cgstAmount = this.roundToTwoDecimals(cgstAmount);
+    item.sgstAmount = this.roundToTwoDecimals(sgstAmount);
+    item.igstAmount = this.roundToTwoDecimals(igstAmount);
+    item.totalTax = this.roundToTwoDecimals(totalTax);
+    item.totalAmount = this.roundToTwoDecimals(totalAmount);
+  }
+
   getSubTotal(): number {
-    const total = this.billItems.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
-    return this.roundToTwoDecimals(total);
+    return this.roundToTwoDecimals(this.billItems.reduce((sum, item) => sum + item.subtotal, 0));
   }
 
   getTotalItemDiscount(): number {
-    const total = this.billItems.reduce((sum, item) => sum + item.discountAmount, 0);
-    return this.roundToTwoDecimals(total);
+    return this.roundToTwoDecimals(this.billItems.reduce((sum, item) => sum + item.discountAmount, 0));
   }
 
   getTaxableAmount(): number {
-    return this.roundToTwoDecimals(this.getSubTotal() - this.getTotalItemDiscount());
+    return this.roundToTwoDecimals(this.billItems.reduce((sum, item) => sum + item.taxableValue, 0));
   }
 
-  getCGSTAmount(): number {
-    if (!this.isInterState && this.cgstRate > 0) {
-      return this.roundToTwoDecimals((this.getTaxableAmount() * this.cgstRate) / 100);
+  getTotalCGSTAmount(): number {
+    if (!this.isInterState) {
+      return this.roundToTwoDecimals(this.billItems.reduce((sum, item) => sum + (item.cgstAmount || 0), 0));
     }
     return 0;
   }
 
-  getSGSTAmount(): number {
-    if (!this.isInterState && this.sgstRate > 0) {
-      return this.roundToTwoDecimals((this.getTaxableAmount() * this.sgstRate) / 100);
+  getTotalSGSTAmount(): number {
+    if (!this.isInterState) {
+      return this.roundToTwoDecimals(this.billItems.reduce((sum, item) => sum + (item.sgstAmount || 0), 0));
     }
     return 0;
   }
 
-  getIGSTAmount(): number {
-    if (this.isInterState && this.igstRate > 0) {
-      return this.roundToTwoDecimals((this.getTaxableAmount() * this.igstRate) / 100);
+  getTotalIGSTAmount(): number {
+    if (this.isInterState) {
+      return this.roundToTwoDecimals(this.billItems.reduce((sum, item) => sum + (item.igstAmount || 0), 0));
     }
     return 0;
-  }
-
-  getTotalAmount(): number {
-    const total = this.getSubTotal() + this.getTotalTaxAmount();
-    return this.roundToTwoDecimals(total);
   }
 
   getTotalTaxAmount(): number {
-    return this.getCGSTAmount() + this.getSGSTAmount() + this.getIGSTAmount();
+    return this.getTotalCGSTAmount() + this.getTotalSGSTAmount() + this.getTotalIGSTAmount();
+  }
+
+  getTotalAmount(): number {
+    return this.roundToTwoDecimals(this.getTaxableAmount() + this.getTotalTaxAmount());
   }
 
   getTotalAfterAdditionalCharges(): number {
-    const total = this.getTaxableAmount() + this.getTotalTaxAmount() + this.additionalCharges;
-    return this.roundToTwoDecimals(total);
+    return this.roundToTwoDecimals(this.getTotalAmount() + this.additionalCharges);
   }
 
   calculateRoundOff(): number {
@@ -670,70 +610,14 @@ export class CreateInvoiceComponent implements OnInit {
     return this.roundOffValue;
   }
 
-  getItemCGST(item: any): number {
-    if (!this.isInterState && item.gstRate > 0) {
-      const cgstRateForItem = item.gstRate / 2;
-      return this.roundToTwoDecimals((item.taxableValue * cgstRateForItem) / 100);
-    }
-    return 0;
-  }
-
-  getTotalCGSTAmount(): number {
-    if (!this.isInterState) {
-      return this.billItems.reduce((sum, item) => sum + this.getItemCGST(item), 0);
-    }
-    return 0;
-  }
-
-  getTotalSGSTAmount(): number {
-    if (!this.isInterState) {
-      return this.billItems.reduce((sum, item) => sum + this.getItemSGST(item), 0);
-    }
-    return 0;
-  }
-
-  getTotalIGSTAmount(): number {
-    if (this.isInterState) {
-      return this.billItems.reduce((sum, item) => sum + this.getItemIGST(item), 0);
-    }
-    return 0;
-  }
-
-  getItemSGST(item: any): number {
-    if (!this.isInterState && this.sgstRate > 0) {
-      return this.roundToTwoDecimals((item.taxableValue * this.sgstRate) / 100);
-    }
-    return 0;
-  }
-
-  getItemIGST(item: any): number {
-    if (this.isInterState && this.igstRate > 0) {
-      return this.roundToTwoDecimals((item.taxableValue * this.igstRate) / 100);
-    }
-    return 0;
-  }
-
-  getItemTotalWithTax(item: any): number {
-    const taxAmount = this.getItemCGST(item) + this.getItemSGST(item) + this.getItemIGST(item);
-    return this.roundToTwoDecimals(item.taxableValue + taxAmount);
-  }
-
-  getTotalTaxableAmount(): number {
-    return this.billItems.reduce((sum, item) => sum + item.taxableValue, 0);
-  }
-
   getFinalTotalWithRoundOff(): number {
     let total = this.getTotalAfterAdditionalCharges();
-    if (this.roundOff) {
-      total = Math.round(total);
-    }
+    if (this.roundOff) total = Math.round(total);
     return this.roundToTwoDecimals(total);
   }
 
   onAdditionalChargesChange() {
-    if (this.additionalCharges < 0) {
-      this.additionalCharges = 0;
-    }
+    if (this.additionalCharges < 0) this.additionalCharges = 0;
     this.additionalCharges = this.roundToTwoDecimals(this.additionalCharges);
     this.refreshCalculations();
   }
@@ -752,91 +636,109 @@ export class CreateInvoiceComponent implements OnInit {
     if (newQuantity < 1) return;
     item.quantity = newQuantity;
     this.recalculateItemTotal(item);
-    this.calculateTaxRates();
     this.refreshCalculations();
   }
 
-  recalculateItemTotal(item: any) {
-    const subtotal = item.unitPrice * item.quantity;
-    let discountAmount = 0;
-
-    if (item.discountType === 'percentage') {
-      discountAmount = (subtotal * item.discountValue) / 100;
-    } else {
-      discountAmount = item.discountValue;
-      if (discountAmount > subtotal) {
-        discountAmount = subtotal;
-        item.discountValue = discountAmount;
-      }
-    }
-
-    item.discountAmount = this.roundToTwoDecimals(discountAmount);
-    item.taxableValue = this.roundToTwoDecimals(subtotal - discountAmount);
-    const taxRate = item.gstRate || 0;
-    item.gstAmount = this.roundToTwoDecimals((item.taxableValue * taxRate) / 100);
+  getItemCGST(item: any): number {
+    return item.cgstAmount || 0;
   }
 
-  getBillingAddress(): string {
-    if (!this.selectedCustomer) return '';
-
-    const parts = [];
-    if (this.selectedCustomer.address_line1) parts.push(this.selectedCustomer.address_line1);
-    if (this.selectedCustomer.address_line2) parts.push(this.selectedCustomer.address_line2);
-    if (this.selectedCustomer.city) parts.push(this.selectedCustomer.city);
-    if (this.selectedCustomer.state) parts.push(this.selectedCustomer.state);
-    if (this.selectedCustomer.pincode) parts.push(this.selectedCustomer.pincode);
-
-    return parts.join(', ') || 'Address not available';
+  getItemSGST(item: any): number {
+    return item.sgstAmount || 0;
   }
 
-  getDeliveryAddress(): string {
-    if (!this.selectedCustomer) return '';
-
-    const parts = [];
-    if (this.selectedCustomer.delivery_address_line1) parts.push(this.selectedCustomer.delivery_address_line1);
-    if (this.selectedCustomer.delivery_address_line2) parts.push(this.selectedCustomer.delivery_address_line2);
-    if (this.selectedCustomer.delivery_city) parts.push(this.selectedCustomer.delivery_city);
-    if (this.selectedCustomer.delivery_state) parts.push(this.selectedCustomer.delivery_state);
-    if (this.selectedCustomer.delivery_pincode) parts.push(this.selectedCustomer.delivery_pincode);
-
-    if (parts.length === 0) {
-      return 'No delivery address added. Click edit to add.';
-    }
-
-    return parts.join(', ');
+  getItemIGST(item: any): number {
+    return item.igstAmount || 0;
   }
 
-  getShortBillingAddress(): string {
-    if (!this.selectedCustomer) return '';
-
-    const parts = [];
-    if (this.selectedCustomer.address_line1) parts.push(this.selectedCustomer.address_line1);
-    if (this.selectedCustomer.city) parts.push(this.selectedCustomer.city);
-    if (this.selectedCustomer.pincode) parts.push(this.selectedCustomer.pincode);
-
-    return parts.join(', ') || 'Address not available';
+  getItemTotalWithTax(item: any): number {
+    return item.totalAmount || 0;
   }
 
-  getShortDeliveryAddress(): string {
-    if (!this.selectedCustomer) return '';
-
-    if (this.selectedCustomer.same_as_billing === '1' || this.selectedCustomer.same_as_billing === 1) {
-      return this.getShortBillingAddress();
-    }
-
-    const parts = [];
-    if (this.selectedCustomer.delivery_address_line1) parts.push(this.selectedCustomer.delivery_address_line1);
-    if (this.selectedCustomer.delivery_city) parts.push(this.selectedCustomer.delivery_city);
-    if (this.selectedCustomer.delivery_pincode) parts.push(this.selectedCustomer.delivery_pincode);
-
-    return parts.join(', ') || this.getShortBillingAddress();
+  getTotalTaxableAmount(): number {
+    return this.getTaxableAmount();
   }
 
   getTotalItemsCount(): number {
     return this.billItems.reduce((sum, item) => sum + item.quantity, 0);
   }
 
-  // ================= NAVIGATION =================
+  getBillingAddress(): string {
+    if (!this.selectedCustomer) return '';
+    const parts = [];
+    if (this.selectedCustomer.address_line1) parts.push(this.selectedCustomer.address_line1);
+    if (this.selectedCustomer.address_line2) parts.push(this.selectedCustomer.address_line2);
+    if (this.selectedCustomer.city) parts.push(this.selectedCustomer.city);
+    if (this.selectedCustomer.state) parts.push(this.selectedCustomer.state);
+    if (this.selectedCustomer.pincode) parts.push(this.selectedCustomer.pincode);
+    return parts.join(', ') || 'Address not available';
+  }
+
+  getDeliveryAddress(): string {
+    if (!this.selectedCustomer) return '';
+    const parts = [];
+    if (this.selectedCustomer.delivery_address_line1) parts.push(this.selectedCustomer.delivery_address_line1);
+    if (this.selectedCustomer.delivery_address_line2) parts.push(this.selectedCustomer.delivery_address_line2);
+    if (this.selectedCustomer.delivery_city) parts.push(this.selectedCustomer.delivery_city);
+    if (this.selectedCustomer.delivery_state) parts.push(this.selectedCustomer.delivery_state);
+    if (this.selectedCustomer.delivery_pincode) parts.push(this.selectedCustomer.delivery_pincode);
+    return parts.length ? parts.join(', ') : 'No delivery address added. Click edit to add.';
+  }
+
+  toggleEditDeliveryAddress() {
+    if (!this.selectedCustomer) return;
+    this.editDeliveryAddress = {
+      address_line1: this.selectedCustomer.delivery_address_line1 || '',
+      address_line2: this.selectedCustomer.delivery_address_line2 || '',
+      city: this.selectedCustomer.delivery_city || '',
+      state: this.selectedCustomer.delivery_state || '',
+      pincode: this.selectedCustomer.delivery_pincode || '',
+      country: this.selectedCustomer.delivery_country || 'India'
+    };
+    this.isEditingDeliveryAddress = true;
+  }
+
+  cancelEditDeliveryAddress() {
+    this.isEditingDeliveryAddress = false;
+  }
+
+  saveDeliveryAddress() {
+    if (!this.selectedCustomer) return;
+    this.isSaving = true;
+    const payload = {
+      customer_id: this.selectedCustomer.id,
+      user_id: this.userId,
+      delivery_address_line1: this.editDeliveryAddress.address_line1,
+      delivery_address_line2: this.editDeliveryAddress.address_line2,
+      delivery_city: this.editDeliveryAddress.city,
+      delivery_state: this.editDeliveryAddress.state,
+      delivery_pincode: this.editDeliveryAddress.pincode,
+      delivery_country: this.editDeliveryAddress.country
+    };
+
+    this.http.post(this.updateCustomerApiUrl, payload).subscribe({
+      next: (response: any) => {
+        this.isSaving = false;
+        if (response.status === true || response.success) {
+          this.selectedCustomer.delivery_address_line1 = this.editDeliveryAddress.address_line1;
+          this.selectedCustomer.delivery_address_line2 = this.editDeliveryAddress.address_line2;
+          this.selectedCustomer.delivery_city = this.editDeliveryAddress.city;
+          this.selectedCustomer.delivery_state = this.editDeliveryAddress.state;
+          this.selectedCustomer.delivery_pincode = this.editDeliveryAddress.pincode;
+          this.selectedCustomer.delivery_country = this.editDeliveryAddress.country;
+          alert('Delivery address updated successfully!');
+          this.isEditingDeliveryAddress = false;
+        } else {
+          alert('Error: ' + (response.message || 'Failed to update address'));
+        }
+      },
+      error: (err) => {
+        this.isSaving = false;
+        alert('Error: ' + (err.message || 'Connection failed'));
+      }
+    });
+  }
+
   goBack() {
     this.router.navigate(['/sales/add-invoice']);
   }
@@ -851,92 +753,11 @@ export class CreateInvoiceComponent implements OnInit {
     }
   }
 
-  // Toggle edit mode for delivery address
-  toggleEditDeliveryAddress() {
-    if (!this.selectedCustomer) return;
-
-    this.editDeliveryAddress = {
-      address_line1: this.selectedCustomer.delivery_address_line1 || '',
-      address_line2: this.selectedCustomer.delivery_address_line2 || '',
-      city: this.selectedCustomer.delivery_city || '',
-      state: this.selectedCustomer.delivery_state || '',
-      pincode: this.selectedCustomer.delivery_pincode || '',
-      country: this.selectedCustomer.delivery_country || 'India'
-    };
-
-    this.isEditingDeliveryAddress = true;
-  }
-
-  cancelEditDeliveryAddress() {
-    this.isEditingDeliveryAddress = false;
-    this.editDeliveryAddress = {
-      address_line1: '',
-      address_line2: '',
-      city: '',
-      state: '',
-      pincode: '',
-      country: ''
-    };
-  }
-
-  saveDeliveryAddress() {
-    if (!this.selectedCustomer) return;
-
-    this.isSaving = true;
-
-    const payload = {
-      customer_id: this.selectedCustomer.id,
-      user_id: this.userId,  // ✅ Add user_id for security
-      delivery_address_line1: this.editDeliveryAddress.address_line1,
-      delivery_address_line2: this.editDeliveryAddress.address_line2,
-      delivery_city: this.editDeliveryAddress.city,
-      delivery_state: this.editDeliveryAddress.state,
-      delivery_pincode: this.editDeliveryAddress.pincode,
-      delivery_country: this.editDeliveryAddress.country
-    };
-
-    this.http.post(this.updateCustomerApiUrl, payload).subscribe({
-      next: (response: any) => {
-        this.isSaving = false;
-
-        if (response.status === true || response.success) {
-          // Update local customer object
-          this.selectedCustomer.delivery_address_line1 = this.editDeliveryAddress.address_line1;
-          this.selectedCustomer.delivery_address_line2 = this.editDeliveryAddress.address_line2;
-          this.selectedCustomer.delivery_city = this.editDeliveryAddress.city;
-          this.selectedCustomer.delivery_state = this.editDeliveryAddress.state;
-          this.selectedCustomer.delivery_pincode = this.editDeliveryAddress.pincode;
-          this.selectedCustomer.delivery_country = this.editDeliveryAddress.country;
-
-          // Also update in customers array
-          const index = this.customers.findIndex(c => c.id === this.selectedCustomer.id);
-          if (index !== -1) {
-            this.customers[index] = { ...this.selectedCustomer };
-            this.filteredCustomers = [...this.customers];
-          }
-
-          alert('Delivery address updated successfully!');
-          this.isEditingDeliveryAddress = false;
-          this.refreshCalculations();
-        } else {
-          alert('Error: ' + (response.message || 'Failed to update address'));
-        }
-      },
-      error: (err) => {
-        this.isSaving = false;
-        console.error('API Error:', err);
-        alert('Error: ' + (err.message || 'Connection failed'));
-      }
-    });
-  }
-
-  // ================= SAVE TO DATABASE (With user_id) =================
   save() {
     if (this.billItems.length === 0) {
       alert('Please add at least one product!');
       return;
     }
-
     if (!this.selectedCustomer) {
       alert('Please select a customer!');
       return;
@@ -960,13 +781,16 @@ export class CreateInvoiceComponent implements OnInit {
       discount_amount: item.discountAmount,
       taxable_value: item.taxableValue,
       gst_rate: item.gstRate,
-      gst_amount: item.gstAmount,
+      cgst_amount: item.cgstAmount,
+      sgst_amount: item.sgstAmount,
+      igst_amount: item.igstAmount,
+      total_amount: item.totalAmount,
       category: item.category,
       unit: item.unit
     }));
 
     const payload = {
-      user_id: this.userId,  // ✅ Add user_id to invoice
+      user_id: this.userId,
       bill_no: 'INV-' + Date.now(),
       invoice_date: this.invoiceDate,
       due_date: this.dueDate,
@@ -976,7 +800,7 @@ export class CreateInvoiceComponent implements OnInit {
       customer_gstin: this.selectedCustomer?.gstin,
       customer_phone: this.selectedCustomer?.phone,
       customer_email: this.selectedCustomer?.email,
-      customer_address: (this.selectedCustomer?.address_line1 || '') + ' ' + (this.selectedCustomer?.address_line2 || ''),
+      customer_address: this.getBillingAddress(),
       customer_city: this.selectedCustomer?.city,
       customer_state: this.selectedCustomer?.state,
       customer_pincode: this.selectedCustomer?.pincode,
@@ -985,11 +809,11 @@ export class CreateInvoiceComponent implements OnInit {
       company_gstin: this.companyGSTIN,
       is_inter_state: this.isInterState ? 1 : 0,
       cgst_rate: this.cgstRate,
-      cgst_amount: this.getCGSTAmount(),
+      cgst_amount: this.getTotalCGSTAmount(),
       sgst_rate: this.sgstRate,
-      sgst_amount: this.getSGSTAmount(),
+      sgst_amount: this.getTotalSGSTAmount(),
       igst_rate: this.igstRate,
-      igst_amount: this.getIGSTAmount(),
+      igst_amount: this.getTotalIGSTAmount(),
       total_tax_amount: this.getTotalTaxAmount(),
       sub_total: this.getSubTotal(),
       discount_total: this.getTotalItemDiscount(),
@@ -1004,8 +828,7 @@ export class CreateInvoiceComponent implements OnInit {
       remaining_amount: remainingAmount,
       status: invoiceStatus,
       product_items: JSON.stringify(productItems),
-      total_items: this.getTotalItemsCount(),
-      bill_items: this.billItems
+      total_items: this.getTotalItemsCount()
     };
 
     const saveBtn = document.querySelector('.save-btn') as HTMLButtonElement;
@@ -1023,15 +846,12 @@ export class CreateInvoiceComponent implements OnInit {
         if (response.status === true || response.success) {
           alert('Invoice Created Successfully!\nBill No: ' + (response.bill_no || payload.bill_no));
           this.resetForm();
-          setTimeout(() => {
-            this.router.navigate(['/sales/add-invoice']);
-          }, 500);
+          setTimeout(() => this.router.navigate(['/sales/add-invoice']), 500);
         } else {
           alert('Error: ' + (response.message || 'Failed to create invoice'));
         }
       },
       error: (err) => {
-        console.error('API Error:', err);
         if (saveBtn) {
           saveBtn.innerText = 'Save';
           saveBtn.disabled = false;
@@ -1055,7 +875,6 @@ export class CreateInvoiceComponent implements OnInit {
     this.productSearchText = '';
     this.selectedQty = 1;
     this.discountPercent = 0;
-    this.globalDiscountPercent = 0;
     this.referenceNumber = '';
     this.cgstRate = 0;
     this.sgstRate = 0;
