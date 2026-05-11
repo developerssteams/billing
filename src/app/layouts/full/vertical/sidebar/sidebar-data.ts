@@ -74,8 +74,7 @@ export const navItems: NavItem[] = [
       { displayName: 'Quotations', iconName: 'mdi:circle-small', subItemIcon: true, route: 'quotations/list' },
       { displayName: 'Sales Orders', iconName: 'mdi:circle-small', subItemIcon: true, route: 'quotations/sales-orders' },
       { displayName: 'Pro Forma Invoices', iconName: 'mdi:circle-small', subItemIcon: true, route: 'quotations/proforma' },
-      { displayName: 'Delivery Challans', iconName: 'mdi:circle-small', subItemIcon: true, route: 'quotations/delivery' },
-      { displayName: 'Packing Lists', iconName: 'mdi:circle-small', subItemIcon: true, route: 'quotations/packing' }
+      { displayName: 'Delivery Challans', iconName: 'mdi:circle-small', subItemIcon: true, route: 'quotations/delivery' }
     ]
   },
   // E Way Bills

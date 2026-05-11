@@ -14,7 +14,6 @@ import { QuotationListComponent } from './quotations/quotation-list/quotation-li
 import { SalesOrdersComponent } from './quotations/sales-orders/sales-orders.component';
 import { ProformaComponent } from './quotations/proforma/proforma.component';
 import { DeliveryComponent } from './quotations/delivery/delivery.component';
-import { PackingComponent } from './quotations/packing/packing.component';
 import { EwayBillsComponent } from './eway-bills/eway-bills/eway-bills.component';
 import { ExpensesListComponent } from './expenses/expenses-list/expenses-list.component';
 import { AddProductComponent } from './products/add-product/add-product.component';
@@ -48,7 +47,6 @@ export const PagesRoutes: Routes = [
   { path: 'sales-orders', component: SalesOrdersComponent },
   { path: 'proforma', component: ProformaComponent },
   { path: 'delivery', component: DeliveryComponent },
-  { path: 'packing', component: PackingComponent },
   // 🔥 E-WAY BILL
   { path: 'eway-bills', component: EwayBillsComponent },
   // 🔥 EXPENSES ROUTES
