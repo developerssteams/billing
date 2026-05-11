@@ -72,9 +72,8 @@ export const navItems: NavItem[] = [
     locked: true,
     children: [
       { displayName: 'Quotations', iconName: 'mdi:circle-small', subItemIcon: true, route: 'quotations/list' },
-      { displayName: 'Sales Orders', iconName: 'mdi:circle-small', subItemIcon: true, route: 'quotations/sales-orders' },
-      { displayName: 'Pro Forma Invoices', iconName: 'mdi:circle-small', subItemIcon: true, route: 'quotations/proforma' },
-      { displayName: 'Delivery Challans', iconName: 'mdi:circle-small', subItemIcon: true, route: 'quotations/delivery' }
+      // { displayName: 'Sales Orders', iconName: 'mdi:circle-small', subItemIcon: true, route: 'quotations/sales-orders' },
+      // { displayName: 'Pro Forma Invoices', iconName: 'mdi:circle-small', subItemIcon: true, route: 'quotations/proforma' },
     ]
   },
   // E Way Bills
