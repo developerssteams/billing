@@ -64,7 +64,7 @@
             </span>
             <span class="remaining">{{formatAmount(item.Remaining_Amount)}}</span>
             <span class="action-buttons">
-                <!-- View Button - Redirect to View Page -->
+                <!-- View Button -->
                 <button (click)="viewInvoice(item.ID)" class="view-btn">View</button>
                 <!-- Edit Button -->
                 <button (click)="editInvoice(item.ID)" class="edit-btn">Edit</button>
@@ -78,12 +78,6 @@
                 </button>
             </span>
         </div>
-
-        <!-- Invoice Form Component -->
-        <app-invoice-form [isVisible]="selectedInvoice != null" 
-                          [invoiceData]="selectedInvoice"
-                          (formClosed)="closeInvoiceForm()">
-        </app-invoice-form>
     </div>
 
     <!-- Footer -->
@@ -94,7 +88,7 @@
             </div>
 
             <div class="paid-box">
-                Recieved {{formatAmount(getPaidAmount())}}
+                Received {{formatAmount(getPaidAmount())}}
             </div>
 
             <div class="pending-box">

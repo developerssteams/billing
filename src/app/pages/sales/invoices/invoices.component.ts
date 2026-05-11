@@ -5,6 +5,7 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { InvoiceFormComponent } from '../../../invoice-form/invoice-form.component';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { Router } from '@angular/router';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-invoice',
@@ -14,7 +15,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./invoices.component.scss'],
 })
 export class InvoicesComponent implements OnInit {
-  tabs = ['All', 'Pending', 'Paid', 'Cancelled'];
+  tabs = ['All', 'Paid', 'Unpaid', 'Partially Paid', 'Cancelled'];
   selectedTab = 'All';
 
   searchText = '';
@@ -27,8 +28,8 @@ export class InvoicesComponent implements OnInit {
   paidAmount: number = 0;
   pendingAmount: number = 0;
 
-  apiUrl = 'https://billsezy.com/Api/get-invoice.php';
-  updateStatusApiUrl = 'https://billsezy.com/Api/update-invoice-status.php';
+  apiUrl = 'https://billsezy.com/Api/get_invoices.php';
+  updateStatusApiUrl = 'https://billsezy.com/Api/update_invoice_status.php';
 
   currentPage = 1;
   itemsPerPage = 10;
@@ -36,8 +37,14 @@ export class InvoicesComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private authService: AuthService
   ) { }
+
+  get userId(): number {
+    const userId = this.authService.getUserId();
+    return userId || 1;
+  }
 
   ngOnInit(): void {
     this.fetchInvoices();
@@ -46,38 +53,26 @@ export class InvoicesComponent implements OnInit {
   fetchInvoices() {
     this.isLoading = true;
     
-    let url = this.apiUrl;
-    let params = [];
+    // ✅ Add user_id to API call
+    let url = `${this.apiUrl}?user_id=${this.userId}`;
     
     if (this.selectedTab !== 'All') {
-      params.push(`status=${this.selectedTab}`);
+      url += `&status=${this.selectedTab}`;
     }
     
     if (this.searchText) {
-      params.push(`search=${encodeURIComponent(this.searchText)}`);
-    }
-    
-    if (params.length > 0) {
-      url += '?' + params.join('&');
+      url += `&search=${encodeURIComponent(this.searchText)}`;
     }
     
     this.http.get<any>(url).subscribe({
       next: (response) => {
         this.isLoading = false;
         
-        if (response.status === 'success') {
-          this.invoices = response.data;
+        if (response.status === true) {
+          this.invoices = response.data || [];
           this.filteredInvoices = [...this.invoices];
-          
-          if (response.summary) {
-            this.totalAmount = response.summary.total_amount;
-            this.paidAmount = response.summary.paid_amount;
-            this.pendingAmount = response.summary.pending_amount;
-          } else {
-            this.calculateSummary();
-          }
-          
-          console.log('Invoices loaded:', this.invoices);
+          this.calculateSummary();
+          console.log('Invoices loaded:', this.invoices.length);
         } else {
           console.error('API Error:', response.message);
           this.invoices = [];
@@ -160,10 +155,7 @@ export class InvoicesComponent implements OnInit {
     return this.pendingAmount;
   }
 
-  // ✅ View Invoice - Pehle page redirect, ID query param mein bhejega
   viewInvoice(id: number) {
-    console.log('View clicked for ID:', id);
-    // Pehle page redirect karo with ID as query param
     this.router.navigate(['sales/view-invoice'], { queryParams: { id: id } });
   }
 
@@ -173,11 +165,17 @@ export class InvoicesComponent implements OnInit {
       return;
     }
     
+    if (currentStatus === 'Paid') {
+      alert(`⚠️ Cannot cancel a paid invoice.`);
+      return;
+    }
+    
     if (confirm(`Are you sure you want to cancel Invoice ${billNo}?`)) {
       this.isLoading = true;
       
       const payload = {
         id: id,
+        user_id: this.userId,
         status: 'Cancelled'
       };
       
@@ -185,8 +183,8 @@ export class InvoicesComponent implements OnInit {
         next: (response: any) => {
           this.isLoading = false;
           
-          if (response.status === 'success') {
-            alert(`✅ ${response.message}`);
+          if (response.status === true) {
+            alert(`✅ Invoice cancelled successfully!`);
             this.fetchInvoices();
           } else {
             alert('❌ Error: ' + (response.message || 'Failed to cancel invoice'));
@@ -202,7 +200,7 @@ export class InvoicesComponent implements OnInit {
   }
 
   editInvoice(id: number) {
-    this.router.navigate(['/sales/create-invoice', id]);
+    this.router.navigate(['/sales/create-invoice'], { queryParams: { id: id } });
   }
 
   openInvoiceForm(invoice: any) {
@@ -219,12 +217,12 @@ export class InvoicesComponent implements OnInit {
   }
   
   getStatusClass(status: string): string {
-    switch(status.toLowerCase()) {
-      case 'paid': return 'paid';
-      case 'partial': return 'partial';
-      case 'pending': return 'pending';
-      case 'cancelled': return 'cancelled';
-      default: return 'pending';
+    switch(status?.toLowerCase()) {
+      case 'paid': return 'status-paid';
+      case 'partially paid': return 'status-partial';
+      case 'unpaid': return 'status-unpaid';
+      case 'cancelled': return 'status-cancelled';
+      default: return 'status-unpaid';
     }
   }
   
@@ -234,6 +232,10 @@ export class InvoicesComponent implements OnInit {
   }
   
   isCancelDisabled(status: string): boolean {
-    return status === 'Cancelled';
+    return status === 'Cancelled' || status === 'Paid';
+  }
+
+  goBack() {
+    this.router.navigate(['/']);
   }
 }
