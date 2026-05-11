@@ -93,7 +93,7 @@ export class CreateInvoiceComponent implements OnInit {
     discountAmount: 0,
     totalAmount: 0
   };
-  
+
   isEditingDeliveryAddress: boolean = false;
   isSaving: boolean = false;
   editDeliveryAddress: any = {
@@ -151,7 +151,7 @@ export class CreateInvoiceComponent implements OnInit {
       this.paidAmount = 0;
     }
     this.paidAmount = this.roundToTwoDecimals(this.paidAmount);
-    
+
     // Uncheck full payment checkbox if amount is not equal to total
     if (this.paidAmount !== totalAmount) {
       this.isFullPaymentChecked = false;
@@ -207,7 +207,7 @@ export class CreateInvoiceComponent implements OnInit {
     } else {
       this.isInterState = false;
     }
-    
+
     this.calculateTaxRatesForAllItems();
   }
 
@@ -226,7 +226,7 @@ export class CreateInvoiceComponent implements OnInit {
       this.sgstRate = taxRate / 2;
       this.igstRate = 0;
     }
-    
+
     this.billItems.forEach(item => {
       if (this.isInterState) {
         item.igstRate = item.gstRate;
@@ -239,7 +239,7 @@ export class CreateInvoiceComponent implements OnInit {
       }
       this.recalculateItemTotal(item);
     });
-    
+
     this.refreshCalculations();
   }
 
@@ -452,7 +452,7 @@ export class CreateInvoiceComponent implements OnInit {
 
     let discountAmount = (subtotal * discountValue) / 100;
     const taxableValue = this.roundToTwoDecimals(subtotal - discountAmount);
-    
+
     let cgstRate = 0, sgstRate = 0, igstRate = 0;
     if (this.isInterState) {
       igstRate = taxRate;
@@ -460,7 +460,7 @@ export class CreateInvoiceComponent implements OnInit {
       cgstRate = taxRate / 2;
       sgstRate = taxRate / 2;
     }
-    
+
     const cgstAmount = (taxableValue * cgstRate) / 100;
     const sgstAmount = (taxableValue * sgstRate) / 100;
     const igstAmount = (taxableValue * igstRate) / 100;
@@ -531,18 +531,18 @@ export class CreateInvoiceComponent implements OnInit {
   recalculateItemTotal(item: any) {
     const subtotal = item.unitPrice * item.quantity;
     let discountAmount = 0;
-    
+
     if (item.discountType === 'percentage') {
       discountAmount = (subtotal * item.discountValue) / 100;
     } else {
       discountAmount = item.discountValue;
       if (discountAmount > subtotal) discountAmount = subtotal;
     }
-    
+
     const taxableValue = this.roundToTwoDecimals(subtotal - discountAmount);
-    
+
     let cgstAmount = 0, sgstAmount = 0, igstAmount = 0;
-    
+
     if (this.isInterState) {
       igstAmount = (taxableValue * item.gstRate) / 100;
       item.igstRate = item.gstRate;
@@ -555,10 +555,10 @@ export class CreateInvoiceComponent implements OnInit {
       item.sgstRate = item.gstRate / 2;
       item.igstRate = 0;
     }
-    
+
     const totalTax = cgstAmount + sgstAmount + igstAmount;
     const totalAmount = taxableValue + totalTax;
-    
+
     item.subtotal = this.roundToTwoDecimals(subtotal);
     item.discountAmount = this.roundToTwoDecimals(discountAmount);
     item.taxableValue = taxableValue;
@@ -772,6 +772,7 @@ export class CreateInvoiceComponent implements OnInit {
     const remainingAmount = this.getFinalTotalWithRoundOff() - this.paidAmount;
     const invoiceStatus = remainingAmount === 0 ? 'Paid' : (this.paidAmount > 0 ? 'Partially Paid' : 'Unpaid');
 
+    // Format product items for database
     const productItems = this.billItems.map((item: any) => ({
       id: item.productId,
       name: item.productName,
@@ -783,32 +784,43 @@ export class CreateInvoiceComponent implements OnInit {
       discount_amount: item.discountAmount,
       taxable_value: item.taxableValue,
       gst_rate: item.gstRate,
+      cgst_rate: item.cgstRate,
       cgst_amount: item.cgstAmount,
+      sgst_rate: item.sgstRate,
       sgst_amount: item.sgstAmount,
+      igst_rate: item.igstRate,
       igst_amount: item.igstAmount,
       total_amount: item.totalAmount,
       category: item.category,
       unit: item.unit
     }));
 
+    // ✅ CORRECT PAYLOAD STRUCTURE - Matches database columns
     const payload = {
+      // Basic Info
       user_id: this.userId,
       bill_no: 'INV-' + Date.now(),
       invoice_date: this.invoiceDate,
       due_date: this.dueDate,
-      reference_number: this.referenceNumber,
-      customer_id: this.selectedCustomer?.id,
+      reference_number: this.referenceNumber || '',
+
+      // Customer Info
+      customer_id: this.selectedCustomer?.id || 0,
       customer_name: this.selectedCustomer?.company_name || this.selectedCustomer?.name,
-      customer_gstin: this.selectedCustomer?.gstin,
-      customer_phone: this.selectedCustomer?.phone,
-      customer_email: this.selectedCustomer?.email,
+      customer_gstin: this.selectedCustomer?.gstin || '',
+      customer_phone: this.selectedCustomer?.phone || '',
+      customer_email: this.selectedCustomer?.email || '',
       customer_address: this.getBillingAddress(),
-      customer_city: this.selectedCustomer?.city,
-      customer_state: this.selectedCustomer?.state,
-      customer_pincode: this.selectedCustomer?.pincode,
+      customer_city: this.selectedCustomer?.city || '',
+      customer_state: this.selectedCustomer?.state || '',
+      customer_pincode: this.selectedCustomer?.pincode || '',
+
+      // Company Info
       company_name: this.companyName,
       company_state: this.companyState,
       company_gstin: this.companyGSTIN,
+
+      // Tax Details
       is_inter_state: this.isInterState ? 1 : 0,
       cgst_rate: this.cgstRate,
       cgst_amount: this.getTotalCGSTAmount(),
@@ -817,21 +829,29 @@ export class CreateInvoiceComponent implements OnInit {
       igst_rate: this.igstRate,
       igst_amount: this.getTotalIGSTAmount(),
       total_tax_amount: this.getTotalTaxAmount(),
+
+      // Amount Details
       sub_total: this.getSubTotal(),
-      discount_total: this.getTotalItemDiscount(),
+      discount: this.getTotalItemDiscount(),
       taxable_amount: this.getTaxableAmount(),
       additional_charges: this.additionalCharges,
       total_after_charges: this.getTotalAfterAdditionalCharges(),
       round_off_enabled: this.roundOff ? 1 : 0,
       round_off_value: this.calculateRoundOff(),
       grand_total: this.getFinalTotalWithRoundOff(),
-      payment_method: this.paymentMethod,
+
+      // Payment Details
+      payment_option: this.paymentMethod,
       paid_amount: this.paidAmount,
       remaining_amount: remainingAmount,
       status: invoiceStatus,
+
+      // Products
       product_items: JSON.stringify(productItems),
       total_items: this.getTotalItemsCount()
     };
+
+    console.log('Saving invoice payload:', payload);
 
     const saveBtn = document.querySelector('.save-btn-bottom') as HTMLButtonElement;
     if (saveBtn) {
@@ -848,7 +868,7 @@ export class CreateInvoiceComponent implements OnInit {
         if (response.status === true || response.success) {
           alert('Invoice Created Successfully!\nBill No: ' + (response.bill_no || payload.bill_no));
           this.resetForm();
-          setTimeout(() => this.router.navigate(['/sales/add-invoice']), 500);
+          setTimeout(() => this.router.navigate(['/sales/invoice']), 500);
         } else {
           alert('Error: ' + (response.message || 'Failed to create invoice'));
         }
@@ -858,6 +878,7 @@ export class CreateInvoiceComponent implements OnInit {
           saveBtn.innerText = 'Save Invoice';
           saveBtn.disabled = false;
         }
+        console.error('Save Error:', err);
         alert('Error: ' + (err.message || 'Connection failed'));
       }
     });
