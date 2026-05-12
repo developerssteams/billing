@@ -5,6 +5,7 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { InvoiceFormComponent } from '../../../invoice-form/invoice-form.component';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { Router } from '@angular/router';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-purchase',
@@ -14,77 +15,67 @@ import { Router } from '@angular/router';
   styleUrls: ['./purchase.component.scss'],
 })
 export class PurchaseComponent implements OnInit {
-  tabs = ['All', 'Pending', 'Paid', 'Cancelled'];
+  tabs = ['All', 'Paid', 'Unpaid', 'Partially Paid', 'Cancelled'];
   selectedTab = 'All';
 
   searchText = '';
   isLoading = false;
 
-  // Data from API
   purchases: any[] = [];
   filteredPurchases: any[] = [];
 
-  // Summary amounts
   totalAmount: number = 0;
   paidAmount: number = 0;
   pendingAmount: number = 0;
 
-  // API URLs
   apiUrl = 'https://billsezy.com/Api/get-purchase.php';
   updateStatusApiUrl = 'https://billsezy.com/Api/update-purchase-status.php';
 
-  // Pagination
   currentPage = 1;
   itemsPerPage = 10;
-
-  // Invoice form
   selectedInvoice: any = null;
 
   constructor(
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private authService: AuthService
   ) { }
+
+  get userId(): number {
+    const userId = this.authService.getUserId();
+    return userId || 1;
+  }
 
   ngOnInit(): void {
     this.fetchPurchases();
   }
 
-  // ==================== FETCH DATA FROM API ====================
   fetchPurchases() {
     this.isLoading = true;
     
-    let url = this.apiUrl;
-    let params = [];
+    // 🔥 Add user_id to API call
+    let url = `${this.apiUrl}?user_id=${this.userId}`;
     
     if (this.selectedTab !== 'All') {
-      params.push(`status=${this.selectedTab}`);
+      url += `&status=${this.selectedTab}`;
     }
     
     if (this.searchText) {
-      params.push(`search=${encodeURIComponent(this.searchText)}`);
+      url += `&search=${encodeURIComponent(this.searchText)}`;
     }
     
-    if (params.length > 0) {
-      url += '?' + params.join('&');
-    }
+    console.log('Fetching purchases for user:', this.userId);
     
     this.http.get<any>(url).subscribe({
       next: (response) => {
         this.isLoading = false;
+        console.log('API Response:', response);
         
-        if (response.status === 'success') {
-          this.purchases = response.data;
+        if (response.status === 'success' || response.status === true) {
+          this.purchases = response.data || [];
           this.filteredPurchases = [...this.purchases];
-          
-          if (response.summary) {
-            this.totalAmount = response.summary.total_amount;
-            this.paidAmount = response.summary.paid_amount;
-            this.pendingAmount = response.summary.pending_amount;
-          } else {
-            this.calculateSummary();
-          }
-          
-          console.log('Purchases loaded:', this.purchases);
+          this.calculateSummary();
+          console.log('Purchases loaded:', this.purchases.length);
         } else {
           console.error('API Error:', response.message);
           this.purchases = [];
@@ -102,28 +93,29 @@ export class PurchaseComponent implements OnInit {
     });
   }
 
-  // ==================== CALCULATE SUMMARY ====================
   calculateSummary() {
     this.totalAmount = 0;
     this.paidAmount = 0;
     this.pendingAmount = 0;
     
     this.filteredPurchases.forEach(purchase => {
+      // 🔥 Skip cancelled purchases from summary
+      if (purchase.Status === 'Cancelled') {
+        return;
+      }
+      
       const amount = parseFloat(purchase.Purchase_Price) || 0;
       const remaining = parseFloat(purchase.Remaining_Amount) || 0;
-      const payable = parseFloat(purchase.Payable_Amount) || 0;
+      const paid = parseFloat(purchase.Paid_Amount) || 0;
       
       this.totalAmount += amount;
       
       if (purchase.Status === 'Paid') {
         this.paidAmount += amount;
-      } else if (purchase.Status === 'Partial') {
-        this.paidAmount += payable;
+      } else if (purchase.Status === 'Partially Paid') {
+        this.paidAmount += paid;
         this.pendingAmount += remaining;
-      } else if (purchase.Status === 'Pending') {
-        this.pendingAmount += amount;
-      } else if (purchase.Status === 'Cancelled') {
-        // Cancelled - add to pending or ignore? Adding to pending for now
+      } else if (purchase.Status === 'Unpaid') {
         this.pendingAmount += amount;
       }
     });
@@ -133,20 +125,17 @@ export class PurchaseComponent implements OnInit {
     this.pendingAmount = Math.round(this.pendingAmount * 100) / 100;
   }
 
-  // ==================== FILTER DATA ====================
   filterData(tab: string) {
     this.selectedTab = tab;
     this.currentPage = 1;
     this.fetchPurchases();
   }
 
-  // ==================== SEARCH ====================
   searchSales() {
     this.currentPage = 1;
     this.fetchPurchases();
   }
 
-  // ==================== PAGINATION ====================
   get paginatedPurchases() {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
@@ -169,7 +158,6 @@ export class PurchaseComponent implements OnInit {
     return Math.ceil(this.filteredPurchases.length / this.itemsPerPage);
   }
 
-  // ==================== SUMMARY GETTERS ====================
   getTotalAmount(): number {
     return this.totalAmount;
   }
@@ -182,20 +170,23 @@ export class PurchaseComponent implements OnInit {
     return this.pendingAmount;
   }
 
-  // ==================== UPDATE PURCHASE STATUS (CANCEL) ====================
   updatePurchaseStatus(id: number, billNo: string, currentStatus: string) {
-    // If already cancelled, don't allow
     if (currentStatus === 'Cancelled') {
       alert(`⚠️ Purchase ${billNo} is already cancelled.`);
       return;
     }
     
-    // Confirm before cancelling
+    if (currentStatus === 'Paid') {
+      alert(`⚠️ Cannot cancel a paid purchase.`);
+      return;
+    }
+    
     if (confirm(`Are you sure you want to cancel Purchase ${billNo}?`)) {
       this.isLoading = true;
       
       const payload = {
         id: id,
+        user_id: this.userId,
         status: 'Cancelled'
       };
       
@@ -203,9 +194,9 @@ export class PurchaseComponent implements OnInit {
         next: (response: any) => {
           this.isLoading = false;
           
-          if (response.status === 'success') {
-            alert(`✅ ${response.message}`);
-            this.fetchPurchases(); // Refresh the list
+          if (response.status === 'success' || response.status === true) {
+            alert(`✅ Purchase cancelled successfully!`);
+            this.fetchPurchases();
           } else {
             alert('❌ Error: ' + (response.message || 'Failed to cancel purchase'));
           }
@@ -219,7 +210,6 @@ export class PurchaseComponent implements OnInit {
     }
   }
 
-  // ==================== INVOICE FORM ====================
   openInvoiceForm(invoice: any) {
     this.selectedInvoice = invoice;
   }
@@ -229,30 +219,26 @@ export class PurchaseComponent implements OnInit {
     this.fetchPurchases();
   }
 
-  // ==================== NAVIGATION ====================
   goToCreatePurchasePage() {
     this.router.navigate(['/purchase/create-purchase']);
   }
   
-  // ==================== GET STATUS CLASS ====================
   getStatusClass(status: string): string {
-    switch(status.toLowerCase()) {
-      case 'paid': return 'paid';
-      case 'partial': return 'partial';
-      case 'pending': return 'pending';
-      case 'cancelled': return 'cancelled';
-      default: return 'pending';
+    switch(status?.toLowerCase()) {
+      case 'paid': return 'status-paid';
+      case 'partially paid': return 'status-partial';
+      case 'unpaid': return 'status-unpaid';
+      case 'cancelled': return 'status-cancelled';
+      default: return 'status-unpaid';
     }
   }
   
-  // ==================== FORMAT CURRENCY ====================
   formatAmount(amount: number): string {
     if (amount === undefined || amount === null) return '₹0';
     return '₹' + amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
   
-  // ==================== CHECK IF CANCEL BUTTON SHOULD BE DISABLED ====================
   isCancelDisabled(status: string): boolean {
-    return status === 'Cancelled';
+    return status === 'Cancelled' || status === 'Paid';
   }
 }
