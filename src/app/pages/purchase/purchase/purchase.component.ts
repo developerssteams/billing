@@ -52,25 +52,25 @@ export class PurchaseComponent implements OnInit {
 
   fetchPurchases() {
     this.isLoading = true;
-    
+
     let url = `${this.apiUrl}?user_id=${this.userId}`;
-    
+
     if (this.selectedTab !== 'All') {
       url += `&status=${this.selectedTab}`;
     }
-    
+
     if (this.searchText) {
       url += `&search=${encodeURIComponent(this.searchText)}`;
     }
-    
+
     console.log('Fetching purchases for user:', this.userId);
     console.log('URL:', url);
-    
+
     this.http.get<any>(url).subscribe({
       next: (response) => {
         this.isLoading = false;
         console.log('API Response:', response);
-        
+
         // ✅ Handle response - check if status is true or 'success'
         if (response.status === true || response.status === 'success' || response.success === true) {
           this.purchases = response.data || [];
@@ -98,19 +98,19 @@ export class PurchaseComponent implements OnInit {
     this.totalAmount = 0;
     this.paidAmount = 0;
     this.pendingAmount = 0;
-    
+
     this.filteredPurchases.forEach(purchase => {
       // Skip cancelled purchases
       if (purchase.Status === 'Cancelled') {
         return;
       }
-      
+
       const amount = parseFloat(purchase.Purchase_Price) || 0;
       const remaining = parseFloat(purchase.Remaining_Amount) || 0;
       const paid = parseFloat(purchase.Payable_Amount) || 0;
-      
+
       this.totalAmount += amount;
-      
+
       if (purchase.Status === 'Paid') {
         this.paidAmount += amount;
       } else if (purchase.Status === 'Partially Paid') {
@@ -120,11 +120,11 @@ export class PurchaseComponent implements OnInit {
         this.pendingAmount += amount;
       }
     });
-    
+
     this.totalAmount = Math.round(this.totalAmount * 100) / 100;
     this.paidAmount = Math.round(this.paidAmount * 100) / 100;
     this.pendingAmount = Math.round(this.pendingAmount * 100) / 100;
-    
+
     console.log('Summary - Total:', this.totalAmount, 'Paid:', this.paidAmount, 'Pending:', this.pendingAmount);
   }
 
@@ -178,39 +178,35 @@ export class PurchaseComponent implements OnInit {
       alert(`⚠️ Purchase ${billNo} is already cancelled.`);
       return;
     }
-    
+
     if (currentStatus === 'Paid') {
       alert(`⚠️ Cannot cancel a paid purchase.`);
       return;
     }
-    
+
     if (confirm(`Are you sure you want to cancel Purchase ${billNo}?`)) {
       this.isLoading = true;
-      
+
       const payload = {
         id: id,
         user_id: this.userId,
         status: 'Cancelled'
       };
-      
-      console.log('Cancelling purchase:', payload);
-      
+
       this.http.post(this.updateStatusApiUrl, payload).subscribe({
         next: (response: any) => {
           this.isLoading = false;
-          console.log('Cancel Response:', response);
-          
+
           if (response.status === true || response.status === 'success') {
             alert(`✅ Purchase cancelled successfully!`);
             this.fetchPurchases();
           } else {
-            alert('❌ Error: ' + (response.message || 'Failed to cancel purchase'));
+            alert('❌ ' + (response.message || 'Failed to cancel purchase'));
           }
         },
         error: (err) => {
           this.isLoading = false;
-          console.error('Update Status Error:', err);
-          alert('❌ Error connecting to server. Please try again.');
+          alert('❌ Server error');
         }
       });
     }
@@ -228,9 +224,9 @@ export class PurchaseComponent implements OnInit {
   goToCreatePurchasePage() {
     this.router.navigate(['/purchase/create-purchase']);
   }
-  
+
   getStatusClass(status: string): string {
-    switch(status?.toLowerCase()) {
+    switch (status?.toLowerCase()) {
       case 'paid': return 'status-paid';
       case 'partially paid': return 'status-partial';
       case 'unpaid': return 'status-unpaid';
@@ -238,12 +234,12 @@ export class PurchaseComponent implements OnInit {
       default: return 'status-unpaid';
     }
   }
-  
+
   formatAmount(amount: number): string {
     if (amount === undefined || amount === null) return '₹0';
     return '₹' + amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
-  
+
   isCancelDisabled(status: string): boolean {
     return status === 'Cancelled' || status === 'Paid';
   }
