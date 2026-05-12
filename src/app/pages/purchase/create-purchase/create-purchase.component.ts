@@ -43,7 +43,7 @@ export class CreatePurchaseComponent implements OnInit {
   vendorApiUrl = 'https://billsezy.com/Api/get_vendor.php';
   categoryApiUrl = 'https://billsezy.com/Api/get_category.php';
   productApiUrl = 'https://billsezy.com/Api/get_product.php';
-  saveApiUrl = 'https://billsezy.com/Api/add-purchase.php';
+  saveApiUrl = 'https://billsezy.com/Api/purchase.php';
 
   get userId(): number {
     const userId = this.authService.getUserId();
