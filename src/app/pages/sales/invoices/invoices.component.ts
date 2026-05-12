@@ -50,24 +50,24 @@ export class InvoicesComponent implements OnInit {
 
   fetchInvoices() {
     this.isLoading = true;
-    
+
     let url = `${this.apiUrl}?user_id=${this.userId}`;
-    
+
     if (this.selectedTab !== 'All') {
       url += `&status=${this.selectedTab}`;
     }
-    
+
     if (this.searchText) {
       url += `&search=${encodeURIComponent(this.searchText)}`;
     }
-    
+
     console.log('Fetching invoices:', url);
-    
+
     this.http.get<any>(url).subscribe({
       next: (response) => {
         this.isLoading = false;
         console.log('API Response:', response);
-        
+
         // 🔥 Handle both response formats
         if (response.status === 'success' || response.status === true) {
           this.invoices = response.data || [];
@@ -95,17 +95,17 @@ export class InvoicesComponent implements OnInit {
     this.totalAmount = 0;
     this.paidAmount = 0;
     this.pendingAmount = 0;
-    
+
     this.filteredInvoices.forEach(invoice => {
       const grandTotal = parseFloat(invoice.Grand_Total) || 0;
       const paid = parseFloat(invoice.Paid_Amount) || 0;
       const pending = parseFloat(invoice.Remaining_Amount) || 0;
-      
+
       this.totalAmount += grandTotal;
       this.paidAmount += paid;
       this.pendingAmount += pending;
     });
-    
+
     this.totalAmount = Math.round(this.totalAmount * 100) / 100;
     this.paidAmount = Math.round(this.paidAmount * 100) / 100;
     this.pendingAmount = Math.round(this.pendingAmount * 100) / 100;
@@ -165,35 +165,38 @@ export class InvoicesComponent implements OnInit {
       alert(`⚠️ Invoice ${billNo} is already cancelled.`);
       return;
     }
-    
+
     if (currentStatus === 'Paid') {
       alert(`⚠️ Cannot cancel a paid invoice.`);
       return;
     }
-    
+
     if (confirm(`Are you sure you want to cancel Invoice ${billNo}?`)) {
       this.isLoading = true;
-      
+
       const payload = {
         id: id,
         user_id: this.userId,
         status: 'Cancelled'
       };
-      
+
+      console.log('Sending payload:', payload);
+
       this.http.post(this.updateStatusApiUrl, payload).subscribe({
         next: (response: any) => {
           this.isLoading = false;
-          
-          if (response.status === true || response.status === 'success') {
-            alert(`✅ Invoice cancelled successfully!`);
+          console.log('Response:', response);
+
+          if (response.status === true || response.success === true) {
+            alert(`✅ ${response.message || 'Invoice cancelled successfully!'}`);
             this.fetchInvoices();
           } else {
-            alert('❌ Error: ' + (response.message || 'Failed to cancel invoice'));
+            alert('❌ ' + (response.message || 'Failed to cancel invoice'));
           }
         },
         error: (err) => {
           this.isLoading = false;
-          console.error('Update Status Error:', err);
+          console.error('Error:', err);
           alert('❌ Error connecting to server. Please try again.');
         }
       });
@@ -216,9 +219,9 @@ export class InvoicesComponent implements OnInit {
   goToCreateInvoice() {
     this.router.navigate(['/sales/create-invoice']);
   }
-  
+
   getStatusClass(status: string): string {
-    switch(status?.toLowerCase()) {
+    switch (status?.toLowerCase()) {
       case 'paid': return 'status-paid';
       case 'partially paid': return 'status-partial';
       case 'unpaid': return 'status-unpaid';
@@ -226,12 +229,12 @@ export class InvoicesComponent implements OnInit {
       default: return 'status-unpaid';
     }
   }
-  
+
   formatAmount(amount: number): string {
     if (amount === undefined || amount === null) return '₹0';
     return '₹' + amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
-  
+
   isCancelDisabled(status: string): boolean {
     return status === 'Cancelled' || status === 'Paid';
   }
