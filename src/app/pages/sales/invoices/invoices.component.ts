@@ -8,7 +8,7 @@ import { AuthService } from 'src/app/services/auth.service';
 @Component({
   selector: 'app-invoice',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule,],
+  imports: [CommonModule, FormsModule, HttpClientModule],
   templateUrl: './invoices.component.html',
   styleUrls: ['./invoices.component.scss'],
 })
@@ -51,7 +51,6 @@ export class InvoicesComponent implements OnInit {
   fetchInvoices() {
     this.isLoading = true;
     
-    // ✅ Add user_id to API call
     let url = `${this.apiUrl}?user_id=${this.userId}`;
     
     if (this.selectedTab !== 'All') {
@@ -62,11 +61,15 @@ export class InvoicesComponent implements OnInit {
       url += `&search=${encodeURIComponent(this.searchText)}`;
     }
     
+    console.log('Fetching invoices:', url);
+    
     this.http.get<any>(url).subscribe({
       next: (response) => {
         this.isLoading = false;
+        console.log('API Response:', response);
         
-        if (response.status === true) {
+        // 🔥 Handle both response formats
+        if (response.status === 'success' || response.status === true) {
           this.invoices = response.data || [];
           this.filteredInvoices = [...this.invoices];
           this.calculateSummary();
@@ -181,7 +184,7 @@ export class InvoicesComponent implements OnInit {
         next: (response: any) => {
           this.isLoading = false;
           
-          if (response.status === true) {
+          if (response.status === true || response.status === 'success') {
             alert(`✅ Invoice cancelled successfully!`);
             this.fetchInvoices();
           } else {
