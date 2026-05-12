@@ -159,7 +159,6 @@ export class InvoicesComponent implements OnInit {
   viewInvoice(id: number) {
     this.router.navigate(['sales/view-invoice'], { queryParams: { id: id } });
   }
-
   updateInvoiceStatus(id: number, billNo: string, currentStatus: string) {
     if (currentStatus === 'Cancelled') {
       alert(`⚠️ Invoice ${billNo} is already cancelled.`);
@@ -174,30 +173,26 @@ export class InvoicesComponent implements OnInit {
     if (confirm(`Are you sure you want to cancel Invoice ${billNo}?`)) {
       this.isLoading = true;
 
-      const payload = {
-        id: id,
-        user_id: this.userId,
-        status: 'Cancelled'
-      };
+      const payload = { id: id, status: 'Cancelled' };
 
-      console.log('Sending payload:', payload);
+      console.log('Sending:', payload);
 
       this.http.post(this.updateStatusApiUrl, payload).subscribe({
         next: (response: any) => {
           this.isLoading = false;
           console.log('Response:', response);
 
-          if (response.status === true || response.success === true) {
-            alert(`✅ ${response.message || 'Invoice cancelled successfully!'}`);
+          if (response.status === true) {
+            alert(`✅ ${response.message}`);
             this.fetchInvoices();
           } else {
-            alert('❌ ' + (response.message || 'Failed to cancel invoice'));
+            alert('❌ ' + (response.message || 'Failed to cancel'));
           }
         },
         error: (err) => {
           this.isLoading = false;
           console.error('Error:', err);
-          alert('❌ Error connecting to server. Please try again.');
+          alert('❌ Server error');
         }
       });
     }
