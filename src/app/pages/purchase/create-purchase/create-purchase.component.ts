@@ -416,7 +416,7 @@ export class CreatePurchaseComponent implements OnInit {
 
             this.resetForm();
 
-            this.router.navigate(['/purchase']);
+            this.router.navigate(['/purchase/add-purchase']);
 
           } else {
 
@@ -462,16 +462,16 @@ export class CreatePurchaseComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/purchase']);
+    this.router.navigate(['/purchase/add-purchase']);
   }
 
   cancel() {
     if (this.billItems.length > 0 || this.selectedVendor) {
       if (confirm('Are you sure you want to cancel? All unsaved data will be lost.')) {
-        this.router.navigate(['/purchase']);
+        this.router.navigate(['/purchase/add-purchase']);
       }
     } else {
-      this.router.navigate(['/purchase']);
+      this.router.navigate(['/purchase/add-purchase']);
     }
   }
 
