@@ -27,7 +27,7 @@ export class InvoicesComponent implements OnInit {
   pendingAmount: number = 0;
 
   apiUrl = 'https://billsezy.com/Api/get-invoice.php';
-  updateStatusApiUrl = 'https://billsezy.com/Api/update_invoice_status.php';
+  updateStatusApiUrl = 'https://billsezy.com/Api/update-invoice-status.php';
 
   currentPage = 1;
   itemsPerPage = 10;
