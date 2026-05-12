@@ -68,11 +68,10 @@ export class InvoicesComponent implements OnInit {
         this.isLoading = false;
         console.log('API Response:', response);
 
-        // 🔥 Handle both response formats
         if (response.status === 'success' || response.status === true) {
           this.invoices = response.data || [];
           this.filteredInvoices = [...this.invoices];
-          this.calculateSummary();
+          this.calculateSummary(); // ✅ Summary will now exclude cancelled
           console.log('Invoices loaded:', this.invoices.length);
         } else {
           console.error('API Error:', response.message);
@@ -91,12 +90,18 @@ export class InvoicesComponent implements OnInit {
     });
   }
 
+  // 🔥 FIXED: Calculate summary - EXCLUDE CANCELLED invoices
   calculateSummary() {
     this.totalAmount = 0;
     this.paidAmount = 0;
     this.pendingAmount = 0;
 
     this.filteredInvoices.forEach(invoice => {
+      // ✅ Skip cancelled invoices from summary
+      if (invoice.Status === 'Cancelled') {
+        return; // Don't add to totals
+      }
+      
       const grandTotal = parseFloat(invoice.Grand_Total) || 0;
       const paid = parseFloat(invoice.Paid_Amount) || 0;
       const pending = parseFloat(invoice.Remaining_Amount) || 0;
@@ -109,6 +114,8 @@ export class InvoicesComponent implements OnInit {
     this.totalAmount = Math.round(this.totalAmount * 100) / 100;
     this.paidAmount = Math.round(this.paidAmount * 100) / 100;
     this.pendingAmount = Math.round(this.pendingAmount * 100) / 100;
+    
+    console.log('Summary - Total:', this.totalAmount, 'Paid:', this.paidAmount, 'Pending:', this.pendingAmount);
   }
 
   filterData(tab: string) {
@@ -159,6 +166,7 @@ export class InvoicesComponent implements OnInit {
   viewInvoice(id: number) {
     this.router.navigate(['sales/view-invoice'], { queryParams: { id: id } });
   }
+
   updateInvoiceStatus(id: number, billNo: string, currentStatus: string) {
     if (currentStatus === 'Cancelled') {
       alert(`⚠️ Invoice ${billNo} is already cancelled.`);
