@@ -1,116 +1,240 @@
-<app-page-header title="Purchase List"></app-page-header>
-
-<div class="sales-container">
-
-    <!-- Loading State -->
-    <div *ngIf="isLoading" class="loading-overlay">
-        <div class="spinner"></div>
-        <span>Loading...</span>
-    </div>
-
-    <!-- Top -->
-    <div class="sales-top-bar">
-        <div class="sales-title-section">
-            <h2>Purchase List</h2>
+<!-- Header -->
+<div class="create-debit-note-container">
+    <div class="header">
+        <div class="left-box">
+            <button class="back-btn" (click)="goBack()">
+                <span class="iconify" data-icon="ic:baseline-arrow-back" style="font-size: 24px;"></span>
+            </button>
+            <h2>Create Purchase</h2>
         </div>
-
-        <div class="sales-actions">
-            <button class="invoice-btn" (click)="goToCreatePurchasePage()">+ Create Purchase</button>
+        <div class="right-box-actions">
+            <button class="cancel-btn" (click)="cancel()">Cancel</button>
+            <button class="save-btn" (click)="save()">Save</button>
         </div>
     </div>
+</div>
 
-    <!-- Tabs -->
-    <div class="sales-tabs">
-        <span *ngFor="let tab of tabs" [class.active]="selectedTab === tab" (click)="filterData(tab)">
-            {{tab}}
-        </span>
-    </div>
+<!-- Purchase Container -->
+<div class="invoice-container">
+    <!-- Vendor & Date Section -->
+    <div class="form-row mb-5">
+        <div class="vendor-selection">
+            <label>Select Vendor</label>
+            <div class="input-wrapper">
+                <input type="text" placeholder="Search vendors by name, company, GSTIN..." [(ngModel)]="searchText"
+                    (focus)="openDropdown()" (input)="searchVendor()" />
+                <span class="clear-btn" *ngIf="selectedVendor" (click)="clearVendor()">✖</span>
+                <div class="dropdown" *ngIf="showDropdown">
+                    <div class="vendor-item" *ngFor="let vendor of filteredVendors" (click)="selectVendor(vendor)">
+                        <div class="avatar green">{{ vendor.company_name?.split(' ').map(word => word.charAt(0)).join('').substring(0,2).toUpperCase() }}</div>
+                        <div class="vendor-info">
+                            <div class="vendor-name">{{ vendor.company_name }}</div>
+                            <div class="vendor-sub">{{ vendor.name }}</div>
+                        </div>
+                    </div>
+                    <div class="not-found" *ngIf="filteredVendors.length === 0">Vendor not found</div>
+                </div>
+            </div>
+        </div>
 
-    <!-- Search + Filter -->
-    <div class="search-filter-row">
-        <div class="left-side">
-            <div class="search-box">
-                <input type="text" placeholder="Search by Bill No or Vendor..." 
-                       [(ngModel)]="searchText" (input)="searchSales()" />
+        <div class="right-box">
+            <div class="form-field">
+                <label>Purchase Date</label>
+                <input type="date" [(ngModel)]="purchaseDate">
+            </div>
+            <div class="form-field">
+                <label>Payment Date</label>
+                <input type="date" [(ngModel)]="paymentDate">
+            </div>
+            <div class="form-field">
+                <label>Reference</label>
+                <input type="text" [(ngModel)]="referenceNumber" placeholder="Mention Reference">
             </div>
         </div>
     </div>
 
-    <!-- Table -->
-    <div class="sales-table">
-        <div class="table-header">
-            <span>Bill No</span>
-            <span>Vendor Name</span>
-            <span>Amount</span>
-            <span>Status</span>
-            <span>Remaining</span>
-            <span>Action</span>
+    <!-- Vendor Address Section -->
+    <div class="bill-section" *ngIf="selectedVendor">
+        <div class="bill-to">
+            <h4>Vendor Details:</h4>
+            <p class="customer-name">{{ selectedVendor.company_name || selectedVendor.name }}</p>
+            <p>{{ getVendorAddress() }}</p>
+            <p *ngIf="selectedVendor.gstin">GST: {{ selectedVendor.gstin }}</p>
+            <p *ngIf="selectedVendor.phone">Phone: {{ selectedVendor.phone }}</p>
+            <p *ngIf="selectedVendor.email">Email: {{ selectedVendor.email }}</p>
+        </div>
+    </div>
+
+    <div class="bill-section" *ngIf="!selectedVendor">
+        <div class="bill-to">
+            <h4>Vendor Details:</h4>
+            <p class="no-customer">No vendor selected</p>
+        </div>
+    </div>
+
+    <!-- Product Selection -->
+    <div class="product-container-main product-container mb-5">
+        <div class="category-box">
+            <select [(ngModel)]="selectedCategory" (change)="filterProductsByCategory()">
+                <option value="">All Categories</option>
+                <option *ngFor="let category of categories" [value]="category.name">{{ category.name }}</option>
+            </select>
+        </div>
+        <div class="product-search-box">
+            <div class="product-input-wrapper">
+                <input type="text" placeholder="Search Product" [(ngModel)]="productSearchText" (focus)="openProductDropdown()" (input)="searchProducts()" />
+                <span class="clear-btn" *ngIf="selectedProduct" (click)="clearProduct()">✖</span>
+                <div class="dropdown" *ngIf="showProductDropdown">
+                    <div class="vendor-item" *ngFor="let product of filteredProducts" (click)="selectProduct(product)">
+                        <div class="avatar green">{{ product.name?.split(' ').map(word => word.charAt(0)).join('').substring(0,2).toUpperCase() }}</div>
+                        <div class="vendor-info">
+                            <div class="vendor-name">{{ product.name }}</div>
+                            <div class="vendor-sub">{{ product.category }}</div>
+                        </div>
+                        <div class="product-prices">
+                            <span class="sell-price">Purchase: ₹ {{ product.purchase || product.sell }}</span>
+                        </div>
+                    </div>
+                    <div class="not-found" *ngIf="filteredProducts.length === 0">Product not found</div>
+                </div>
+            </div>
+        </div>
+        <div class="qty-box">
+            <input type="number" [(ngModel)]="selectedQty" placeholder="Qty" />
+        </div>
+        <div class="add-btn-box">
+            <button (click)="addToBill()">+ Add to Purchase</button>
+        </div>
+    </div>
+
+    <!-- Products Table -->
+    <div class="table-wrapper">
+        <table class="invoice-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Rate/Unit</th>
+                    <th>Discount</th>
+                    <th>Total (₹)</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of billItems; let i = index">
+                    <td class="text-center">{{ i + 1 }}</td>
+                    <td>
+                        <div class="product-name">{{ item.productName }}</div>
+                        <div class="product-details">
+                            <span class="hsn-code">HSN: {{ item.hsnCode }}</span>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <input type="number" class="qty-input" [(ngModel)]="item.quantity" (change)="updateQuantity(item, item.quantity)" min="1" />
+                    </td>
+                    <td class="text-right">
+                        <input type="number" class="unit-price-edit-input" [(ngModel)]="item.unitPrice" (change)="updateItemUnitPrice(item, item.unitPrice)" step="any" />
+                    </td>
+                    <td class="discount-cell">
+                        <div class="discount-wrapper">
+                            <input type="number" class="discount-input" [(ngModel)]="item.discountValue" (change)="onDiscountValueChange(item)" placeholder="0" step="any" />
+                            <select class="discount-type-select" [(ngModel)]="item.discountType" (change)="onDiscountTypeChange(item)">
+                                <option value="percentage">%</option>
+                                <option value="fixed">₹</option>
+                            </select>
+                        </div>
+                    </td>
+                    <td class="text-right">₹{{ getItemTotal(item) | number:'1.2-2' }}</td>
+                    <td class="text-center action-cell">
+                        <button class="delete-btn" (click)="removeItem(item.id)" title="Delete Product">
+                            <span class="iconify" data-icon="mdi:delete-outline" style="font-size: 20px;"></span>
+                        </button>
+                    </td>
+                </tr>
+                <tr *ngIf="billItems.length === 0">
+                    <td colspan="7" class="empty-row">No products added yet</td>
+                </tr>
+            </tbody>
+            <tfoot *ngIf="billItems.length > 0">
+                <tr class="table-footer">
+                    <td colspan="4" class="text-right"><strong>Total:</strong></td>
+                    <td class="text-right"><strong>₹{{ getTotalDiscount() | number:'1.2-2' }}</strong></td>
+                    <td class="text-right"><strong>₹{{ getTotalAmount() | number:'1.2-2' }}</strong></td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <!-- Summary Section -->
+    <div class="summary-wrapper">
+        <div class="bank-terms">
+            <div class="bank-details">
+                <h5>Bank Details:</h5>
+                <p>Bank: State Bank of India</p>
+                <p>A/C No: 1234567890123456</p>
+                <p>IFSC: SBIN0001234</p>
+                <p>UPI: company@ybl</p>
+            </div>
+            <div class="terms">
+                <h5>Terms & Conditions:</h5>
+                <p>1. Payment due within 15 days</p>
+                <p>2. Late payment charges @2% per month</p>
+                <p>3. E&OE</p>
+            </div>
         </div>
 
-        <!-- Empty State -->
-        <div *ngIf="paginatedPurchases.length === 0 && !isLoading" class="empty-state">
-            <span>No purchases found</span>
+        <div class="summary-card">
+            <div class="summary-row">
+                <span>Subtotal:</span>
+                <span>₹{{ getSubTotal() | number:'1.2-2' }}</span>
+            </div>
+            <div class="summary-row discount">
+                <span>Total Discount:</span>
+                <span>- ₹{{ getTotalDiscount() | number:'1.2-2' }}</span>
+            </div>
+            <div class="summary-row">
+                <span>Total Amount:</span>
+                <span>₹{{ getTotalAmount() | number:'1.2-2' }}</span>
+            </div>
         </div>
+    </div>
 
-        <!-- Table Rows -->
-        <div class="table-row" *ngFor="let item of paginatedPurchases">
-            <span class="bill-no">{{item.Bill_no}}</span>
-            <span class="vendor-name">{{item.Vendor_Name}}</span>
-            <span class="amount">{{formatAmount(item.Purchase_Price)}}</span>
-            <span>
-                <label class="status-badge" [ngClass]="getStatusClass(item.Status)">
-                    {{item.Status}}
+    <!-- Payment Section -->
+    <div class="payment-section">
+        <h4>Payment Details</h4>
+        <div class="payment-row">
+            <div class="payment-methods">
+                <label>Payment Method:</label>
+                <select [(ngModel)]="paymentMethod" class="payment-method-select">
+                    <option value="Cash">Cash</option>
+                    <option value="Bank Transfer">Bank Transfer</option>
+                    <option value="Cheque">Cheque</option>
+                    <option value="UPI">UPI</option>
+                    <option value="Card">Card</option>
+                </select>
+            </div>
+            <div class="payment-amount">
+                <label>Amount Paid (₹):</label>
+                <input type="number" class="payment-amount-input" [(ngModel)]="paidAmount" (change)="onPaidAmountChange()" [disabled]="isFullPaymentChecked" />
+            </div>
+            <div class="full-payment-checkbox">
+                <label>
+                    <input type="checkbox" [(ngModel)]="isFullPaymentChecked" (change)="onFullPaymentToggle()" />
+                    Mark as Full Payment
                 </label>
-            </span>
-            <span class="remaining">{{formatAmount(item.Remaining_Amount)}}</span>
-            <span class="action-buttons">
-                <button (click)="openInvoiceForm(item)" class="edit">Edit</button>
-                <button 
-                    class="cancel-btn" 
-                    [class.disabled]="isCancelDisabled(item.Status)"
-                    [disabled]="isCancelDisabled(item.Status)"
-                    (click)="updatePurchaseStatus(item.ID, item.Bill_no, item.Status)">
-                    Cancel
-                </button>
-            </span>
-        </div>
-
-        <!-- Invoice Form Component -->
-        <app-invoice-form [isVisible]="selectedInvoice != null" 
-                          [invoiceData]="selectedInvoice"
-                          (formClosed)="closeInvoiceForm()">
-        </app-invoice-form>
-    </div>
-
-    <!-- Footer -->
-    <div class="sales-footer">
-        <div class="summary-boxes">
-            <div class="total-box">
-                Total {{formatAmount(getTotalAmount())}}
-            </div>
-
-            <div class="paid-box">
-                Paid {{formatAmount(getPaidAmount())}}
-            </div>
-
-            <div class="pending-box">
-                Pending {{formatAmount(getPendingAmount())}}
             </div>
         </div>
-
-        <div class="pagination" *ngIf="totalPages() > 1">
-            <button (click)="prevPage()" [disabled]="currentPage === 1">
-                Prev
-            </button>
-
-            <span>
-                Page {{currentPage}} of {{totalPages()}}
-            </span>
-
-            <button (click)="nextPage()" [disabled]="currentPage === totalPages()">
-                Next
-            </button>
+        <div class="balance-due-row">
+            <span>Balance Due:</span>
+            <span class="balance-amount">₹{{ (getTotalAmount() - paidAmount) | number:'1.2-2' }}</span>
         </div>
     </div>
 
+    <!-- Action Buttons -->
+    <div class="action-buttons-bottom">
+        <button class="cancel-btn-bottom" (click)="cancel()">Cancel</button>
+        <button class="save-btn-bottom" (click)="save()">Save Purchase</button>
+    </div>
 </div>
