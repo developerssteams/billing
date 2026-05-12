@@ -2,15 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { InvoiceFormComponent } from '../../../invoice-form/invoice-form.component';
-import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-invoice',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule, PageHeaderComponent, InvoiceFormComponent],
+  imports: [CommonModule, FormsModule, HttpClientModule,],
   templateUrl: './invoices.component.html',
   styleUrls: ['./invoices.component.scss'],
 })
