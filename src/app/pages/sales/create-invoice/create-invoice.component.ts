@@ -759,6 +759,7 @@ export class CreateInvoiceComponent implements OnInit {
     }
   }
 
+  // Update the save() method - redirect to invoice list after save
   save() {
     if (this.billItems.length === 0) {
       alert('Please add at least one product!');
@@ -772,7 +773,6 @@ export class CreateInvoiceComponent implements OnInit {
     const remainingAmount = this.getFinalTotalWithRoundOff() - this.paidAmount;
     const invoiceStatus = remainingAmount === 0 ? 'Paid' : (this.paidAmount > 0 ? 'Partially Paid' : 'Unpaid');
 
-    // Format product items for database
     const productItems = this.billItems.map((item: any) => ({
       id: item.productId,
       name: item.productName,
@@ -795,16 +795,12 @@ export class CreateInvoiceComponent implements OnInit {
       unit: item.unit
     }));
 
-    // ✅ CORRECT PAYLOAD STRUCTURE - Matches database columns
     const payload = {
-      // Basic Info
-      user_id: this.userId,
+      user_id: this.userId,  // ✅ Make sure this is included
       bill_no: 'INV-' + Date.now(),
       invoice_date: this.invoiceDate,
       due_date: this.dueDate,
       reference_number: this.referenceNumber || '',
-
-      // Customer Info
       customer_id: this.selectedCustomer?.id || 0,
       customer_name: this.selectedCustomer?.company_name || this.selectedCustomer?.name,
       customer_gstin: this.selectedCustomer?.gstin || '',
@@ -814,13 +810,9 @@ export class CreateInvoiceComponent implements OnInit {
       customer_city: this.selectedCustomer?.city || '',
       customer_state: this.selectedCustomer?.state || '',
       customer_pincode: this.selectedCustomer?.pincode || '',
-
-      // Company Info
       company_name: this.companyName,
       company_state: this.companyState,
       company_gstin: this.companyGSTIN,
-
-      // Tax Details
       is_inter_state: this.isInterState ? 1 : 0,
       cgst_rate: this.cgstRate,
       cgst_amount: this.getTotalCGSTAmount(),
@@ -829,8 +821,6 @@ export class CreateInvoiceComponent implements OnInit {
       igst_rate: this.igstRate,
       igst_amount: this.getTotalIGSTAmount(),
       total_tax_amount: this.getTotalTaxAmount(),
-
-      // Amount Details
       sub_total: this.getSubTotal(),
       discount: this.getTotalItemDiscount(),
       taxable_amount: this.getTaxableAmount(),
@@ -839,15 +829,11 @@ export class CreateInvoiceComponent implements OnInit {
       round_off_enabled: this.roundOff ? 1 : 0,
       round_off_value: this.calculateRoundOff(),
       grand_total: this.getFinalTotalWithRoundOff(),
-
-      // Payment Details
       payment_option: this.paymentMethod,
       paid_amount: this.paidAmount,
       remaining_amount: remainingAmount,
       status: invoiceStatus,
-
-      // Products
-      product_items: JSON.stringify(productItems),
+      bill_items: productItems,
       total_items: this.getTotalItemsCount()
     };
 
@@ -865,10 +851,11 @@ export class CreateInvoiceComponent implements OnInit {
           saveBtn.innerText = 'Save Invoice';
           saveBtn.disabled = false;
         }
-        if (response.status === true || response.success) {
+        if (response.status === 'success' || response.success === true) {
           alert('Invoice Created Successfully!\nBill No: ' + (response.bill_no || payload.bill_no));
           this.resetForm();
-          setTimeout(() => this.router.navigate(['/sales/invoice']), 500);
+          // ✅ Redirect to invoice list page
+          this.router.navigate(['/sales/invoice']);
         } else {
           alert('Error: ' + (response.message || 'Failed to create invoice'));
         }
