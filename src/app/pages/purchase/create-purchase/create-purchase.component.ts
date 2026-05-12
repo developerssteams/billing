@@ -3,17 +3,14 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-create-purchase',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    HttpClientModule
-  ],
+  imports: [CommonModule, FormsModule, HttpClientModule],
   templateUrl: './create-purchase.component.html',
-  styleUrl: './create-purchase.component.scss',
+  styleUrls: ['./create-purchase.component.scss'],
 })
 export class CreatePurchaseComponent implements OnInit {
 
@@ -39,124 +36,69 @@ export class CreatePurchaseComponent implements OnInit {
   selectedQty: number = 1;
 
   // Payment Options
-  paymentOption: string = 'full';
-  payableAmount: number = 0;
-  isPayableReadonly: boolean = true;
+  paymentMethod: string = 'Cash';
+  paidAmount: number = 0;
+  isFullPaymentChecked: boolean = false;
 
-  // Discount
+  // Discount on product
   discountPercent: number = 0;
 
-  // Bill Items
+  // Bill Items Array
   billItems: any[] = [];
-  globalDiscountPercent: number = 0;
-  originalGrandTotal: number = 0;
-  globalDiscountAmount: number = 0;
-
-  // Additional Charges and Round Off
-  additionalCharges: number = 0;
-  roundOff: boolean = false;
-  roundOffValue: number = 0;
 
   // Dates
-  supplierInvoiceDate: string = '';
-  paymentByDate: string = '';
+  purchaseDate: string = '';
+  paymentDate: string = '';
 
-  // Current Item
-  currentItem = {
-    product: null as any,
-    quantity: 1,
-    unitPrice: 0,
-    discountPercent: 0,
-    discountAmount: 0,
-    totalAmount: 0
-  };
+  // Reference Number
+  referenceNumber: string = '';
 
   // API URLs
   vendorApiUrl = 'https://billsezy.com/Api/get_vendor.php';
   categoryApiUrl = 'https://billsezy.com/Api/get_category.php';
   productApiUrl = 'https://billsezy.com/Api/get_product.php';
-  saveApiUrl = 'https://billsezy.com/Api/purchase.php';  // ✅ Changed to purchase.php
+  saveApiUrl = 'https://billsezy.com/Api/add-purchase.php';
+
+  get userId(): number {
+    const userId = this.authService.getUserId();
+    return userId || 1;
+  }
 
   constructor(
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private authService: AuthService
   ) { }
 
   ngOnInit(): void {
+    console.log("Current User ID:", this.userId);
+    this.setDefaultDates();
     this.getVendors();
     this.getCategories();
     this.getProducts();
   }
 
-  roundToTwoDecimals(value: number): number {
-    return Math.round(value * 100) / 100;
-  }
-
-  onPaymentOptionChange(option: string) {
-    this.paymentOption = option;
-    if (option === 'full') {
-      this.isPayableReadonly = true;
-      this.payableAmount = this.getFinalTotalWithRoundOff();
-    } else {
-      this.isPayableReadonly = false;
-      this.payableAmount = 0;
-    }
-  }
-
-  onPayableAmountChange() {
-    if (this.paymentOption === 'custom') {
-      const totalAmount = this.getFinalTotalWithRoundOff();
-      if (this.payableAmount > totalAmount) {
-        this.payableAmount = totalAmount;
-        alert('Payable amount cannot exceed total amount!');
-      }
-      if (this.payableAmount < 0) {
-        this.payableAmount = 0;
-      }
-      this.payableAmount = Math.round(this.payableAmount * 100) / 100;
-    }
-  }
-
-  updatePayableAmount() {
-    if (this.paymentOption === 'full') {
-      this.payableAmount = this.getFinalTotalWithRoundOff();
-    }
-  }
-
-  @HostListener('document:click', ['$event'])
-  clickOutside(event: Event) {
-    const target = event.target as HTMLElement;
-    if (!target.closest('.input-wrapper') && !target.closest('.product-input-wrapper')) {
-      this.showDropdown = false;
-      this.showProductDropdown = false;
-    }
+  setDefaultDates() {
+    this.purchaseDate = new Date().toISOString().split('T')[0];
+    this.paymentDate = new Date().toISOString().split('T')[0];
   }
 
   // ================= VENDORS =================
   getVendors() {
-    this.http.get<any>(this.vendorApiUrl).subscribe({
+    this.http.get<any>(`${this.vendorApiUrl}?user_id=${this.userId}`).subscribe({
       next: (response) => {
-        if (response.status) {
-          this.vendors = response.data;
-          this.filteredVendors = response.data;
-          console.log("Vendors loaded:", this.vendors);
+        if (response.status === true) {
+          this.vendors = response.data || [];
+          this.filteredVendors = [...this.vendors];
         }
       },
-      error: (err) => {
-        console.error('Error fetching vendors:', err);
-        this.vendors = [
-          { id: 1, name: 'Rajesh Kumar', company_name: 'Rajesh Enterprises', gstin: '27AAACA1234E1ZR' },
-          { id: 2, name: 'Amit Sharma', company_name: 'Sharma Suppliers', gstin: '29ABCDE1234F1ZH' },
-          { id: 3, name: 'Priya Mehta', company_name: 'TechGrid Solutions', gstin: '24XYZAB5678C1DX' }
-        ];
-        this.filteredVendors = [...this.vendors];
-      }
+      error: (err) => console.error('Error fetching vendors:', err)
     });
   }
 
   openDropdown() {
     this.showDropdown = true;
-    this.filteredVendors = this.vendors;
+    this.filteredVendors = [...this.vendors];
   }
 
   searchVendor() {
@@ -171,33 +113,36 @@ export class CreatePurchaseComponent implements OnInit {
 
   selectVendor(vendor: any) {
     this.selectedVendor = vendor;
-    this.searchText = vendor.company_name;
+    this.searchText = vendor.company_name || vendor.name;
     this.showDropdown = false;
   }
 
   clearVendor() {
     this.selectedVendor = null;
     this.searchText = '';
-    this.filteredVendors = this.vendors;
+    this.filteredVendors = [...this.vendors];
+  }
+
+  getVendorAddress(): string {
+    if (!this.selectedVendor) return '';
+    const parts = [];
+    if (this.selectedVendor.address_line1) parts.push(this.selectedVendor.address_line1);
+    if (this.selectedVendor.address_line2) parts.push(this.selectedVendor.address_line2);
+    if (this.selectedVendor.city) parts.push(this.selectedVendor.city);
+    if (this.selectedVendor.state) parts.push(this.selectedVendor.state);
+    if (this.selectedVendor.pincode) parts.push(this.selectedVendor.pincode);
+    return parts.join(', ') || 'Address not available';
   }
 
   // ================= CATEGORIES =================
   getCategories() {
-    this.http.get<any>(this.categoryApiUrl).subscribe({
+    this.http.get<any>(`${this.categoryApiUrl}?user_id=${this.userId}`).subscribe({
       next: (response) => {
-        if (response.status) {
-          this.categories = response.data;
-          console.log("Categories:", this.categories);
+        if (response.status === true) {
+          this.categories = response.data || [];
         }
       },
-      error: (err) => {
-        console.error('Error fetching categories:', err);
-        this.categories = [
-          { id: 1, name: 'Electronics' },
-          { id: 2, name: 'Furniture' },
-          { id: 3, name: 'Stationery' }
-        ];
-      }
+      error: (err) => console.error('Error fetching categories:', err)
     });
   }
 
@@ -211,31 +156,20 @@ export class CreatePurchaseComponent implements OnInit {
     }
     this.productSearchText = '';
     this.selectedProduct = null;
-    this.resetCurrentItem();
     this.selectedQty = 1;
     this.discountPercent = 0;
   }
 
   // ================= PRODUCTS =================
   getProducts() {
-    this.http.get<any>(this.productApiUrl).subscribe({
+    this.http.get<any>(`${this.productApiUrl}?user_id=${this.userId}`).subscribe({
       next: (response) => {
-        if (response.status) {
-          this.products = response.data;
-          this.filteredProducts = response.data;
-          console.log("Products:", this.products);
+        if (response.status === true) {
+          this.products = response.data || [];
+          this.filteredProducts = [...this.products];
         }
       },
-      error: (err) => {
-        console.error('Error fetching products:', err);
-        this.products = [
-          { id: 1, name: 'Wireless Mouse', category: 'Electronics', sell: 599, purchase: 450, hsn: '847160', unit: 'Pcs', tax_type: 'GST 18%' },
-          { id: 2, name: 'Mechanical Keyboard', category: 'Electronics', sell: 2499, purchase: 1800, hsn: '847160', unit: 'Pcs', tax_type: 'GST 18%' },
-          { id: 3, name: 'Office Chair', category: 'Furniture', sell: 5999, purchase: 4200, hsn: '940139', unit: 'Nos', tax_type: 'GST 12%' },
-          { id: 4, name: 'Notebook', category: 'Stationery', sell: 49, purchase: 35, hsn: '482010', unit: 'Pcs', tax_type: 'GST 5%' }
-        ];
-        this.filteredProducts = [...this.products];
-      }
+      error: (err) => console.error('Error fetching products:', err)
     });
   }
 
@@ -262,12 +196,6 @@ export class CreatePurchaseComponent implements OnInit {
     this.selectedProduct = product;
     this.productSearchText = product.name;
     this.showProductDropdown = false;
-    this.currentItem.product = product;
-    this.currentItem.unitPrice = product.purchase || product.sell || 0; // ✅ Using purchase price
-    this.currentItem.quantity = this.selectedQty;
-    this.currentItem.discountPercent = 0;
-    this.currentItem.discountAmount = 0;
-    this.currentItem.totalAmount = this.currentItem.unitPrice * this.currentItem.quantity;
     this.discountPercent = 0;
   }
 
@@ -275,188 +203,137 @@ export class CreatePurchaseComponent implements OnInit {
     this.selectedProduct = null;
     this.productSearchText = '';
     this.showProductDropdown = false;
-    this.resetCurrentItem();
     this.selectedQty = 1;
     this.discountPercent = 0;
     this.filterProductsByCategory();
   }
 
-  resetCurrentItem() {
-    this.currentItem = {
-      product: null,
-      quantity: 1,
-      unitPrice: 0,
-      discountPercent: 0,
-      discountAmount: 0,
-      totalAmount: 0
-    };
-  }
-
   // ================= ADD TO BILL =================
   addToBill() {
-    const productToAdd = this.currentItem.product || this.selectedProduct;
-    if (!productToAdd) {
+    if (!this.selectedProduct) {
       alert('Please select a product first!');
       return;
     }
 
     const quantity = this.selectedQty > 0 ? this.selectedQty : 1;
-    const discount = this.discountPercent;
-    const unitPrice = productToAdd.purchase || productToAdd.sell || 0; // ✅ Using purchase price
+    const discountValue = this.discountPercent;
+    const unitPrice = this.selectedProduct.purchase || this.selectedProduct.sell || 0;
     const subtotal = unitPrice * quantity;
-    const discountAmount = (subtotal * discount) / 100;
-    const totalAmount = this.roundToTwoDecimals(subtotal - discountAmount);
+
+    let discountAmount = (subtotal * discountValue) / 100;
+    const totalAmount = subtotal - discountAmount;
 
     const billItem = {
       id: Date.now(),
-      productId: productToAdd.id,
-      productName: productToAdd.name,
-      hsnCode: productToAdd.hsn || 'N/A',
+      productId: this.selectedProduct.id,
+      productName: this.selectedProduct.name,
+      hsnCode: this.selectedProduct.hsn || 'N/A',
       quantity: quantity,
       unitPrice: unitPrice,
-      discount: discount,
-      originalDiscount: discount,
-      discountAmount: this.roundToTwoDecimals(discountAmount),
-      totalAmount: totalAmount,
-      category: productToAdd.category,
-      unit: productToAdd.unit,
-      tax_type: productToAdd.tax_type
+      discountValue: discountValue,
+      discountType: 'percentage',
+      discountAmount: Math.round(discountAmount * 100) / 100,
+      totalAmount: Math.round(totalAmount * 100) / 100,
+      category: this.selectedProduct.category,
+      unit: this.selectedProduct.unit
     };
 
     this.billItems.push(billItem);
     this.clearProduct();
     this.selectedQty = 1;
     this.discountPercent = 0;
-    this.resetCurrentItem();
-    this.globalDiscountPercent = 0;
-    this.refreshCalculations();
   }
 
   removeItem(itemId: number) {
     this.billItems = this.billItems.filter(item => item.id !== itemId);
-    if (this.billItems.length === 0) {
-      this.globalDiscountPercent = 0;
-    }
-    this.refreshCalculations();
-  }
-
-  // ================= CALCULATIONS =================
-  getSubTotal(): number {
-    const total = this.billItems.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
-    return this.roundToTwoDecimals(total);
-  }
-
-  getGrandTotal(): number {
-    const total = this.billItems.reduce((sum, item) => sum + item.totalAmount, 0);
-    return this.roundToTwoDecimals(total);
-  }
-
-  getTotalItemDiscount(): number {
-    const total = this.billItems.reduce((sum, item) => sum + item.discountAmount, 0);
-    return this.roundToTwoDecimals(total);
-  }
-
-  getTotalAfterAdditionalCharges(): number {
-    const subtotal = this.getSubTotal();
-    const totalDiscount = this.getTotalItemDiscount();
-    const total = subtotal - totalDiscount + this.additionalCharges;
-    return this.roundToTwoDecimals(total);
-  }
-
-  calculateRoundOff(): number {
-    const total = this.getTotalAfterAdditionalCharges();
-    const roundedTotal = Math.round(total);
-    this.roundOffValue = this.roundToTwoDecimals(roundedTotal - total);
-    return this.roundOffValue;
-  }
-
-  getFinalTotalWithRoundOff(): number {
-    let total = this.getTotalAfterAdditionalCharges();
-    if (this.roundOff) {
-      total = Math.round(total);
-    }
-    return this.roundToTwoDecimals(total);
-  }
-
-  onAdditionalChargesChange() {
-    if (this.additionalCharges < 0) {
-      this.additionalCharges = 0;
-    }
-    this.additionalCharges = this.roundToTwoDecimals(this.additionalCharges);
-    this.refreshCalculations();
-  }
-
-  onRoundOffToggle(event: any) {
-    this.roundOff = event.target.checked;
-    this.refreshCalculations();
-  }
-
-  refreshCalculations() {
-    this.calculateRoundOff();
-    this.updatePayableAmount();
   }
 
   updateQuantity(item: any, newQuantity: number) {
     if (newQuantity < 1) return;
     item.quantity = newQuantity;
     this.recalculateItemTotal(item);
-    this.globalDiscountPercent = 0;
-    this.refreshCalculations();
+  }
+
+  updateItemUnitPrice(item: any, newPrice: number) {
+    if (isNaN(newPrice)) newPrice = 0;
+    if (newPrice < 0) newPrice = 0;
+    item.unitPrice = newPrice;
+    this.recalculateItemTotal(item);
+  }
+
+  onDiscountValueChange(item: any) {
+    let discountValue = parseFloat(item.discountValue);
+    if (isNaN(discountValue)) discountValue = 0;
+    if (discountValue < 0) discountValue = 0;
+    if (item.discountType === 'percentage' && discountValue > 100) discountValue = 100;
+    item.discountValue = discountValue;
+    this.recalculateItemTotal(item);
+  }
+
+  onDiscountTypeChange(item: any) {
+    if (item.discountType === 'percentage' && item.discountValue > 100) item.discountValue = 100;
+    this.recalculateItemTotal(item);
   }
 
   recalculateItemTotal(item: any) {
     const subtotal = item.unitPrice * item.quantity;
-    let discountPercent = item.discount;
-    if (isNaN(discountPercent) || discountPercent === null || discountPercent === '') {
-      discountPercent = 0;
-      item.discount = 0;
-    }
-    item.discountAmount = this.roundToTwoDecimals((subtotal * discountPercent) / 100);
-    item.totalAmount = this.roundToTwoDecimals(subtotal - item.discountAmount);
-  }
+    let discountAmount = 0;
 
-  onDiscountPercentChange(item: any) {
-    let discountValue = parseFloat(item.discount);
-    if (isNaN(discountValue) || discountValue < 0) discountValue = 0;
-    if (discountValue > 100) discountValue = 100;
-    item.discount = discountValue;
-    this.recalculateItemTotal(item);
-    this.globalDiscountPercent = 0;
-    this.refreshCalculations();
-  }
-
-  onDiscountInput(event: any, item: any) {
-    let value = event.target.value.replace(/[^0-9.]/g, '');
-    let discountValue = parseFloat(value);
-    if (isNaN(discountValue)) discountValue = 0;
-    if (discountValue < 0) discountValue = 0;
-    if (discountValue > 100) discountValue = 100;
-    item.discount = discountValue;
-    this.recalculateItemTotal(item);
-    this.globalDiscountPercent = 0;
-    this.refreshCalculations();
-  }
-
-  getTotalItemsCount(): number {
-    return this.billItems.reduce((sum, item) => sum + item.quantity, 0);
-  }
-
-  // ================= NAVIGATION =================
-  goBack() {
-    this.router.navigate(['/purchase/add-purchase']);
-  }
-
-  cancel() {
-    if (this.billItems.length > 0 || this.selectedVendor) {
-      if (confirm('Are you sure you want to cancel? All unsaved data will be lost.')) {
-        this.router.navigate(['purchase/add-purchase']);
-      }
+    if (item.discountType === 'percentage') {
+      discountAmount = (subtotal * item.discountValue) / 100;
     } else {
-      this.router.navigate(['purchase/add-purchase']);
+      discountAmount = item.discountValue;
+      if (discountAmount > subtotal) discountAmount = subtotal;
+    }
+
+    item.discountAmount = Math.round(discountAmount * 100) / 100;
+    item.totalAmount = Math.round((subtotal - discountAmount) * 100) / 100;
+  }
+
+  // ================= CALCULATIONS =================
+  getSubTotal(): number {
+    return this.billItems.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
+  }
+
+  getTotalDiscount(): number {
+    return this.billItems.reduce((sum, item) => sum + item.discountAmount, 0);
+  }
+
+  getTotalAmount(): number {
+    return this.billItems.reduce((sum, item) => sum + item.totalAmount, 0);
+  }
+
+  getItemTotal(item: any): number {
+    return item.totalAmount;
+  }
+
+  // ================= PAYMENT =================
+  onFullPaymentToggle() {
+    if (this.isFullPaymentChecked) {
+      this.paidAmount = this.getTotalAmount();
+    } else {
+      this.paidAmount = 0;
     }
   }
 
-  // ================= SAVE TO DATABASE =================
+  onPaidAmountChange() {
+    const totalAmount = this.getTotalAmount();
+    if (this.paidAmount > totalAmount) {
+      this.paidAmount = totalAmount;
+    }
+    if (this.paidAmount < 0) {
+      this.paidAmount = 0;
+    }
+    this.paidAmount = Math.round(this.paidAmount * 100) / 100;
+
+    if (this.paidAmount !== totalAmount) {
+      this.isFullPaymentChecked = false;
+    } else if (this.paidAmount === totalAmount && this.paidAmount > 0) {
+      this.isFullPaymentChecked = true;
+    }
+  }
+
+  // ================= SAVE =================
   save() {
     if (this.billItems.length === 0) {
       alert('Please add at least one product!');
@@ -467,85 +344,73 @@ export class CreatePurchaseComponent implements OnInit {
       return;
     }
 
-    if (this.paymentOption === 'full') {
-      this.payableAmount = this.getFinalTotalWithRoundOff();
-    }
+    const remainingAmount = this.getTotalAmount() - this.paidAmount;
+    const purchaseStatus = remainingAmount === 0 ? 'Paid' : (this.paidAmount > 0 ? 'Partially Paid' : 'Unpaid');
+
+    const productItems = this.billItems.map((item: any) => ({
+      id: item.productId,
+      name: item.productName,
+      hsn: item.hsnCode,
+      quantity: item.quantity,
+      unit_price: item.unitPrice,
+      discount_type: item.discountType,
+      discount_value: item.discountValue,
+      discount_amount: item.discountAmount,
+      total_amount: item.totalAmount,
+      category: item.category,
+      unit: item.unit
+    }));
 
     const payload = {
+      user_id: this.userId,
       bill_no: 'PUR-' + Date.now(),
+      invoice_date: this.purchaseDate,
+      payment_date: this.paymentDate,
+      reference_number: this.referenceNumber || '',
       vendor_id: this.selectedVendor?.id,
-      vendor_name: this.selectedVendor?.company_name,
-      vendor_gstin: this.selectedVendor?.gstin,
-      supplier_invoice_date: this.supplierInvoiceDate,
-      payment_by_date: this.paymentByDate,
-      bill_items: this.billItems.map((item: any) => ({
-        product_id: item.productId,
-        product_name: item.productName,
-        hsn_code: item.hsnCode,
-        quantity: item.quantity,
-        unit_price: item.unitPrice,
-        discount_percent: item.discount,
-        discount_amount: item.discountAmount,
-        total_amount: item.totalAmount,
-        category: item.category,
-        unit: item.unit,
-        tax_type: item.tax_type
-      })),
-      purchase_price: this.getSubTotal(),
-      discount_total: this.getTotalItemDiscount(),
-      additional_charges: this.additionalCharges,
-      total_after_charges: this.getTotalAfterAdditionalCharges(),
-      round_off_enabled: this.roundOff,
-      round_off_value: this.calculateRoundOff(),
-      grand_total: this.getFinalTotalWithRoundOff(),
-      payment_option: this.paymentOption,
-      payable_amount: this.payableAmount,
-      total_items: this.getTotalItemsCount()
+      vendor_name: this.selectedVendor?.company_name || this.selectedVendor?.name,
+      vendor_gstin: this.selectedVendor?.gstin || '',
+      vendor_phone: this.selectedVendor?.phone || '',
+      vendor_email: this.selectedVendor?.email || '',
+      vendor_address: this.getVendorAddress(),
+      vendor_city: this.selectedVendor?.city || '',
+      vendor_state: this.selectedVendor?.state || '',
+      vendor_pincode: this.selectedVendor?.pincode || '',
+      purchase_price: this.getTotalAmount(),
+      discount: this.getTotalDiscount(),
+      status: purchaseStatus,
+      remaining_amount: remainingAmount,
+      payable_amount: this.paidAmount,
+      product_items: JSON.stringify(productItems),
+      total_items: this.billItems.length
     };
 
-    console.log("Sending Payload:", payload);
-
-    const saveBtn = document.querySelector('.save-btn') as HTMLButtonElement;
-    const payableSaveBtn = document.querySelector('.payable-save-btn') as HTMLButtonElement;
-    
+    const saveBtn = document.querySelector('.save-btn-bottom') as HTMLButtonElement;
     if (saveBtn) {
       saveBtn.innerText = 'Saving...';
       saveBtn.disabled = true;
-    }
-    if (payableSaveBtn) {
-      payableSaveBtn.innerText = 'Saving...';
-      payableSaveBtn.disabled = true;
     }
 
     this.http.post(this.saveApiUrl, payload).subscribe({
       next: (response: any) => {
         if (saveBtn) {
-          saveBtn.innerText = 'Save';
+          saveBtn.innerText = 'Save Purchase';
           saveBtn.disabled = false;
         }
-        if (payableSaveBtn) {
-          payableSaveBtn.innerText = 'Save';
-          payableSaveBtn.disabled = false;
-        }
-
-        if (response.status === 'success') {
-          alert('Purchase created successfully!\nBill No: ' + response.bill_no);
+        if (response.status === true || response.success === true) {
+          alert('Purchase Created Successfully!\nBill No: ' + (response.bill_no || payload.bill_no));
           this.resetForm();
-          this.router.navigate(['purchase/add-purchase']);
+          this.router.navigate(['/purchase']);
         } else {
           alert('Error: ' + (response.message || 'Failed to create purchase'));
         }
       },
       error: (err) => {
-        console.error('API Error:', err);
         if (saveBtn) {
-          saveBtn.innerText = 'Save';
+          saveBtn.innerText = 'Save Purchase';
           saveBtn.disabled = false;
         }
-        if (payableSaveBtn) {
-          payableSaveBtn.innerText = 'Save';
-          payableSaveBtn.disabled = false;
-        }
+        console.error('Save Error:', err);
         alert('Error: ' + (err.message || 'Connection failed'));
       }
     });
@@ -555,18 +420,38 @@ export class CreatePurchaseComponent implements OnInit {
     this.billItems = [];
     this.selectedVendor = null;
     this.searchText = '';
-    this.additionalCharges = 0;
-    this.roundOff = false;
-    this.paymentOption = 'full';
-    this.payableAmount = 0;
-    this.isPayableReadonly = true;
+    this.paymentMethod = 'Cash';
+    this.paidAmount = 0;
+    this.isFullPaymentChecked = false;
     this.selectedCategory = '';
     this.selectedProduct = null;
     this.productSearchText = '';
     this.selectedQty = 1;
     this.discountPercent = 0;
-    this.globalDiscountPercent = 0;
-    this.supplierInvoiceDate = '';
-    this.paymentByDate = '';
+    this.referenceNumber = '';
+    this.setDefaultDates();
+  }
+
+  goBack() {
+    this.router.navigate(['/purchase']);
+  }
+
+  cancel() {
+    if (this.billItems.length > 0 || this.selectedVendor) {
+      if (confirm('Are you sure you want to cancel? All unsaved data will be lost.')) {
+        this.router.navigate(['/purchase']);
+      }
+    } else {
+      this.router.navigate(['/purchase']);
+    }
+  }
+
+  @HostListener('document:click', ['$event'])
+  clickOutside(event: Event) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.input-wrapper') && !target.closest('.product-input-wrapper')) {
+      this.showDropdown = false;
+      this.showProductDropdown = false;
+    }
   }
 }
