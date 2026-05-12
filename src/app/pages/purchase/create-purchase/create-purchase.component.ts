@@ -314,18 +314,26 @@ export class CreatePurchaseComponent implements OnInit {
   }
 
   save() {
+
     if (this.billItems.length === 0) {
       alert('Please add at least one product!');
       return;
     }
+
     if (!this.selectedVendor) {
       alert('Please select a vendor!');
       return;
     }
 
-    const remainingAmount = this.getTotalAmount() - this.paidAmount;
-    const purchaseStatus = remainingAmount === 0 ? 'Paid' : (this.paidAmount > 0 ? 'Partially Paid' : 'Unpaid');
+    const remainingAmount =
+      this.getTotalAmount() - this.paidAmount;
 
+    const purchaseStatus =
+      remainingAmount === 0
+        ? 'Paid'
+        : (this.paidAmount > 0 ? 'Partially Paid' : 'Unpaid');
+
+    // Product Items
     const productItems = this.billItems.map((item: any) => ({
       id: item.productId,
       name: item.productName,
@@ -340,64 +348,101 @@ export class CreatePurchaseComponent implements OnInit {
       unit: item.unit
     }));
 
-    // In your save() method, add this
+    // FINAL PAYLOAD
     const payload = {
-      user_id: this.userId,
-      bill_no: 'PUR-' + Date.now(),
-      invoice_date: this.purchaseDate,
-      payment_date: this.paymentDate,
-      reference_number: this.referenceNumber || '',
-      vendor_id: this.selectedVendor?.id,
-      vendor_name: this.selectedVendor?.company_name || this.selectedVendor?.name,
-      vendor_gstin: this.selectedVendor?.gstin || '',
-      vendor_phone: this.selectedVendor?.phone || '',
-      vendor_email: this.selectedVendor?.email || '',
-      vendor_address: this.getVendorAddress(),
-      vendor_city: this.selectedVendor?.city || '',
-      vendor_state: this.selectedVendor?.state || '',
-      vendor_pincode: this.selectedVendor?.pincode || '',
-      purchase_price: this.getTotalAmount(),
-      discount: this.getTotalDiscount(),
-      additional_charges: 0,  // Add this
-      status: purchaseStatus,
-      remaining_amount: remainingAmount,
-      payable_amount: this.paidAmount,
-      product_items: JSON.stringify(productItems),
-      total_items: this.billItems.length
-    };
-    console.log('Saving purchase:', payload);
 
-    const saveBtn = document.querySelector('.save-btn-bottom') as HTMLButtonElement;
+      user_id: this.userId,
+
+      vendor_name:
+        this.selectedVendor?.company_name ||
+        this.selectedVendor?.name,
+
+      invoice_date: this.purchaseDate,
+
+      payment_date: this.paymentDate,
+
+      purchase_price: this.getTotalAmount(),
+
+      discount: this.getTotalDiscount(),
+
+      additional_charges: 0,
+
+      status: purchaseStatus,
+
+      remaining_amount: remainingAmount,
+
+      payable_amount: this.paidAmount,
+
+      product_items: JSON.stringify(productItems)
+    };
+
+    console.log('Saving Purchase Payload:', payload);
+
+    // Save Button
+    const saveBtn =
+      document.querySelector('.save-btn-bottom') as HTMLButtonElement;
+
     if (saveBtn) {
       saveBtn.innerText = 'Saving...';
       saveBtn.disabled = true;
     }
 
-    this.http.post(this.saveApiUrl, payload).subscribe({
-      next: (response: any) => {
-        if (saveBtn) {
-          saveBtn.innerText = 'Save Purchase';
-          saveBtn.disabled = false;
-        }
-        console.log('Response:', response);
-
-        if (response.status === true || response.success === true || response.status === 'success') {
-          alert('Purchase Created Successfully!\nBill No: ' + (response.bill_no || payload.bill_no));
-          this.resetForm();
-          this.router.navigate(['/purchase']);
-        } else {
-          alert('Error: ' + (response.message || 'Failed to create purchase'));
-        }
-      },
-      error: (err) => {
-        if (saveBtn) {
-          saveBtn.innerText = 'Save Purchase';
-          saveBtn.disabled = false;
-        }
-        console.error('Save Error:', err);
-        alert('Error: ' + (err.message || 'Connection failed'));
+    // API CALL
+    this.http.post(this.saveApiUrl, payload, {
+      headers: {
+        'Content-Type': 'application/json'
       }
-    });
+    })
+      .subscribe({
+
+        next: (response: any) => {
+
+          if (saveBtn) {
+            saveBtn.innerText = 'Save Purchase';
+            saveBtn.disabled = false;
+          }
+
+          console.log('Server Response:', response);
+
+          if (
+            response.status === true ||
+            response.success === true
+          ) {
+
+            alert(
+              'Purchase Created Successfully!\nBill No: ' +
+              response.bill_no
+            );
+
+            this.resetForm();
+
+            this.router.navigate(['/purchase']);
+
+          } else {
+
+            alert(
+              response.message ||
+              'Failed to create purchase'
+            );
+          }
+        },
+
+        error: (err) => {
+
+          if (saveBtn) {
+            saveBtn.innerText = 'Save Purchase';
+            saveBtn.disabled = false;
+          }
+
+          console.error('Save Error:', err);
+
+          console.log('Error Response:', err.error);
+
+          alert(
+            'Server Error\nCheck Console'
+          );
+        }
+      });
   }
 
   resetForm() {
