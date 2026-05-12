@@ -13,7 +13,7 @@ import { AuthService } from 'src/app/services/auth.service';
   templateUrl: './purchase.component.html',
   styleUrls: ['./purchase.component.scss'],
 })
-export class CreatePurchaseComponent implements OnInit {
+export class PurchaseComponent implements OnInit {
 
   // Vendor
   vendors: any[] = [];
