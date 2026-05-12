@@ -53,7 +53,7 @@ export class PurchaseComponent implements OnInit {
   fetchPurchases() {
     this.isLoading = true;
     
-    // 🔥 Add user_id to API call
+    // ✅ Add user_id to API call
     let url = `${this.apiUrl}?user_id=${this.userId}`;
     
     if (this.selectedTab !== 'All') {
@@ -65,12 +65,14 @@ export class PurchaseComponent implements OnInit {
     }
     
     console.log('Fetching purchases for user:', this.userId);
+    console.log('URL:', url);
     
     this.http.get<any>(url).subscribe({
       next: (response) => {
         this.isLoading = false;
         console.log('API Response:', response);
         
+        // ✅ Handle both response formats
         if (response.status === 'success' || response.status === true) {
           this.purchases = response.data || [];
           this.filteredPurchases = [...this.purchases];
@@ -99,14 +101,14 @@ export class PurchaseComponent implements OnInit {
     this.pendingAmount = 0;
     
     this.filteredPurchases.forEach(purchase => {
-      // 🔥 Skip cancelled purchases from summary
+      // ✅ Skip cancelled purchases from summary
       if (purchase.Status === 'Cancelled') {
         return;
       }
       
       const amount = parseFloat(purchase.Purchase_Price) || 0;
       const remaining = parseFloat(purchase.Remaining_Amount) || 0;
-      const paid = parseFloat(purchase.Paid_Amount) || 0;
+      const paid = parseFloat(purchase.Payable_Amount) || 0;
       
       this.totalAmount += amount;
       
@@ -123,6 +125,8 @@ export class PurchaseComponent implements OnInit {
     this.totalAmount = Math.round(this.totalAmount * 100) / 100;
     this.paidAmount = Math.round(this.paidAmount * 100) / 100;
     this.pendingAmount = Math.round(this.pendingAmount * 100) / 100;
+    
+    console.log('Summary - Total:', this.totalAmount, 'Paid:', this.paidAmount, 'Pending:', this.pendingAmount);
   }
 
   filterData(tab: string) {
@@ -190,9 +194,12 @@ export class PurchaseComponent implements OnInit {
         status: 'Cancelled'
       };
       
+      console.log('Cancelling purchase:', payload);
+      
       this.http.post(this.updateStatusApiUrl, payload).subscribe({
         next: (response: any) => {
           this.isLoading = false;
+          console.log('Cancel Response:', response);
           
           if (response.status === 'success' || response.status === true) {
             alert(`✅ Purchase cancelled successfully!`);
