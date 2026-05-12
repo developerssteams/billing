@@ -53,7 +53,6 @@ export class PurchaseComponent implements OnInit {
   fetchPurchases() {
     this.isLoading = true;
     
-    // ✅ Add user_id to API call
     let url = `${this.apiUrl}?user_id=${this.userId}`;
     
     if (this.selectedTab !== 'All') {
@@ -72,8 +71,8 @@ export class PurchaseComponent implements OnInit {
         this.isLoading = false;
         console.log('API Response:', response);
         
-        // ✅ Handle both response formats
-        if (response.status === 'success' || response.status === true) {
+        // 🔥 Check response status
+        if (response.status === true || response.status === 'success') {
           this.purchases = response.data || [];
           this.filteredPurchases = [...this.purchases];
           this.calculateSummary();
@@ -101,7 +100,7 @@ export class PurchaseComponent implements OnInit {
     this.pendingAmount = 0;
     
     this.filteredPurchases.forEach(purchase => {
-      // ✅ Skip cancelled purchases from summary
+      // Skip cancelled purchases
       if (purchase.Status === 'Cancelled') {
         return;
       }
@@ -201,7 +200,7 @@ export class PurchaseComponent implements OnInit {
           this.isLoading = false;
           console.log('Cancel Response:', response);
           
-          if (response.status === 'success' || response.status === true) {
+          if (response.status === true || response.status === 'success') {
             alert(`✅ Purchase cancelled successfully!`);
             this.fetchPurchases();
           } else {
