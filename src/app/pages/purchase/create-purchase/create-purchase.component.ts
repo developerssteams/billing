@@ -14,46 +14,32 @@ import { AuthService } from 'src/app/services/auth.service';
 })
 export class CreatePurchaseComponent implements OnInit {
 
-  // Vendor
   vendors: any[] = [];
   filteredVendors: any[] = [];
   searchText: string = '';
   selectedVendor: any = null;
   showDropdown: boolean = false;
 
-  // Category
   categories: any[] = [];
   selectedCategory: string = '';
 
-  // Product
   products: any[] = [];
   filteredProducts: any[] = [];
   selectedProduct: any = null;
   productSearchText: string = '';
   showProductDropdown: boolean = false;
 
-  // Selected Quantity
   selectedQty: number = 1;
-
-  // Payment Options
   paymentMethod: string = 'Cash';
   paidAmount: number = 0;
   isFullPaymentChecked: boolean = false;
-
-  // Discount on product
   discountPercent: number = 0;
 
-  // Bill Items Array
   billItems: any[] = [];
-
-  // Dates
   purchaseDate: string = '';
   paymentDate: string = '';
-
-  // Reference Number
   referenceNumber: string = '';
 
-  // API URLs
   vendorApiUrl = 'https://billsezy.com/Api/get_vendor.php';
   categoryApiUrl = 'https://billsezy.com/Api/get_category.php';
   productApiUrl = 'https://billsezy.com/Api/get_product.php';
@@ -83,7 +69,6 @@ export class CreatePurchaseComponent implements OnInit {
     this.paymentDate = new Date().toISOString().split('T')[0];
   }
 
-  // ================= VENDORS =================
   getVendors() {
     this.http.get<any>(`${this.vendorApiUrl}?user_id=${this.userId}`).subscribe({
       next: (response) => {
@@ -134,7 +119,6 @@ export class CreatePurchaseComponent implements OnInit {
     return parts.join(', ') || 'Address not available';
   }
 
-  // ================= CATEGORIES =================
   getCategories() {
     this.http.get<any>(`${this.categoryApiUrl}?user_id=${this.userId}`).subscribe({
       next: (response) => {
@@ -160,7 +144,6 @@ export class CreatePurchaseComponent implements OnInit {
     this.discountPercent = 0;
   }
 
-  // ================= PRODUCTS =================
   getProducts() {
     this.http.get<any>(`${this.productApiUrl}?user_id=${this.userId}`).subscribe({
       next: (response) => {
@@ -208,7 +191,6 @@ export class CreatePurchaseComponent implements OnInit {
     this.filterProductsByCategory();
   }
 
-  // ================= ADD TO BILL =================
   addToBill() {
     if (!this.selectedProduct) {
       alert('Please select a product first!');
@@ -290,7 +272,6 @@ export class CreatePurchaseComponent implements OnInit {
     item.totalAmount = Math.round((subtotal - discountAmount) * 100) / 100;
   }
 
-  // ================= CALCULATIONS =================
   getSubTotal(): number {
     return this.billItems.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
   }
@@ -307,7 +288,6 @@ export class CreatePurchaseComponent implements OnInit {
     return item.totalAmount;
   }
 
-  // ================= PAYMENT =================
   onFullPaymentToggle() {
     if (this.isFullPaymentChecked) {
       this.paidAmount = this.getTotalAmount();
@@ -333,7 +313,6 @@ export class CreatePurchaseComponent implements OnInit {
     }
   }
 
-  // ================= SAVE =================
   save() {
     if (this.billItems.length === 0) {
       alert('Please add at least one product!');
@@ -385,6 +364,8 @@ export class CreatePurchaseComponent implements OnInit {
       total_items: this.billItems.length
     };
 
+    console.log('Saving purchase:', payload);
+
     const saveBtn = document.querySelector('.save-btn-bottom') as HTMLButtonElement;
     if (saveBtn) {
       saveBtn.innerText = 'Saving...';
@@ -397,7 +378,9 @@ export class CreatePurchaseComponent implements OnInit {
           saveBtn.innerText = 'Save Purchase';
           saveBtn.disabled = false;
         }
-        if (response.status === true || response.success === true) {
+        console.log('Response:', response);
+        
+        if (response.status === true || response.success === true || response.status === 'success') {
           alert('Purchase Created Successfully!\nBill No: ' + (response.bill_no || payload.bill_no));
           this.resetForm();
           this.router.navigate(['/purchase']);
