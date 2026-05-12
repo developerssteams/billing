@@ -7,7 +7,7 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-/* Loading Overlay */
+/* Loading Overlay - Only shown on initial load */
 .loading-overlay {
   position: absolute;
   top: 0;
@@ -27,7 +27,7 @@
   width: 40px;
   height: 40px;
   border: 4px solid #e2e8f0;
-  border-top: 4px solid #3b82f6;
+  border-top: 4px solid #165a50;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -75,37 +75,37 @@
   transform: translateY(-1px);
 }
 
-/* Tabs */
+/* Tabs - Pehle wala style */
 .sales-tabs {
   display: flex;
-  gap: 8px;
-  margin: 20px 0;
-  flex-wrap: wrap;
+  gap: 30px;
+  margin: 25px 0;
   border-bottom: 1px solid #e2e8f0;
-  padding-bottom: 8px;
+  padding-bottom: 0;
+  flex-wrap: wrap;
 }
 
 .sales-tabs span {
-  padding: 8px 20px;
   cursor: pointer;
-  border-radius: 8px;
-  font-size: 14px;
+  padding-bottom: 12px;
+  transition: all 0.2s ease;
+  color: #6b7280;
+  font-size: 15px;
   font-weight: 500;
-  color: #64748b;
-  transition: all 0.2s;
+  position: relative;
 }
 
 .sales-tabs span:hover {
-  background: #f1f5f9;
-  color: #1e293b;
+  color: #165a50;
 }
 
 .sales-tabs .active {
-  background: #165a50;
-  color: white;
+  color: #165a50;
+  border-bottom: 3px solid #165a50;
+  font-weight: 600;
 }
 
-/* Search Row */
+/* Search Row - No loading indicator */
 .search-filter-row {
   margin-bottom: 20px;
 }
@@ -367,6 +367,14 @@
     font-size: 11px;
     padding: 4px 8px;
   }
+  
+  .sales-tabs {
+    gap: 20px;
+  }
+  
+  .sales-tabs span {
+    font-size: 14px;
+  }
 }
 
 /* Mobile Landscape */
@@ -396,13 +404,14 @@
   }
   
   .sales-tabs {
-    gap: 6px;
+    gap: 12px;
     justify-content: center;
+    margin: 15px 0;
   }
   
   .sales-tabs span {
-    padding: 6px 14px;
-    font-size: 12px;
+    padding-bottom: 8px;
+    font-size: 13px;
   }
   
   .left-side {
@@ -454,9 +463,13 @@
     font-size: 13px;
   }
   
+  .sales-tabs {
+    gap: 8px;
+  }
+  
   .sales-tabs span {
-    padding: 5px 12px;
-    font-size: 11px;
+    font-size: 12px;
+    padding-bottom: 6px;
   }
   
   .table-header,
@@ -507,12 +520,13 @@
 /* Extra Small Devices */
 @media (max-width: 360px) {
   .sales-tabs {
-    gap: 4px;
+    gap: 6px;
   }
   
   .sales-tabs span {
-    padding: 4px 10px;
-    font-size: 10px;
+    font-size: 11px;
+    padding: 4px 8px;
+    padding-bottom: 6px;
   }
   
   .table-header,
@@ -526,4 +540,14 @@
   .bill-no, .customer-name, .amount, .remaining {
     font-size: 10px;
   }
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.table-row {
+  animation: fadeIn 0.3s ease;
 }
