@@ -314,7 +314,6 @@ export class CreatePurchaseComponent implements OnInit {
   }
 
   save() {
-
     if (this.billItems.length === 0) {
       alert('Please add at least one product!');
       return;
@@ -325,13 +324,20 @@ export class CreatePurchaseComponent implements OnInit {
       return;
     }
 
-    const remainingAmount =
-      this.getTotalAmount() - this.paidAmount;
+    // 🔥 Calculate total amount
+    const totalAmount = this.getTotalAmount();
 
-    const purchaseStatus =
-      remainingAmount === 0
-        ? 'Paid'
-        : (this.paidAmount > 0 ? 'Partially Paid' : 'Unpaid');
+    // 🔥 Calculate remaining and status
+    const remainingAmount = totalAmount - this.paidAmount;
+    let purchaseStatus = 'Unpaid';
+
+    if (remainingAmount <= 0) {
+      purchaseStatus = 'Paid';
+    } else if (this.paidAmount > 0 && remainingAmount > 0) {
+      purchaseStatus = 'Partially Paid';
+    } else {
+      purchaseStatus = 'Unpaid';
+    }
 
     // Product Items
     const productItems = this.billItems.map((item: any) => ({
@@ -350,38 +356,23 @@ export class CreatePurchaseComponent implements OnInit {
 
     // FINAL PAYLOAD
     const payload = {
-
       user_id: this.userId,
-
-      vendor_name:
-        this.selectedVendor?.company_name ||
-        this.selectedVendor?.name,
-
+      vendor_name: this.selectedVendor?.company_name || this.selectedVendor?.name,
       invoice_date: this.purchaseDate,
-
       payment_date: this.paymentDate,
-
-      purchase_price: this.getTotalAmount(),
-
+      purchase_price: this.getSubTotal(),  // Original price before discount
       discount: this.getTotalDiscount(),
-
       additional_charges: 0,
-
-      status: purchaseStatus,
-
-      remaining_amount: remainingAmount,
-
       payable_amount: this.paidAmount,
-
+      remaining_amount: remainingAmount,
+      status: purchaseStatus,
       product_items: JSON.stringify(productItems)
     };
 
     console.log('Saving Purchase Payload:', payload);
 
     // Save Button
-    const saveBtn =
-      document.querySelector('.save-btn-bottom') as HTMLButtonElement;
-
+    const saveBtn = document.querySelector('.save-btn-bottom') as HTMLButtonElement;
     if (saveBtn) {
       saveBtn.innerText = 'Saving...';
       saveBtn.disabled = true;
@@ -392,57 +383,32 @@ export class CreatePurchaseComponent implements OnInit {
       headers: {
         'Content-Type': 'application/json'
       }
-    })
-      .subscribe({
-
-        next: (response: any) => {
-
-          if (saveBtn) {
-            saveBtn.innerText = 'Save Purchase';
-            saveBtn.disabled = false;
-          }
-
-          console.log('Server Response:', response);
-
-          if (
-            response.status === true ||
-            response.success === true
-          ) {
-
-            alert(
-              'Purchase Created Successfully!\nBill No: ' +
-              response.bill_no
-            );
-
-            this.resetForm();
-
-            this.router.navigate(['/purchase/add-purchase']);
-
-          } else {
-
-            alert(
-              response.message ||
-              'Failed to create purchase'
-            );
-          }
-        },
-
-        error: (err) => {
-
-          if (saveBtn) {
-            saveBtn.innerText = 'Save Purchase';
-            saveBtn.disabled = false;
-          }
-
-          console.error('Save Error:', err);
-
-          console.log('Error Response:', err.error);
-
-          alert(
-            'Server Error\nCheck Console'
-          );
+    }).subscribe({
+      next: (response: any) => {
+        if (saveBtn) {
+          saveBtn.innerText = 'Save Purchase';
+          saveBtn.disabled = false;
         }
-      });
+
+        console.log('Server Response:', response);
+
+        if (response.status === true || response.success === true) {
+          alert('Purchase Created Successfully!\nBill No: ' + response.bill_no);
+          this.resetForm();
+          this.router.navigate(['/purchase']);
+        } else {
+          alert(response.message || 'Failed to create purchase');
+        }
+      },
+      error: (err) => {
+        if (saveBtn) {
+          saveBtn.innerText = 'Save Purchase';
+          saveBtn.disabled = false;
+        }
+        console.error('Save Error:', err);
+        alert('Server Error.\nPlease check console for details.');
+      }
+    });
   }
 
   resetForm() {
