@@ -16,34 +16,112 @@
 
 <!-- Invoice Container -->
 <div class="invoice-container">
-    
     <!-- Customer & Date Section -->
     <div class="form-row mb-5">
         <div class="vendor-selection">
             <label>Select Customer</label>
             <div class="input-wrapper">
-                <input type="text" placeholder="Search customers by name, company, GSTIN..." />
+                <input type="text" placeholder="Search customers by name, company, GSTIN..." [(ngModel)]="searchText"
+                    (focus)="openDropdown()" (input)="searchCustomer()" />
+                <span class="clear-btn" *ngIf="selectedCustomer" (click)="clearCustomer()">✖</span>
+                <div class="dropdown" *ngIf="showDropdown">
+                    <div class="vendor-item" *ngFor="let customer of filteredCustomers" (click)="selectCustomer(customer)">
+                        <div class="avatar green">{{ customer.company_name?.split(' ').map(word => word.charAt(0)).join('').substring(0,2).toUpperCase() }}</div>
+                        <div class="vendor-info">
+                            <div class="vendor-name">{{ customer.company_name }}</div>
+                            <div class="vendor-sub">{{ customer.name }}</div>
+                        </div>
+                    </div>
+                    <div class="vendor-item add-new-customer" (click)="openCustomerForm()">
+                        <div class="avatar green">+</div>
+                        <div class="vendor-info">
+                            <div class="vendor-name">Add New Customer</div>
+                            <div class="vendor-sub">Create a new customer</div>
+                        </div>
+                    </div>
+                    <div class="not-found" *ngIf="filteredCustomers.length === 0">Customer not found</div>
+                </div>
             </div>
         </div>
 
         <div class="right-box">
             <div class="form-field">
                 <label>Invoice Date</label>
-                <input type="date" />
+                <input type="date" [(ngModel)]="invoiceDate">
             </div>
             <div class="form-field">
                 <label>Due Date</label>
-                <input type="date" />
+                <input type="date" [(ngModel)]="dueDate">
             </div>
             <div class="form-field">
                 <label>Reference Number</label>
-                <input type="text" placeholder="PO No / Order No / Reference No" />
+                <input type="text" [(ngModel)]="referenceNumber" placeholder="PO No / Order No / Reference No">
             </div>
         </div>
     </div>
 
     <!-- Bill To & Shipping To Section -->
-    <div class="bill-section">
+    <div class="bill-section" *ngIf="selectedCustomer">
+        <div class="bill-to">
+            <h4>Bill To:</h4>
+            <p class="customer-name">{{ selectedCustomer.company_name || selectedCustomer.name }}</p>
+            <p>{{ getBillingAddress() }}</p>
+            <p *ngIf="selectedCustomer.gstin">GST: {{ selectedCustomer.gstin }}</p>
+            <p *ngIf="selectedCustomer.phone">Phone: {{ selectedCustomer.phone }}</p>
+            <p *ngIf="selectedCustomer.email">Email: {{ selectedCustomer.email }}</p>
+        </div>
+        <div class="shipping-to">
+            <h4>Shipping To:
+                <button class="edit-address-btn" (click)="toggleEditDeliveryAddress()" title="Edit Delivery Address">
+                    <span class="iconify" data-icon="mdi:pencil-outline" style="font-size: 16px;"></span>
+                </button>
+            </h4>
+            <ng-container *ngIf="!isEditingDeliveryAddress">
+                <p class="customer-name">{{ selectedCustomer.company_name || selectedCustomer.name }}</p>
+                <p>{{ getDeliveryAddress() }}</p>
+                <p *ngIf="selectedCustomer.delivery_state">State: {{ selectedCustomer.delivery_state }}</p>
+                <p *ngIf="selectedCustomer.delivery_pincode">Pincode: {{ selectedCustomer.delivery_pincode }}</p>
+            </ng-container>
+            <ng-container *ngIf="isEditingDeliveryAddress">
+                <div class="edit-address-form">
+                    <div class="form-group">
+                        <label>Address Line 1</label>
+                        <input type="text" [(ngModel)]="editDeliveryAddress.address_line1" class="edit-input" placeholder="Street address">
+                    </div>
+                    <div class="form-group">
+                        <label>Address Line 2</label>
+                        <input type="text" [(ngModel)]="editDeliveryAddress.address_line2" class="edit-input" placeholder="Apartment, suite, etc.">
+                    </div>
+                    <div class="form-row-2">
+                        <div class="form-group">
+                            <label>City</label>
+                            <input type="text" [(ngModel)]="editDeliveryAddress.city" class="edit-input" placeholder="City">
+                        </div>
+                        <div class="form-group">
+                            <label>State</label>
+                            <input type="text" [(ngModel)]="editDeliveryAddress.state" class="edit-input" placeholder="State">
+                        </div>
+                    </div>
+                    <div class="form-row-2">
+                        <div class="form-group">
+                            <label>Pincode</label>
+                            <input type="text" [(ngModel)]="editDeliveryAddress.pincode" class="edit-input" placeholder="Pincode">
+                        </div>
+                        <div class="form-group">
+                            <label>Country</label>
+                            <input type="text" [(ngModel)]="editDeliveryAddress.country" class="edit-input" placeholder="Country">
+                        </div>
+                    </div>
+                    <div class="edit-actions">
+                        <button class="save-address-btn" (click)="saveDeliveryAddress()" [disabled]="isSaving">{{ isSaving ? 'Saving...' : 'Save' }}</button>
+                        <button class="cancel-edit-btn" (click)="cancelEditDeliveryAddress()">Cancel</button>
+                    </div>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+
+    <div class="bill-section" *ngIf="!selectedCustomer">
         <div class="bill-to">
             <h4>Bill To:</h4>
             <p class="no-customer">No customer selected</p>
@@ -57,20 +135,35 @@
     <!-- Product Selection -->
     <div class="product-container-main product-container mb-5">
         <div class="category-box">
-            <select>
+            <select [(ngModel)]="selectedCategory" (change)="filterProductsByCategory()">
                 <option value="">All Categories</option>
+                <option *ngFor="let category of categories" [value]="category.name">{{ category.name }}</option>
             </select>
         </div>
         <div class="product-search-box">
             <div class="product-input-wrapper">
-                <input type="text" placeholder="Search Product" />
+                <input type="text" placeholder="Search Product" [(ngModel)]="productSearchText" (focus)="openProductDropdown()" (input)="searchProducts()" />
+                <span class="clear-btn" *ngIf="selectedProduct" (click)="clearProduct()">✖</span>
+                <div class="dropdown" *ngIf="showProductDropdown">
+                    <div class="vendor-item" *ngFor="let product of filteredProducts" (click)="selectProduct(product)">
+                        <div class="avatar green">{{ product.name?.split(' ').map(word => word.charAt(0)).join('').substring(0,2).toUpperCase() }}</div>
+                        <div class="vendor-info">
+                            <div class="vendor-name">{{ product.name }}</div>
+                            <div class="vendor-sub">{{ product.category }}</div>
+                        </div>
+                        <div class="product-prices">
+                            <span class="sell-price">₹ {{ product.sell }}</span>
+                        </div>
+                    </div>
+                    <div class="not-found" *ngIf="filteredProducts.length === 0">Product not found</div>
+                </div>
             </div>
         </div>
         <div class="qty-box">
-            <input type="number" placeholder="Qty" />
+            <input type="number" [(ngModel)]="selectedQty" placeholder="Qty" />
         </div>
         <div class="add-btn-box">
-            <button>+ Add to Invoice</button>
+            <button (click)="addToBill()">+ Add to Invoice</button>
         </div>
     </div>
 
@@ -79,24 +172,77 @@
         <table class="invoice-table">
             <thead>
                 <tr>
-                    <th>#</th>
-                    <th>Product</th>
-                    <th>Qty</th>
-                    <th>Rate/Unit</th>
-                    <th>Discount</th>
-                    <th>Taxable Amount</th>
-                    <th>CGST</th>
-                    <th>SGST</th>
-                    <th>IGST</th>
-                    <th>Total (₹)</th>
-                    <th>Action</th>
+                    <th style="width: 5%">#</th>
+                    <th style="width: 20%">Product</th>
+                    <th style="width: 8%">Qty</th>
+                    <th style="width: 10%">Rate/Unit</th>
+                    <th style="width: 10%">Discount</th>
+                    <th style="width: 10%">Taxable Amount</th>
+                    <th style="width: 7%">CGST</th>
+                    <th style="width: 7%">SGST</th>
+                    <th style="width: 6%">IGST</th>
+                    <th style="width: 10%">Total (₹)</th>
+                    <th style="width: 7%">Action</th>
                 </tr>
             </thead>
             <tbody>
-                <tr *ngIf="true">
+                <tr *ngFor="let item of billItems; let i = index">
+                    <td class="text-center">{{ i + 1 }}</td>
+                    <td>
+                        <div class="product-name">{{ item.productName }}</div>
+                        <div class="product-details">
+                            <span class="hsn-code">HSN: {{ item.hsnCode }}</span>
+                            <span class="separator" *ngIf="item.hsnCode && item.gstRate">||</span>
+                            <span class="tax-rate-badge" *ngIf="item.gstRate">GST: {{ item.gstRate }}%</span>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <input type="number" class="qty-input" [(ngModel)]="item.quantity" (change)="updateQuantity(item, item.quantity)" min="1" />
+                    </td>
+                    <td class="text-right">
+                        <input type="number" class="unit-price-edit-input" [(ngModel)]="item.unitPrice" (change)="updateItemUnitPrice(item, item.unitPrice)" step="any" />
+                    </td>
+                    <td class="discount-cell">
+                        <div class="discount-wrapper">
+                            <input type="number" class="discount-input" [(ngModel)]="item.discountValue" (change)="onDiscountValueChange(item)" placeholder="0" step="any" />
+                            <select class="discount-type-select" [(ngModel)]="item.discountType" (change)="onDiscountTypeChange(item)">
+                                <option value="percentage">%</option>
+                                <option value="fixed">₹</option>
+                            </select>
+                        </div>
+                    </td>
+                    <td class="text-right">₹{{ item.taxableValue | number:'1.2-2' }}</td>
+                    <td class="text-right" *ngIf="!isInterState">₹{{ getItemCGST(item) | number:'1.2-2' }}</td>
+                    <td class="text-right" *ngIf="isInterState">-</td>
+                    <td class="text-right" *ngIf="!isInterState">₹{{ getItemSGST(item) | number:'1.2-2' }}</td>
+                    <td class="text-right" *ngIf="isInterState">-</td>
+                    <td class="text-right" *ngIf="isInterState">₹{{ getItemIGST(item) | number:'1.2-2' }}</td>
+                    <td class="text-right" *ngIf="!isInterState">-</td>
+                    <td class="text-right">₹{{ getItemTotalWithTax(item) | number:'1.2-2' }}</td>
+                    <td class="text-center action-cell">
+                        <button class="delete-btn" (click)="removeItem(item.id)" title="Delete Product">
+                            <span class="iconify" data-icon="mdi:delete-outline" style="font-size: 20px;"></span>
+                        </button>
+                    </td>
+                </tr>
+                <tr *ngIf="billItems.length === 0">
                     <td colspan="11" class="empty-row">No products added yet</td>
                 </tr>
             </tbody>
+            <tfoot *ngIf="billItems.length > 0">
+                <tr class="table-footer">
+                    <td colspan="5" class="text-right"><strong>Total:</strong></td>
+                    <td class="text-right"><strong>₹{{ getTotalTaxableAmount() | number:'1.2-2' }}</strong></td>
+                    <td class="text-right" *ngIf="!isInterState"><strong>₹{{ getTotalCGSTAmount() | number:'1.2-2' }}</strong></td>
+                    <td class="text-right" *ngIf="isInterState">-</td>
+                    <td class="text-right" *ngIf="!isInterState"><strong>₹{{ getTotalSGSTAmount() | number:'1.2-2' }}</strong></td>
+                    <td class="text-right" *ngIf="isInterState">-</td>
+                    <td class="text-right" *ngIf="isInterState"><strong>₹{{ getTotalIGSTAmount() | number:'1.2-2' }}</strong></td>
+                    <td class="text-right" *ngIf="!isInterState">-</td>
+                    <td class="text-right"><strong>₹{{ getTotalAmount() | number:'1.2-2' }}</strong></td>
+                    <td></td>
+                </tr>
+            </tfoot>
         </table>
     </div>
 
@@ -118,33 +264,63 @@
             </div>
         </div>
 
+        <!-- Summary Card -->
         <div class="summary-card">
             <div class="summary-row">
                 <span>Subtotal:</span>
-                <span>₹0.00</span>
+                <span>₹{{ getSubTotal() | number:'1.2-2' }}</span>
             </div>
             <div class="summary-row discount">
                 <span>Total Discount:</span>
-                <span>- ₹0.00</span>
+                <span>- ₹{{ getTotalItemDiscount() | number:'1.2-2' }}</span>
             </div>
             <div class="summary-row">
                 <span>Taxable Amount:</span>
-                <span>₹0.00</span>
+                <span>₹{{ getTaxableAmount() | number:'1.2-2' }}</span>
+            </div>
+            <ng-container *ngIf="!isInterState">
+                <div class="summary-row" *ngIf="cgstRate > 0">
+                    <span>CGST ({{ cgstRate }}%):</span>
+                    <span>₹{{ getTotalCGSTAmount() | number:'1.2-2' }}</span>
+                </div>
+                <div class="summary-row" *ngIf="sgstRate > 0">
+                    <span>SGST ({{ sgstRate }}%):</span>
+                    <span>₹{{ getTotalSGSTAmount() | number:'1.2-2' }}</span>
+                </div>
+            </ng-container>
+            <ng-container *ngIf="isInterState">
+                <div class="summary-row" *ngIf="igstRate > 0">
+                    <span>IGST ({{ igstRate }}%):</span>
+                    <span>₹{{ getTotalIGSTAmount() | number:'1.2-2' }}</span>
+                </div>
+            </ng-container>
+            <div class="summary-row">
+                <span>Additional Charges:</span>
+                <span>
+                    <input type="number" class="additional-charges-input" [(ngModel)]="additionalCharges" (change)="onAdditionalChargesChange()" />
+                </span>
+            </div>
+            <div class="summary-row round-off">
+                <label>
+                    <input type="checkbox" [(ngModel)]="roundOff" (change)="onRoundOffToggle($event)" />
+                    Round Off
+                </label>
+                <span *ngIf="roundOff">₹{{ calculateRoundOff() | number:'1.2-2' }}</span>
             </div>
             <div class="summary-row grand-total">
                 <span>Grand Total:</span>
-                <span>₹0.00</span>
+                <span>₹{{ getFinalTotalWithRoundOff() | number:'1.2-2' }}</span>
             </div>
         </div>
     </div>
 
-    <!-- Payment Section -->
+    <!-- Payment Section (Below Summary) -->
     <div class="payment-section">
         <h4>Payment Details</h4>
         <div class="payment-row">
             <div class="payment-methods">
                 <label>Payment Method:</label>
-                <select class="payment-method-select">
+                <select [(ngModel)]="paymentMethod" class="payment-method-select">
                     <option value="Cash">Cash</option>
                     <option value="Bank Transfer">Bank Transfer</option>
                     <option value="Cheque">Cheque</option>
@@ -154,27 +330,29 @@
             </div>
             <div class="payment-amount">
                 <label>Amount Paid (₹):</label>
-                <input type="number" class="payment-amount-input" />
+                <input type="number" class="payment-amount-input" [(ngModel)]="paidAmount" (change)="onPaidAmountChange()" [disabled]="isFullPaymentChecked" />
+            </div>
+            <div class="full-payment-checkbox">
+                <label>
+                    <input type="checkbox" [(ngModel)]="isFullPaymentChecked" (change)="onFullPaymentToggle()" />
+                    Mark as Full Payment
+                </label>
             </div>
         </div>
         <div class="balance-due-row">
             <span>Balance Due:</span>
-            <span class="balance-amount">₹0.00</span>
+            <span class="balance-amount">₹{{ (getFinalTotalWithRoundOff() - paidAmount) | number:'1.2-2' }}</span>
         </div>
     </div>
 
-    <!-- Action Buttons -->
+    <!-- Cancel & Save Buttons -->
     <div class="action-buttons-bottom">
         <button class="cancel-btn-bottom" (click)="cancel()">Cancel</button>
         <button class="save-btn-bottom" (click)="save()">Save Invoice</button>
     </div>
 </div>
 
-<!-- Customer Form Component -->
-<app-customer-form 
-    [showForm]="showCustomerForm" 
-    [isEditMode]="isCustomerEditMode"
-    [editCustomerData]="selectedCustomerForEdit" 
-    (formClosed)="closeCustomerForm()"
+<app-customer-form [showForm]="showCustomerForm" [isEditMode]="isCustomerEditMode"
+    [editCustomerData]="selectedCustomerForEdit" (formClosed)="closeCustomerForm()"
     (customerSaved)="onCustomerSaved($event)">
 </app-customer-form>
