@@ -395,7 +395,7 @@ export class CreatePurchaseComponent implements OnInit {
         if (response.status === true || response.success === true) {
           alert('Purchase Created Successfully!\nBill No: ' + response.bill_no);
           this.resetForm();
-          this.router.navigate(['/purchase']);
+          this.router.navigate(['/purchase/add-purchase']);
         } else {
           alert(response.message || 'Failed to create purchase');
         }
