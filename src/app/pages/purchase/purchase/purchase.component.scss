@@ -75,34 +75,34 @@
   transform: translateY(-1px);
 }
 
-// Tabs
+// 🔥 TABS - Pehle wala style (border-bottom)
 .sales-tabs {
   display: flex;
-  gap: 8px;
-  margin: 20px 0;
-  flex-wrap: wrap;
+  gap: 30px;
+  margin: 25px 0;
   border-bottom: 1px solid #e2e8f0;
-  padding-bottom: 8px;
+  padding-bottom: 0;
+  flex-wrap: wrap;
 }
 
 .sales-tabs span {
-  padding: 8px 20px;
   cursor: pointer;
-  border-radius: 8px;
-  font-size: 14px;
+  padding-bottom: 12px;
+  transition: all 0.2s ease;
+  color: #6b7280;
+  font-size: 15px;
   font-weight: 500;
-  color: #64748b;
-  transition: all 0.2s;
+  position: relative;
 }
 
 .sales-tabs span:hover {
-  background: #f1f5f9;
-  color: #1e293b;
+  color: #165a50;
 }
 
 .sales-tabs .active {
-  background: #165a50;
-  color: white;
+  color: #165a50;
+  border-bottom: 3px solid #165a50;
+  font-weight: 600;
 }
 
 // Search Row
@@ -322,7 +322,9 @@
   color: #475569;
 }
 
-// Responsive Breakpoints
+// ==================== RESPONSIVE BREAKPOINTS ====================
+
+// Tablet
 @media (max-width: 1024px) {
   .table-header,
   .table-row {
@@ -337,8 +339,17 @@
     font-size: 11px;
     padding: 4px 8px;
   }
+  
+  .sales-tabs {
+    gap: 20px;
+  }
+  
+  .sales-tabs span {
+    font-size: 14px;
+  }
 }
 
+// Mobile Landscape
 @media (max-width: 768px) {
   .sales-container {
     padding: 16px;
@@ -365,19 +376,21 @@
   }
   
   .sales-tabs {
-    gap: 8px;
+    gap: 16px;
     justify-content: center;
+    margin: 15px 0;
   }
   
   .sales-tabs span {
-    padding: 6px 14px;
-    font-size: 12px;
+    padding-bottom: 8px;
+    font-size: 13px;
   }
   
   .left-side {
     max-width: 100%;
   }
   
+  // Table Horizontal Scroll
   .sales-table {
     overflow-x: auto;
   }
@@ -392,6 +405,11 @@
     width: 100%;
   }
   
+  .summary-boxes > div {
+    flex: 1;
+    text-align: center;
+  }
+  
   .sales-footer {
     flex-direction: column;
   }
@@ -401,6 +419,7 @@
   }
 }
 
+// Mobile Portrait
 @media (max-width: 480px) {
   .sales-container {
     padding: 12px;
@@ -415,9 +434,13 @@
     font-size: 13px;
   }
   
+  .sales-tabs {
+    gap: 12px;
+  }
+  
   .sales-tabs span {
-    padding: 5px 12px;
-    font-size: 11px;
+    font-size: 12px;
+    padding-bottom: 6px;
   }
   
   .table-header,
@@ -459,8 +482,38 @@
     padding: 6px 12px;
     font-size: 12px;
   }
+  
+  .pagination span {
+    font-size: 12px;
+  }
 }
 
+// Extra Small Devices
+@media (max-width: 360px) {
+  .sales-tabs {
+    gap: 8px;
+  }
+  
+  .sales-tabs span {
+    font-size: 11px;
+    padding: 4px 8px;
+    padding-bottom: 6px;
+  }
+  
+  .table-header,
+  .table-row {
+    min-width: 560px;
+    padding: 8px;
+    gap: 6px;
+    font-size: 10px;
+  }
+  
+  .bill-no, .vendor-name, .amount, .remaining {
+    font-size: 10px;
+  }
+}
+
+// Animation
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
