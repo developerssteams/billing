@@ -71,8 +71,8 @@ export class PurchaseComponent implements OnInit {
         this.isLoading = false;
         console.log('API Response:', response);
         
-        // 🔥 Check response status
-        if (response.status === true || response.status === 'success') {
+        // ✅ Handle response - check if status is true or 'success'
+        if (response.status === true || response.status === 'success' || response.success === true) {
           this.purchases = response.data || [];
           this.filteredPurchases = [...this.purchases];
           this.calculateSummary();
