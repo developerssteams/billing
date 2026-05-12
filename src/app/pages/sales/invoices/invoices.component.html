@@ -1,6 +1,5 @@
 <div class="sales-container">
 
-
     <!-- Top -->
     <div class="sales-top-bar">
         <div class="sales-title-section">
@@ -52,16 +51,13 @@
             <span class="amount">{{formatAmount(item.Grand_Total)}}</span>
             <span>
                 <label class="status-badge" [ngClass]="getStatusClass(item.Status)">
-                    {{item.Status}}
+                    {{item.Status || 'Unpaid'}}
                 </label>
             </span>
             <span class="remaining">{{formatAmount(item.Remaining_Amount)}}</span>
             <span class="action-buttons">
-                <!-- View Button -->
                 <button (click)="viewInvoice(item.ID)" class="view-btn">View</button>
-                <!-- Edit Button -->
                 <button (click)="editInvoice(item.ID)" class="edit-btn">Edit</button>
-                <!-- Cancel Button -->
                 <button 
                     class="cancel-btn" 
                     [class.disabled]="isCancelDisabled(item.Status)"
@@ -79,28 +75,18 @@
             <div class="total-box">
                 Total {{formatAmount(getTotalAmount())}}
             </div>
-
             <div class="paid-box">
                 Received {{formatAmount(getPaidAmount())}}
             </div>
-
             <div class="pending-box">
                 Pending {{formatAmount(getPendingAmount())}}
             </div>
         </div>
 
         <div class="pagination" *ngIf="totalPages() > 1">
-            <button (click)="prevPage()" [disabled]="currentPage === 1">
-                Prev
-            </button>
-
-            <span>
-                Page {{currentPage}} of {{totalPages()}}
-            </span>
-
-            <button (click)="nextPage()" [disabled]="currentPage === totalPages()">
-                Next
-            </button>
+            <button (click)="prevPage()" [disabled]="currentPage === 1">Prev</button>
+            <span>Page {{currentPage}} of {{totalPages()}}</span>
+            <button (click)="nextPage()" [disabled]="currentPage === totalPages()">Next</button>
         </div>
     </div>
 
