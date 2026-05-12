@@ -340,6 +340,7 @@ export class CreatePurchaseComponent implements OnInit {
       unit: item.unit
     }));
 
+    // In your save() method, add this
     const payload = {
       user_id: this.userId,
       bill_no: 'PUR-' + Date.now(),
@@ -357,13 +358,13 @@ export class CreatePurchaseComponent implements OnInit {
       vendor_pincode: this.selectedVendor?.pincode || '',
       purchase_price: this.getTotalAmount(),
       discount: this.getTotalDiscount(),
+      additional_charges: 0,  // Add this
       status: purchaseStatus,
       remaining_amount: remainingAmount,
       payable_amount: this.paidAmount,
       product_items: JSON.stringify(productItems),
       total_items: this.billItems.length
     };
-
     console.log('Saving purchase:', payload);
 
     const saveBtn = document.querySelector('.save-btn-bottom') as HTMLButtonElement;
@@ -379,7 +380,7 @@ export class CreatePurchaseComponent implements OnInit {
           saveBtn.disabled = false;
         }
         console.log('Response:', response);
-        
+
         if (response.status === true || response.success === true || response.status === 'success') {
           alert('Purchase Created Successfully!\nBill No: ' + (response.bill_no || payload.bill_no));
           this.resetForm();
