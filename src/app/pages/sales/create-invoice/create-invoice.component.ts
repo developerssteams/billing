@@ -855,7 +855,7 @@ export class CreateInvoiceComponent implements OnInit {
           alert('Invoice Created Successfully!\nBill No: ' + (response.bill_no || payload.bill_no));
           this.resetForm();
           // ✅ Redirect to invoice list page
-          this.router.navigate(['/sales/invoice']);
+          this.router.navigate(['/sales/add-invoice']);
         } else {
           alert('Error: ' + (response.message || 'Failed to create invoice'));
         }
