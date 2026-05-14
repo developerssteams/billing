@@ -56,7 +56,7 @@ export class ViewInvoiceComponent implements OnInit {
   shippingAddress: string = '';
 
   // API URLs
-  getInvoiceApiUrl = 'https://billsezy.com/Api/get-invoice.php';
+  getInvoiceApiUrl = 'https://billsezy.com/Api/getview-invoice.php';
   companyApiUrl = 'https://billsezy.com/Api/get_company_details.php';
 
   constructor(
@@ -194,7 +194,7 @@ export class ViewInvoiceComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/sales/invoice']);
+    this.router.navigate(['/sales/add-invoice']);
   }
 
   printInvoice() {
@@ -203,7 +203,7 @@ export class ViewInvoiceComponent implements OnInit {
 
   cancel() {
     if (confirm('Are you sure you want to go back?')) {
-      this.router.navigate(['/sales/invoice']);
+      this.router.navigate(['/sales/add-invoice']);
     }
   }
 }
