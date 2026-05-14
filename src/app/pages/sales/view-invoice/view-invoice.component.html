@@ -76,6 +76,9 @@
             <h4>Shipping To:</h4>
             <p class="customer-name">{{ customerName }}</p>
             <p>{{ customerAddress }}</p>
+            <p *ngIf="customerGST">GST: {{ customerGST }}</p>
+            <p *ngIf="customerPhone">Phone: {{ customerPhone }}</p>
+            <p *ngIf="customerEmail">Email: {{ customerEmail }}</p>
         </div>
     </div>
 
@@ -131,7 +134,7 @@
                 <p>3. E&OE</p>
             </div>
         </div>
-        
+
         <div class="summary-card">
             <div class="summary-row">
                 <span>Subtotal:</span>
