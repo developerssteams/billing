@@ -71,7 +71,6 @@ export class PurchaseComponent implements OnInit {
         this.isLoading = false;
         console.log('API Response:', response);
 
-        // ✅ Handle response - check if status is true or 'success'
         if (response.status === true || response.status === 'success' || response.success === true) {
           this.purchases = response.data || [];
           this.filteredPurchases = [...this.purchases];
@@ -94,14 +93,16 @@ export class PurchaseComponent implements OnInit {
     });
   }
 
+  // 🔥 SUMMARY - Cancelled purchases are EXCLUDED
   calculateSummary() {
     this.totalAmount = 0;
     this.paidAmount = 0;
     this.pendingAmount = 0;
 
     this.filteredPurchases.forEach(purchase => {
-      // Skip cancelled purchases
+      // ✅ CRITICAL: Skip cancelled purchases from all totals
       if (purchase.Status === 'Cancelled') {
+        console.log('Skipping cancelled purchase:', purchase.Bill_no);
         return;
       }
 
@@ -173,6 +174,15 @@ export class PurchaseComponent implements OnInit {
     return this.pendingAmount;
   }
 
+  // 🔥 View Purchase (if needed)
+  viewPurchase(id: number) {
+    this.router.navigate(['purchase/view-purchase'], { queryParams: { id: id } });
+  }
+
+  editPurchase(id: number) {
+    this.router.navigate(['/purchase/create-purchase'], { queryParams: { id: id } });
+  }
+
   updatePurchaseStatus(id: number, billNo: string, currentStatus: string) {
     if (currentStatus === 'Cancelled') {
       alert(`⚠️ Purchase ${billNo} is already cancelled.`);
@@ -206,6 +216,7 @@ export class PurchaseComponent implements OnInit {
         },
         error: (err) => {
           this.isLoading = false;
+          console.error('Update Status Error:', err);
           alert('❌ Server error');
         }
       });
