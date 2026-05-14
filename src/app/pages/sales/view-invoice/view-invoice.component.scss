@@ -738,3 +738,149 @@ h2 {
 .invoice-container {
     animation: fadeIn 0.5s ease-out;
 }
+/* Company Logo */
+.company-logo-img {
+    max-width: 150px;
+    max-height: 80px;
+    object-fit: contain;
+    margin-bottom: 15px;
+}
+
+/* Copy Type Badge */
+.copy-type-badge {
+    text-align: center;
+    padding: 10px;
+    margin-bottom: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    border-radius: 8px;
+}
+
+.copy-type-badge.original {
+    background: linear-gradient(135deg, #165a50, #0e443d);
+    color: white;
+}
+
+.copy-type-badge.duplicate {
+    background: linear-gradient(135deg, #6b7280, #4b5563);
+    color: white;
+}
+
+/* Copy Text Section */
+.copy-text-section {
+    text-align: center;
+    margin-bottom: 25px;
+    padding: 15px;
+    background: #f8fafc;
+    border-radius: 10px;
+    border-left: 4px solid #165a50;
+}
+
+.original-text, .duplicate-text {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.original-text strong {
+    color: #165a50;
+    font-size: 16px;
+}
+
+.duplicate-text strong {
+    color: #6b7280;
+    font-size: 16px;
+}
+
+.light-text {
+    font-size: 12px;
+    color: #6b7280;
+    font-style: italic;
+}
+
+/* For Receipt Text */
+.for-receipt-text {
+    text-align: right;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px dashed #e5e7eb;
+}
+
+.light-gray {
+    font-size: 12px;
+    color: #9ca3af;
+    font-style: italic;
+}
+
+/* Duplicate Print Button */
+.print-btn.duplicate {
+    background-color: #6b7280;
+}
+
+.print-btn.duplicate:hover {
+    background-color: #4b5563;
+}
+
+/* Print Styles - Dual Copy Support */
+@media print {
+    /* Hide header and buttons */
+    .header, .right-box-actions, .back-btn, .cancel-btn, .print-btn {
+        display: none !important;
+    }
+    
+    /* Invoice container full width */
+    .invoice-container {
+        margin: 0 !important;
+        padding: 15px !important;
+        box-shadow: none !important;
+        max-width: 100% !important;
+    }
+    
+    /* Copy type badge for print */
+    .copy-type-badge {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    
+    /* Page break for dual print */
+    .invoice-container {
+        page-break-after: always;
+    }
+    
+    /* Ensure colors print */
+    .status-badge, .copy-type-badge {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    
+    @page {
+        margin: 1cm;
+        size: A4;
+    }
+}
+
+/* Additional responsive for buttons */
+@media (max-width: 768px) {
+    .right-box-actions {
+        flex-wrap: wrap;
+    }
+    
+    .print-btn {
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+    
+    .copy-type-badge {
+        font-size: 14px;
+        padding: 6px;
+    }
+    
+    .copy-text-section {
+        padding: 10px;
+    }
+    
+    .original-text strong, .duplicate-text strong {
+        font-size: 14px;
+    }
+}

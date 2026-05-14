@@ -8,7 +8,8 @@
     </div>
     <div class="right-box-actions">
         <button class="cancel-btn" (click)="cancel()">Back</button>
-        <button class="print-btn" (click)="printInvoice()">🖨️ Print</button>
+        <button class="print-btn" (click)="printOriginal()">🖨️ Print Original</button>
+        <button class="print-btn duplicate" (click)="printDuplicate()">📑 Print Duplicate</button>
     </div>
 </div>
 
@@ -26,12 +27,19 @@
 </div>
 
 <!-- Invoice Container -->
-<div class="invoice-container" *ngIf="!isLoading && !errorMessage && invoiceData">
+<div class="invoice-container" *ngIf="!isLoading && !errorMessage && invoiceData" [class.duplicate-print]="printCopyType === 'DUPLICATE'">
+    
+    <!-- Copy Type Badge -->
+    <div class="copy-type-badge" [class.original]="printCopyType === 'ORIGINAL'" [class.duplicate]="printCopyType === 'DUPLICATE'">
+        {{ printCopyType === 'ORIGINAL' ? 'ORIGINAL COPY' : 'DUPLICATE / FOR RECORDS' }}
+    </div>
+    
     <!-- Invoice Header -->
     <div class="invoice-header-wrapper">
         <div class="invoice-left">
             <div class="company-logo">
-                <h2>INVOICE</h2>
+                <img *ngIf="companyLogo" [src]="companyLogo" alt="Logo" class="company-logo-img" />
+                <h2 *ngIf="!companyLogo">INVOICE</h2>
             </div>
             <div class="company-details">
                 <h3>{{ companyName || 'Your Company Name' }}</h3>
@@ -62,6 +70,18 @@
         </div>
     </div>
 
+    <!-- ORIGINAL / DUPLICATE Text Section -->
+    <div class="copy-text-section">
+        <div class="original-text" *ngIf="printCopyType === 'ORIGINAL'">
+            <strong>ORIGINAL FOR RECIPIENT</strong>
+            <span class="light-text">This is a system generated invoice and does not require physical signature.</span>
+        </div>
+        <div class="duplicate-text" *ngIf="printCopyType === 'DUPLICATE'">
+            <strong>DUPLICATE FOR RECORDS</strong>
+            <span class="light-text">This is a copy for your records. Please retain for future reference.</span>
+        </div>
+    </div>
+
     <!-- Bill To Section -->
     <div class="bill-section">
         <div class="bill-to">
@@ -76,9 +96,6 @@
             <h4>Shipping To:</h4>
             <p class="customer-name">{{ customerName }}</p>
             <p>{{ customerAddress }}</p>
-            <p *ngIf="customerGST">GST: {{ customerGST }}</p>
-            <p *ngIf="customerPhone">Phone: {{ customerPhone }}</p>
-            <p *ngIf="customerEmail">Email: {{ customerEmail }}</p>
         </div>
     </div>
 
@@ -189,5 +206,10 @@
             <div class="signature-line"></div>
             <p>Authorized Signatory</p>
         </div>
+    </div>
+    
+    <!-- For Receipt Text -->
+    <div class="for-receipt-text">
+        <span class="light-gray">For {{ companyName }}</span>
     </div>
 </div>

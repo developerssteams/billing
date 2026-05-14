@@ -28,6 +28,7 @@ export class ViewInvoiceComponent implements OnInit {
   companyGST: string = '';
   companyPhone: string = '';
   companyEmail: string = '';
+  companyLogo: string = '';
 
   // Invoice Details
   invoiceNumber: string = '';
@@ -52,12 +53,12 @@ export class ViewInvoiceComponent implements OnInit {
   customerPhone: string = '';
   customerEmail: string = '';
 
-  // Shipping Details
-  shippingAddress: string = '';
-
   // API URLs
   getInvoiceApiUrl = 'https://billsezy.com/Api/getview-invoice.php';
   companyApiUrl = 'https://billsezy.com/Api/get_company_details.php';
+
+  // Print copy type
+  printCopyType: string = 'ORIGINAL';
 
   constructor(
     private router: Router,
@@ -94,6 +95,7 @@ export class ViewInvoiceComponent implements OnInit {
           this.companyGST = response.data.gstin || '';
           this.companyPhone = response.data.phone || '';
           this.companyEmail = response.data.email || '';
+          this.companyLogo = response.data.logo || '';
         }
       },
       error: (err) => console.error('Error fetching company:', err)
@@ -103,7 +105,6 @@ export class ViewInvoiceComponent implements OnInit {
   fetchInvoiceDetails() {
     this.isLoading = true;
     
-    // 🔥 Send both user_id and invoice_id
     this.http.get<any>(`${this.getInvoiceApiUrl}?user_id=${this.userId}&id=${this.invoiceId}`)
       .subscribe({
         next: (response) => {
@@ -128,13 +129,11 @@ export class ViewInvoiceComponent implements OnInit {
   populateInvoiceData() {
     const data = this.invoiceData;
     
-    // Basic Info
     this.invoiceNumber = data.Bill_no || '';
     this.invoiceDate = data.Invoice_Date ? this.formatDate(data.Invoice_Date) : '';
     this.dueDate = data.Due_Date ? this.formatDate(data.Due_Date) : '';
     this.status = data.Status || 'Unpaid';
     
-    // Financial
     this.grandTotal = parseFloat(data.Grand_Total) || 0;
     this.paidAmount = parseFloat(data.Paid_Amount) || 0;
     this.remainingAmount = parseFloat(data.Remaining_Amount) || (this.grandTotal - this.paidAmount);
@@ -146,14 +145,12 @@ export class ViewInvoiceComponent implements OnInit {
     this.igstAmount = parseFloat(data.igst_amount) || 0;
     this.additionalCharges = parseFloat(data.Additional_Charges) || 0;
     
-    // Customer Info
     this.customerName = data.Customer_Name || '';
     this.customerAddress = data.customer_address || '';
     this.customerGST = data.customer_gstin || '';
     this.customerPhone = data.customer_phone || '';
     this.customerEmail = data.customer_email || '';
     
-    // Product Items
     let products = data.Product_Items;
     if (typeof products === 'string') {
       try {
@@ -194,16 +191,47 @@ export class ViewInvoiceComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/sales/add-invoice']);
+    this.router.navigate(['/sales/invoice']);
   }
 
-  printInvoice() {
-    window.print();
+  // 🔥 Print ORIGINAL Copy
+  printOriginal() {
+    this.printCopyType = 'ORIGINAL';
+    setTimeout(() => {
+      window.print();
+    }, 100);
+  }
+
+  // 🔥 Print DUPLICATE Copy
+  printDuplicate() {
+    this.printCopyType = 'DUPLICATE';
+    setTimeout(() => {
+      window.print();
+    }, 100);
+  }
+
+  // 🔥 Print both copies
+  printBoth() {
+    this.printCopyType = 'ORIGINAL';
+    setTimeout(() => {
+      window.print();
+    }, 500);
+    
+    setTimeout(() => {
+      this.printCopyType = 'DUPLICATE';
+      setTimeout(() => {
+        window.print();
+      }, 100);
+    }, 1000);
+  }
+
+  getCopyTypeText(): string {
+    return this.printCopyType;
   }
 
   cancel() {
     if (confirm('Are you sure you want to go back?')) {
-      this.router.navigate(['/sales/add-invoice']);
+      this.router.navigate(['/sales/invoice']);
     }
   }
 }
