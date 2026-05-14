@@ -103,17 +103,18 @@ export class ViewInvoiceComponent implements OnInit {
   fetchInvoiceDetails() {
     this.isLoading = true;
     
+    // 🔥 Send both user_id and invoice_id
     this.http.get<any>(`${this.getInvoiceApiUrl}?user_id=${this.userId}&id=${this.invoiceId}`)
       .subscribe({
         next: (response) => {
           this.isLoading = false;
           console.log('Invoice Response:', response);
           
-          if (response.status === true || response.status === 'success') {
+          if (response.status === true) {
             this.invoiceData = response.data;
             this.populateInvoiceData();
           } else {
-            this.errorMessage = response.message || 'Invoice not found';
+            this.errorMessage = response.message || 'Invoice not found or unauthorized';
           }
         },
         error: (err) => {
@@ -151,9 +152,6 @@ export class ViewInvoiceComponent implements OnInit {
     this.customerGST = data.customer_gstin || '';
     this.customerPhone = data.customer_phone || '';
     this.customerEmail = data.customer_email || '';
-    
-    // Shipping Address
-    this.shippingAddress = data.delivery_address || data.customer_address || '';
     
     // Product Items
     let products = data.Product_Items;
