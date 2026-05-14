@@ -623,8 +623,7 @@ h2 {
     }
 }
 
-/* Print Styles - ONLY INVOICE CONTAINER */
-/* Print Styles - Complete Fix */
+/* Print Styles - Complete Fix with Padding */
 @media print {
     /* Reset everything */
     * {
@@ -647,11 +646,11 @@ h2 {
         display: none !important;
     }
     
-    /* Invoice container print styles */
+    /* 🔥 INVOICE CONTAINER - ADD PADDING HERE 🔥 */
     .invoice-container {
         display: block !important;
         margin: 0 auto !important;
-        padding: 30px !important;
+        padding: 40px 35px !important;  /* Increased padding */
         max-width: 100% !important;
         width: 100% !important;
         background: white !important;
@@ -659,6 +658,14 @@ h2 {
         border-radius: 0 !important;
         overflow: visible !important;
         position: relative !important;
+    }
+    
+    /* 🔥 ADD PADDING TO INNER ELEMENTS IF NEEDED 🔥 */
+    .invoice-header-wrapper,
+    .bill-section,
+    .summary-wrapper,
+    .invoice-footer {
+        padding: 0 !important;
     }
     
     /* Ensure all content visible */
@@ -710,7 +717,7 @@ h2 {
         box-shadow: none !important;
     }
     
-    /* Page margins */
+    /* 🔥 PAGE MARGINS - INCREASE FOR BETTER SPACE 🔥 */
     @page {
         margin: 1.5cm;
         size: A4;
@@ -734,5 +741,12 @@ h2 {
     /* Signature line */
     .signature-line {
         background: #cbd5e1 !important;
+    }
+    
+    /* 🔥 FOR RECEIPT TEXT POSITION 🔥 */
+    .for-receipt-text {
+        margin-top: 25px;
+        padding-top: 15px;
+        position: static !important;
     }
 }
