@@ -8,8 +8,7 @@
     </div>
     <div class="right-box-actions">
         <button class="cancel-btn" (click)="cancel()">Back</button>
-        <button class="print-btn" (click)="printOriginal()">🖨️ Print Original</button>
-        <button class="print-btn duplicate" (click)="printDuplicate()">📑 Print Duplicate</button>
+        <button class="print-btn" (click)="printInvoice()">🖨️ Print Invoice</button>
     </div>
 </div>
 
@@ -26,13 +25,8 @@
     <button class="back-btn-error" (click)="goBack()">Go Back</button>
 </div>
 
-<!-- Invoice Container -->
-<div class="invoice-container" *ngIf="!isLoading && !errorMessage && invoiceData" [class.duplicate-print]="printCopyType === 'DUPLICATE'">
-    
-    <!-- Copy Type Badge -->
-    <div class="copy-type-badge" [class.original]="printCopyType === 'ORIGINAL'" [class.duplicate]="printCopyType === 'DUPLICATE'">
-        {{ printCopyType === 'ORIGINAL' ? 'ORIGINAL COPY' : 'DUPLICATE / FOR RECORDS' }}
-    </div>
+<!-- Invoice Container (for display only - print uses clone) -->
+<div class="invoice-container" *ngIf="!isLoading && !errorMessage && invoiceData">
     
     <!-- Invoice Header -->
     <div class="invoice-header-wrapper">
@@ -67,18 +61,6 @@
                 <span class="label">Status:</span>
                 <span class="status-badge" [ngClass]="getStatusClass(status)">{{ status }}</span>
             </div>
-        </div>
-    </div>
-
-    <!-- ORIGINAL / DUPLICATE Text Section -->
-    <div class="copy-text-section">
-        <div class="original-text" *ngIf="printCopyType === 'ORIGINAL'">
-            <strong>ORIGINAL FOR RECIPIENT</strong>
-            <span class="light-text">This is a system generated invoice and does not require physical signature.</span>
-        </div>
-        <div class="duplicate-text" *ngIf="printCopyType === 'DUPLICATE'">
-            <strong>DUPLICATE FOR RECORDS</strong>
-            <span class="light-text">This is a copy for your records. Please retain for future reference.</span>
         </div>
     </div>
 

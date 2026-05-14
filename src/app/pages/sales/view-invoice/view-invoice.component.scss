@@ -167,6 +167,13 @@ h2 {
     flex: 1;
 }
 
+.company-logo-img {
+    max-width: 150px;
+    max-height: 80px;
+    object-fit: contain;
+    margin-bottom: 15px;
+}
+
 .company-logo h2 {
     font-size: 34px;
     font-weight: 800;
@@ -489,135 +496,18 @@ h2 {
     color: #94a3b8;
 }
 
-/* 🔥 PRINT STYLES - ONLY INVOICE CONTAINER PRINTS 🔥 */
-@media print {
-    /* Hide everything outside invoice-container */
-    body > *:not(.invoice-container) {
-        display: none !important;
-    }
-    
-    /* Hide header and all action buttons */
-    .header,
-    .right-box-actions,
-    .action-buttons,
-    .loading-overlay,
-    .cancel-btn,
-    .print-btn,
-    .back-btn,
-    .left-box,
-    h2:not(.company-logo h2),
-    .error-container,
-    .action-buttons-bottom,
-    .save-btn-bottom,
-    .cancel-btn-bottom,
-    .sales-actions,
-    .sales-top-bar,
-    .sales-tabs,
-    .search-filter-row,
-    .pagination,
-    .summary-boxes,
-    .sales-footer {
-        display: none !important;
-    }
-    
-    /* Make invoice-container full width for print */
-    .invoice-container {
-        display: block !important;
-        box-shadow: none !important;
-        margin: 0 !important;
-        padding: 20px !important;
-        max-width: 100% !important;
-        background: white !important;
-        position: relative !important;
-        top: 0 !important;
-        left: 0 !important;
-        transform: none !important;
-        border-radius: 0 !important;
-    }
-    
-    /* Ensure all content inside invoice-container is visible */
-    .invoice-container * {
-        visibility: visible !important;
-        opacity: 1 !important;
-    }
-    
-    /* Hide any action buttons inside invoice container */
-    .invoice-container .action-buttons,
-    .invoice-container .print-btn,
-    .invoice-container .save-btn,
-    .invoice-container .cancel-btn,
-    .invoice-container .edit-btn,
-    .invoice-container .delete-btn,
-    .invoice-container .view-btn {
-        display: none !important;
-    }
-    
-    /* Table styles for print */
-    .invoice-table th {
-        background: #f1f5f9 !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-    
-    .status-badge,
-    .status-paid,
-    .status-partial,
-    .status-unpaid,
-    .status-cancelled {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-    
-    .summary-card {
-        box-shadow: none !important;
-        border: 1px solid #e5e7eb !important;
-        break-inside: avoid !important;
-    }
-    
-    /* Remove background gradients for print */
-    .invoice-right,
-    .summary-card,
-    .bill-to,
-    .shipping-to,
-    .bank-details,
-    .terms {
-        background: white !important;
-        background-image: none !important;
-    }
-    
-    /* Ensure borders print */
-    .invoice-table td,
-    .invoice-table th {
-        border: 1px solid #ddd !important;
-    }
-    
-    /* Page setup */
-    @page {
-        margin: 1.5cm;
-        size: A4;
-    }
-    
-    /* Prevent page breaks inside important sections */
-    .bill-section,
-    .summary-card,
-    .invoice-footer {
-        break-inside: avoid;
-        page-break-inside: avoid;
-    }
-    
-    /* Footer stays at bottom */
-    .invoice-footer {
-        position: fixed;
-        bottom: 0;
-        width: 100%;
-    }
-    
-    /* Company logo gradient fix for print */
-    .company-logo h2 {
-        background: none !important;
-        -webkit-text-fill-color: #165a50 !important;
-        color: #165a50 !important;
-    }
+/* For Receipt Text */
+.for-receipt-text {
+    text-align: right;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px dashed #e5e7eb;
+}
+
+.light-gray {
+    font-size: 12px;
+    color: #9ca3af;
+    font-style: italic;
 }
 
 /* Responsive Design */
@@ -680,6 +570,11 @@ h2 {
     .right-box-actions {
         justify-content: center;
     }
+    
+    .company-logo-img {
+        max-width: 120px;
+        max-height: 60px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -721,6 +616,122 @@ h2 {
     .summary-row.grand-total {
         font-size: 15px;
     }
+    
+    .company-logo-img {
+        max-width: 100px;
+        max-height: 50px;
+    }
+}
+
+/* Print Styles - ONLY INVOICE CONTAINER */
+@media print {
+    /* Hide everything except invoice-container */
+    body > *:not(.invoice-container) {
+        display: none !important;
+    }
+    
+    .header,
+    .right-box-actions,
+    .action-buttons,
+    .loading-overlay,
+    .cancel-btn,
+    .print-btn,
+    .back-btn,
+    .left-box,
+    h2:not(.company-logo h2),
+    .error-container {
+        display: none !important;
+    }
+    
+    .invoice-container {
+        display: block !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        padding: 20px !important;
+        max-width: 100% !important;
+        background: white !important;
+        border-radius: 0 !important;
+    }
+    
+    .invoice-container * {
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    /* Hide action buttons inside */
+    .invoice-container .action-buttons,
+    .invoice-container .print-btn,
+    .invoice-container .save-btn,
+    .invoice-container .cancel-btn {
+        display: none !important;
+    }
+    
+    /* Table styles for print */
+    .invoice-table th {
+        background: #f1f5f9 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    
+    .status-badge,
+    .status-paid,
+    .status-partial,
+    .status-unpaid,
+    .status-cancelled {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    
+    .summary-card {
+        box-shadow: none !important;
+        border: 1px solid #e5e7eb !important;
+        break-inside: avoid !important;
+    }
+    
+    /* Remove gradients for print */
+    .invoice-right,
+    .summary-card,
+    .bill-to,
+    .shipping-to,
+    .bank-details,
+    .terms {
+        background: white !important;
+        background-image: none !important;
+    }
+    
+    /* Borders for print */
+    .invoice-table td,
+    .invoice-table th {
+        border: 1px solid #ddd !important;
+    }
+    
+    /* Page setup */
+    @page {
+        margin: 1.5cm;
+        size: A4;
+    }
+    
+    /* Prevent page breaks */
+    .bill-section,
+    .summary-card,
+    .invoice-footer {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+    
+    /* Company logo gradient fix */
+    .company-logo h2 {
+        background: none !important;
+        -webkit-text-fill-color: #165a50 !important;
+        color: #165a50 !important;
+    }
+    
+    /* For receipt text */
+    .for-receipt-text {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+    }
 }
 
 /* Animation */
@@ -737,150 +748,4 @@ h2 {
 
 .invoice-container {
     animation: fadeIn 0.5s ease-out;
-}
-/* Company Logo */
-.company-logo-img {
-    max-width: 150px;
-    max-height: 80px;
-    object-fit: contain;
-    margin-bottom: 15px;
-}
-
-/* Copy Type Badge */
-.copy-type-badge {
-    text-align: center;
-    padding: 10px;
-    margin-bottom: 20px;
-    font-size: 18px;
-    font-weight: bold;
-    letter-spacing: 2px;
-    border-radius: 8px;
-}
-
-.copy-type-badge.original {
-    background: linear-gradient(135deg, #165a50, #0e443d);
-    color: white;
-}
-
-.copy-type-badge.duplicate {
-    background: linear-gradient(135deg, #6b7280, #4b5563);
-    color: white;
-}
-
-/* Copy Text Section */
-.copy-text-section {
-    text-align: center;
-    margin-bottom: 25px;
-    padding: 15px;
-    background: #f8fafc;
-    border-radius: 10px;
-    border-left: 4px solid #165a50;
-}
-
-.original-text, .duplicate-text {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.original-text strong {
-    color: #165a50;
-    font-size: 16px;
-}
-
-.duplicate-text strong {
-    color: #6b7280;
-    font-size: 16px;
-}
-
-.light-text {
-    font-size: 12px;
-    color: #6b7280;
-    font-style: italic;
-}
-
-/* For Receipt Text */
-.for-receipt-text {
-    text-align: right;
-    margin-top: 20px;
-    padding-top: 15px;
-    border-top: 1px dashed #e5e7eb;
-}
-
-.light-gray {
-    font-size: 12px;
-    color: #9ca3af;
-    font-style: italic;
-}
-
-/* Duplicate Print Button */
-.print-btn.duplicate {
-    background-color: #6b7280;
-}
-
-.print-btn.duplicate:hover {
-    background-color: #4b5563;
-}
-
-/* Print Styles - Dual Copy Support */
-@media print {
-    /* Hide header and buttons */
-    .header, .right-box-actions, .back-btn, .cancel-btn, .print-btn {
-        display: none !important;
-    }
-    
-    /* Invoice container full width */
-    .invoice-container {
-        margin: 0 !important;
-        padding: 15px !important;
-        box-shadow: none !important;
-        max-width: 100% !important;
-    }
-    
-    /* Copy type badge for print */
-    .copy-type-badge {
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-    
-    /* Page break for dual print */
-    .invoice-container {
-        page-break-after: always;
-    }
-    
-    /* Ensure colors print */
-    .status-badge, .copy-type-badge {
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-    
-    @page {
-        margin: 1cm;
-        size: A4;
-    }
-}
-
-/* Additional responsive for buttons */
-@media (max-width: 768px) {
-    .right-box-actions {
-        flex-wrap: wrap;
-    }
-    
-    .print-btn {
-        font-size: 12px;
-        padding: 8px 12px;
-    }
-    
-    .copy-type-badge {
-        font-size: 14px;
-        padding: 6px;
-    }
-    
-    .copy-text-section {
-        padding: 10px;
-    }
-    
-    .original-text strong, .duplicate-text strong {
-        font-size: 14px;
-    }
 }
