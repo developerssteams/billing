@@ -192,6 +192,7 @@ export class ViewInvoiceComponent implements OnInit {
   }
 
   // 🔥 SINGLE BUTTON - Prints 2 pages (ORIGINAL and DUPLICATE)
+  // 🔥 FIXED: SINGLE BUTTON - No duplicate print window
   printInvoice() {
     // Create a hidden div for printing
     const printContent = document.querySelector('.invoice-container') as HTMLElement;
@@ -205,10 +206,8 @@ export class ViewInvoiceComponent implements OnInit {
     // Add copy type to clones
     this.addCopyTypeToClone(originalClone, 'ORIGINAL', 'ORIGINAL FOR RECIPIENT', 'This is a system generated invoice and does not require physical signature.');
     this.addCopyTypeToClone(duplicateClone, 'DUPLICATE', 'DUPLICATE FOR RECORDS', 'This is a copy for your records. Please retain for future reference.');
-    setTimeout(() => {
-      window.print();
-    }, 100);
-    // Create print window
+
+    // Create print window - ONLY ONCE
     const printWindow = window.open('', '_blank');
     if (printWindow) {
       printWindow.document.write('<!DOCTYPE html>');
@@ -217,65 +216,90 @@ export class ViewInvoiceComponent implements OnInit {
       printWindow.document.write('<title>Invoice - ' + this.invoiceNumber + '</title>');
       printWindow.document.write('<style>');
       printWindow.document.write(`
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, Helvetica, sans-serif; padding: 20px; background: white; }
-        .invoice-copy { 
-          max-width: 1200px; 
-          margin: 0 auto; 
-          background: white; 
-          padding: 35px; 
-          border: 1px solid #e5e7eb;
-          border-radius: 16px;
-          page-break-after: always;
-          margin-bottom: 30px;
-        }
-        .copy-header { text-align: center; margin-bottom: 25px; }
-        .copy-title { font-size: 20px; font-weight: bold; letter-spacing: 2px; }
-        .copy-subtitle { font-size: 12px; color: #6b7280; margin-top: 5px; font-style: italic; }
-        .invoice-header-wrapper { display: flex; justify-content: space-between; margin-bottom: 35px; padding-bottom: 25px; border-bottom: 2px dashed #e5e7eb; flex-wrap: wrap; gap: 30px; }
-        .invoice-left { flex: 1; }
-        .company-logo-img { max-width: 150px; max-height: 80px; object-fit: contain; margin-bottom: 15px; }
-        .company-logo h2 { font-size: 34px; font-weight: 800; margin: 0 0 15px 0; }
-        .company-details h3 { font-size: 20px; font-weight: 700; margin: 0 0 8px 0; color: #1f2937; }
-        .company-details p { font-size: 13px; color: #6b7280; margin: 5px 0; }
-        .invoice-right { background: #f8fafc; padding: 20px 28px; border-radius: 14px; min-width: 280px; }
-        .invoice-right > div { display: flex; justify-content: space-between; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0; }
-        .label { font-weight: 600; color: #475569; font-size: 13px; }
-        .value { color: #1e293b; font-weight: 600; font-size: 14px; }
-        .status-badge { padding: 5px 14px; border-radius: 30px; font-size: 12px; font-weight: 700; }
-        .status-paid { background: #d1fae5; color: #065f46; }
-        .status-partial { background: #fef3c7; color: #92400e; }
-        .status-unpaid { background: #fee2e2; color: #991b1b; }
-        .bill-section { display: flex; gap: 40px; margin-bottom: 35px; flex-wrap: wrap; }
-        .bill-to, .shipping-to { flex: 1; background: #fafbff; padding: 20px 24px; border-radius: 12px; border-left: 4px solid #165a50; }
-        .bill-to h4, .shipping-to h4 { font-size: 14px; font-weight: 700; color: #165a50; margin: 0 0 14px 0; text-transform: uppercase; }
-        .customer-name { font-weight: 700; color: #1f2937; font-size: 15px; margin-bottom: 10px; }
-        .table-wrapper { overflow-x: auto; margin-bottom: 30px; border-radius: 12px; border: 1px solid #e5e7eb; }
-        .invoice-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 800px; }
-        .invoice-table th { background: #f8fafc; padding: 14px 12px; text-align: center; font-weight: 700; border-bottom: 2px solid #e5e7eb; }
-        .invoice-table td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
-        .text-center { text-align: center; }
-        .text-right { text-align: right; }
-        .summary-wrapper { display: flex; gap: 40px; margin-bottom: 30px; flex-wrap: wrap; }
-        .bank-terms { flex: 1; }
-        .bank-details, .terms { background: #fafbff; padding: 16px 20px; border-radius: 10px; margin-bottom: 15px; }
-        .bank-details h5, .terms h5 { font-size: 13px; font-weight: 700; color: #165a50; margin: 0 0 10px 0; }
-        .bank-details p, .terms p { font-size: 12px; color: #6b7280; margin: 5px 0; }
-        .summary-card { width: 340px; background: #f8fafc; padding: 20px 24px; border-radius: 14px; border: 1px solid #e5e7eb; }
-        .summary-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
-        .summary-row.grand-total { font-size: 17px; font-weight: 800; border-top: 2px solid #e5e7eb; margin-top: 8px; padding-top: 14px; }
-        .invoice-footer { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 25px; border-top: 2px dashed #e5e7eb; flex-wrap: wrap; }
-        .signature-line { width: 180px; height: 1px; background: #cbd5e1; margin-bottom: 8px; }
-        .for-receipt-text { text-align: right; margin-top: 20px; padding-top: 15px; border-top: 1px dashed #e5e7eb; }
-        .light-gray { font-size: 12px; color: #9ca3af; font-style: italic; }
-        .product-name { font-weight: 600; color: #1e293b; font-size: 14px; margin-bottom: 4px; }
-        @media print {
-          body { padding: 0; margin: 0; }
-          .invoice-copy { page-break-after: always; margin: 0; padding: 20px; }
-          .status-badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-        }
-        @page { margin: 1.5cm; size: A4; }
-      `);
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { 
+                font-family: Arial, Helvetica, sans-serif; 
+                padding: 20px; 
+                background: white; 
+                margin: 0;
+            }
+            .invoice-copy { 
+                max-width: 1200px; 
+                margin: 0 auto; 
+                background: white; 
+                padding: 40px !important;
+                border: 1px solid #e5e7eb;
+                border-radius: 16px;
+                page-break-after: always;
+                margin-bottom: 30px;
+            }
+            .copy-header { text-align: center; margin-bottom: 25px; }
+            .copy-title { font-size: 20px; font-weight: bold; letter-spacing: 2px; }
+            .copy-subtitle { font-size: 12px; color: #6b7280; margin-top: 5px; font-style: italic; }
+            .invoice-header-wrapper { display: flex; justify-content: space-between; margin-bottom: 35px; padding-bottom: 25px; border-bottom: 2px dashed #e5e7eb; flex-wrap: wrap; gap: 30px; }
+            .invoice-left { flex: 1; }
+            .company-logo-img { max-width: 150px; max-height: 80px; object-fit: contain; margin-bottom: 15px; }
+            .company-logo h2 { font-size: 34px; font-weight: 800; margin: 0 0 15px 0; }
+            .company-details h3 { font-size: 20px; font-weight: 700; margin: 0 0 8px 0; color: #1f2937; }
+            .company-details p { font-size: 13px; color: #6b7280; margin: 5px 0; }
+            .invoice-right { background: #f8fafc; padding: 20px 28px; border-radius: 14px; min-width: 280px; }
+            .invoice-right > div { display: flex; justify-content: space-between; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0; }
+            .label { font-weight: 600; color: #475569; font-size: 13px; }
+            .value { color: #1e293b; font-weight: 600; font-size: 14px; }
+            .status-badge { padding: 5px 14px; border-radius: 30px; font-size: 12px; font-weight: 700; }
+            .status-paid { background: #d1fae5; color: #065f46; }
+            .status-partial { background: #fef3c7; color: #92400e; }
+            .status-unpaid { background: #fee2e2; color: #991b1b; }
+            .bill-section { display: flex; gap: 40px; margin-bottom: 35px; flex-wrap: wrap; }
+            .bill-to, .shipping-to { flex: 1; background: #fafbff; padding: 20px 24px; border-radius: 12px; border-left: 4px solid #165a50; }
+            .bill-to h4, .shipping-to h4 { font-size: 14px; font-weight: 700; color: #165a50; margin: 0 0 14px 0; text-transform: uppercase; }
+            .customer-name { font-weight: 700; color: #1f2937; font-size: 15px; margin-bottom: 10px; }
+            .table-wrapper { overflow-x: auto; margin-bottom: 30px; border-radius: 12px; border: 1px solid #e5e7eb; }
+            .invoice-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 800px; }
+            .invoice-table th { background: #f8fafc; padding: 14px 12px; text-align: center; font-weight: 700; border-bottom: 2px solid #e5e7eb; }
+            .invoice-table td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
+            .text-center { text-align: center; }
+            .text-right { text-align: right; }
+            .summary-wrapper { display: flex; gap: 40px; margin-bottom: 30px; flex-wrap: wrap; }
+            .bank-terms { flex: 1; }
+            .bank-details, .terms { background: #fafbff; padding: 16px 20px; border-radius: 10px; margin-bottom: 15px; }
+            .bank-details h5, .terms h5 { font-size: 13px; font-weight: 700; color: #165a50; margin: 0 0 10px 0; }
+            .bank-details p, .terms p { font-size: 12px; color: #6b7280; margin: 5px 0; }
+            .summary-card { width: 340px; background: #f8fafc; padding: 20px 24px; border-radius: 14px; border: 1px solid #e5e7eb; }
+            .summary-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+            .summary-row.grand-total { font-size: 17px; font-weight: 800; border-top: 2px solid #e5e7eb; margin-top: 8px; padding-top: 14px; }
+            .invoice-footer { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 25px; border-top: 2px dashed #e5e7eb; flex-wrap: wrap; }
+            .signature-line { width: 180px; height: 1px; background: #cbd5e1; margin-bottom: 8px; }
+            .for-receipt-text { text-align: right; margin-top: 20px; padding-top: 15px; border-top: 1px dashed #e5e7eb; }
+            .light-gray { font-size: 12px; color: #9ca3af; font-style: italic; }
+            .product-name { font-weight: 600; color: #1e293b; font-size: 14px; margin-bottom: 4px; }
+            
+            /* 🔥 PRINT STYLES WITH PADDING 🔥 */
+            @media print {
+                body { 
+                    padding: 0 !important; 
+                    margin: 0 !important;
+                }
+                .invoice-copy { 
+                    page-break-after: always; 
+                    margin: 0 !important; 
+                    padding: 40px 35px !important;
+                    box-shadow: none !important;
+                }
+                .status-badge { 
+                    -webkit-print-color-adjust: exact; 
+                    print-color-adjust: exact; 
+                }
+                .invoice-table th {
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+            }
+            @page { 
+                margin: 1.5cm; 
+                size: A4;
+            }
+        `);
       printWindow.document.write('</style>');
       printWindow.document.write('</head>');
       printWindow.document.write('<body>');
@@ -287,10 +311,10 @@ export class ViewInvoiceComponent implements OnInit {
       printWindow.document.close();
       printWindow.focus();
       printWindow.print();
-      printWindow.close();
+      // 🔥 IMPORTANT: Don't close immediately, let print dialog handle
+      // printWindow.close(); // Remove this line - let user close manually
     }
   }
-
   addCopyTypeToClone(clone: HTMLElement, type: string, title: string, subtitle: string) {
     // Add copy type header at the top
     const copyHeader = document.createElement('div');

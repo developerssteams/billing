@@ -622,8 +622,6 @@ h2 {
         max-height: 50px;
     }
 }
-
-/* Print Styles - Complete Fix with Padding */
 @media print {
     /* Reset everything */
     * {
@@ -646,11 +644,11 @@ h2 {
         display: none !important;
     }
     
-    /* 🔥 INVOICE CONTAINER - ADD PADDING HERE 🔥 */
+    /* 🔥 INVOICE CONTAINER - FORCE PADDING 🔥 */
     .invoice-container {
         display: block !important;
         margin: 0 auto !important;
-        padding: 40px 35px !important;  /* Increased padding */
+        padding: 45px 40px !important;  /* Strong padding */
         max-width: 100% !important;
         width: 100% !important;
         background: white !important;
@@ -660,7 +658,7 @@ h2 {
         position: relative !important;
     }
     
-    /* 🔥 ADD PADDING TO INNER ELEMENTS IF NEEDED 🔥 */
+    /* 🔥 ADD PADDING TO CHILDREN IF NEEDED 🔥 */
     .invoice-header-wrapper,
     .bill-section,
     .summary-wrapper,
@@ -717,9 +715,9 @@ h2 {
         box-shadow: none !important;
     }
     
-    /* 🔥 PAGE MARGINS - INCREASE FOR BETTER SPACE 🔥 */
+    /* 🔥 PAGE MARGINS 🔥 */
     @page {
-        margin: 1.5cm;
+        margin: 1.2cm;
         size: A4;
     }
     
@@ -743,7 +741,7 @@ h2 {
         background: #cbd5e1 !important;
     }
     
-    /* 🔥 FOR RECEIPT TEXT POSITION 🔥 */
+    /* For receipt text */
     .for-receipt-text {
         margin-top: 25px;
         padding-top: 15px;
