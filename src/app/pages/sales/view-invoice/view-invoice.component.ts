@@ -101,13 +101,13 @@ export class ViewInvoiceComponent implements OnInit {
 
   fetchInvoiceDetails() {
     this.isLoading = true;
-    
+
     this.http.get<any>(`${this.getInvoiceApiUrl}?user_id=${this.userId}&id=${this.invoiceId}`)
       .subscribe({
         next: (response) => {
           this.isLoading = false;
           console.log('Invoice Response:', response);
-          
+
           if (response.status === true) {
             this.invoiceData = response.data;
             this.populateInvoiceData();
@@ -125,12 +125,12 @@ export class ViewInvoiceComponent implements OnInit {
 
   populateInvoiceData() {
     const data = this.invoiceData;
-    
+
     this.invoiceNumber = data.Bill_no || '';
     this.invoiceDate = data.Invoice_Date ? this.formatDate(data.Invoice_Date) : '';
     this.dueDate = data.Due_Date ? this.formatDate(data.Due_Date) : '';
     this.status = data.Status || 'Unpaid';
-    
+
     this.grandTotal = parseFloat(data.Grand_Total) || 0;
     this.paidAmount = parseFloat(data.Paid_Amount) || 0;
     this.remainingAmount = parseFloat(data.Remaining_Amount) || (this.grandTotal - this.paidAmount);
@@ -141,18 +141,18 @@ export class ViewInvoiceComponent implements OnInit {
     this.sgstAmount = parseFloat(data.sgst_amount) || 0;
     this.igstAmount = parseFloat(data.igst_amount) || 0;
     this.additionalCharges = parseFloat(data.Additional_Charges) || 0;
-    
+
     this.customerName = data.Customer_Name || '';
     this.customerAddress = data.customer_address || '';
     this.customerGST = data.customer_gstin || '';
     this.customerPhone = data.customer_phone || '';
     this.customerEmail = data.customer_email || '';
-    
+
     let products = data.Product_Items;
     if (typeof products === 'string') {
       try {
         products = JSON.parse(products);
-      } catch(e) {
+      } catch (e) {
         products = [];
       }
     }
@@ -171,14 +171,14 @@ export class ViewInvoiceComponent implements OnInit {
 
   formatAmount(amount: number): string {
     if (amount === undefined || amount === null) return '₹0';
-    return '₹' + amount.toLocaleString('en-IN', { 
-      minimumFractionDigits: 2, 
-      maximumFractionDigits: 2 
+    return '₹' + amount.toLocaleString('en-IN', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
     });
   }
 
   getStatusClass(status: string): string {
-    switch(status?.toLowerCase()) {
+    switch (status?.toLowerCase()) {
       case 'paid': return 'status-paid';
       case 'partially paid': return 'status-partial';
       case 'unpaid': return 'status-unpaid';
@@ -195,17 +195,19 @@ export class ViewInvoiceComponent implements OnInit {
   printInvoice() {
     // Create a hidden div for printing
     const printContent = document.querySelector('.invoice-container') as HTMLElement;
-    
+
     if (!printContent) return;
-    
+
     // Clone the invoice container
     const originalClone = printContent.cloneNode(true) as HTMLElement;
     const duplicateClone = printContent.cloneNode(true) as HTMLElement;
-    
+
     // Add copy type to clones
     this.addCopyTypeToClone(originalClone, 'ORIGINAL', 'ORIGINAL FOR RECIPIENT', 'This is a system generated invoice and does not require physical signature.');
     this.addCopyTypeToClone(duplicateClone, 'DUPLICATE', 'DUPLICATE FOR RECORDS', 'This is a copy for your records. Please retain for future reference.');
-    
+    setTimeout(() => {
+      window.print();
+    }, 100);
     // Create print window
     const printWindow = window.open('', '_blank');
     if (printWindow) {
@@ -281,7 +283,7 @@ export class ViewInvoiceComponent implements OnInit {
       printWindow.document.write(duplicateClone.outerHTML);
       printWindow.document.write('</body>');
       printWindow.document.write('</html>');
-      
+
       printWindow.document.close();
       printWindow.focus();
       printWindow.print();
@@ -297,16 +299,16 @@ export class ViewInvoiceComponent implements OnInit {
       <div class="copy-title">${title}</div>
       <div class="copy-subtitle">${subtitle}</div>
     `;
-    
+
     // Insert at the beginning of the clone
     clone.insertBefore(copyHeader, clone.firstChild);
-    
+
     // Remove any existing copy type badge
     const existingBadge = clone.querySelector('.copy-type-badge');
     if (existingBadge) {
       existingBadge.remove();
     }
-    
+
     // Add for receipt text
     const forReceiptText = clone.querySelector('.for-receipt-text');
     if (forReceiptText) {
