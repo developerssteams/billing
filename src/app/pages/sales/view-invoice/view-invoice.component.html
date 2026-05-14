@@ -27,7 +27,7 @@
 
 <!-- Invoice Container (for display only - print uses clone) -->
 <div class="invoice-container" *ngIf="!isLoading && !errorMessage && invoiceData">
-    
+
     <!-- Invoice Header -->
     <div class="invoice-header-wrapper">
         <div class="invoice-left">
@@ -78,6 +78,8 @@
             <h4>Shipping To:</h4>
             <p class="customer-name">{{ customerName }}</p>
             <p>{{ customerAddress }}</p>
+            <p *ngIf="customerPhone">Phone: {{ customerPhone }}</p>
+            <p *ngIf="customerEmail">Email: {{ customerEmail }}</p>
         </div>
     </div>
 
@@ -189,7 +191,7 @@
             <p>Authorized Signatory</p>
         </div>
     </div>
-    
+
     <!-- For Receipt Text -->
     <div class="for-receipt-text">
         <span class="light-gray">For {{ companyName }}</span>
