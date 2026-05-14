@@ -622,8 +622,8 @@ h2 {
         max-height: 50px;
     }
 }
+
 @media print {
-    /* Reset everything */
     * {
         margin: 0;
         padding: 0;
@@ -634,31 +634,21 @@ h2 {
         margin: 0 !important;
         padding: 0 !important;
         background: white !important;
-        overflow: visible !important;
-        height: auto !important;
-        width: 100% !important;
     }
     
-    /* Hide all except invoice container */
     body > *:not(.invoice-container) {
         display: none !important;
     }
     
-    /* 🔥 INVOICE CONTAINER - FORCE PADDING 🔥 */
     .invoice-container {
         display: block !important;
         margin: 0 auto !important;
-        padding: 45px 40px !important;  /* Strong padding */
+        padding: 40px 35px !important;
         max-width: 100% !important;
-        width: 100% !important;
         background: white !important;
         box-shadow: none !important;
-        border-radius: 0 !important;
-        overflow: visible !important;
-        position: relative !important;
     }
     
-    /* 🔥 ADD PADDING TO CHILDREN IF NEEDED 🔥 */
     .invoice-header-wrapper,
     .bill-section,
     .summary-wrapper,
@@ -666,19 +656,10 @@ h2 {
         padding: 0 !important;
     }
     
-    /* Ensure all content visible */
-    .invoice-container * {
-        overflow: visible !important;
-        max-height: none !important;
-    }
-    
-    /* Table wrapper fix */
     .table-wrapper {
         overflow: visible !important;
-        border: none !important;
     }
     
-    /* Table print styles */
     .invoice-table {
         width: 100% !important;
         min-width: auto !important;
@@ -697,13 +678,11 @@ h2 {
         border: 1px solid #ddd !important;
     }
     
-    /* Status badge colors */
     .status-badge {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
     
-    /* Remove gradients */
     .invoice-right,
     .summary-card,
     .bill-to,
@@ -715,13 +694,11 @@ h2 {
         box-shadow: none !important;
     }
     
-    /* 🔥 PAGE MARGINS 🔥 */
     @page {
         margin: 1.2cm;
         size: A4;
     }
     
-    /* Prevent page breaks inside */
     .bill-section,
     .summary-card,
     .invoice-footer {
@@ -729,19 +706,16 @@ h2 {
         page-break-inside: avoid;
     }
     
-    /* Company logo fix */
     .company-logo h2 {
         background: none !important;
         -webkit-text-fill-color: #165a50 !important;
         color: #165a50 !important;
     }
     
-    /* Signature line */
     .signature-line {
         background: #cbd5e1 !important;
     }
     
-    /* For receipt text */
     .for-receipt-text {
         margin-top: 25px;
         padding-top: 15px;
