@@ -170,12 +170,12 @@ export class ViewInvoiceComponent implements OnInit {
     this.router.navigate(['/sales/invoice']);
   }
 
-  // 🔥 SIMPLE PRINT - Sirf ek page pe exact invoice
+  // PERFECT PRINT - Exact same design as view page
   printInvoice() {
     const printContent = document.querySelector('.invoice-container') as HTMLElement;
     if (!printContent) return;
 
-    // Clone the content to avoid affecting the original
+    // Clone the content
     const clone = printContent.cloneNode(true) as HTMLElement;
     
     const printWindow = window.open('', '_blank');
@@ -184,55 +184,97 @@ export class ViewInvoiceComponent implements OnInit {
       printWindow.document.write('<html>');
       printWindow.document.write('<head>');
       printWindow.document.write('<title>Invoice - ' + this.invoiceNumber + '</title>');
-      printWindow.document.write('<style>');
       
-      // Copy all styles from the original component
-      const styles = document.querySelectorAll('style, link[rel="stylesheet"]');
-      styles.forEach((style: any) => {
+      // Copy all styles from the page
+      const allStyles = document.querySelectorAll('style, link[rel="stylesheet"]');
+      allStyles.forEach((style: any) => {
         if (style.tagName === 'STYLE') {
           printWindow.document.write(style.outerHTML);
-        } else if (style.tagName === 'LINK') {
+        } else if (style.tagName === 'LINK' && style.href) {
           printWindow.document.write('<link href="' + style.href + '" rel="stylesheet">');
         }
       });
       
+      // Add print-specific styles to maintain exact design
       printWindow.document.write(`
         <style>
-          /* Print-specific styles */
-          body {
-            margin: 0;
-            padding: 0;
-            background: white;
-            font-family: Arial, Helvetica, sans-serif;
+          /* Hide non-print elements */
+          .header,
+          .loading-overlay,
+          .error-container,
+          .right-box-actions,
+          .cancel-btn,
+          .print-btn,
+          .back-btn {
+            display: none !important;
           }
           
-          .header, .loading-overlay, .error-container, .right-box-actions, .cancel-btn, .print-btn {
-            display: none !important;
+          /* Ensure invoice container looks exactly like view */
+          body {
+            margin: 0;
+            padding: 20px;
+            background: #f3f4f6;
+            font-family: Arial, Helvetica, sans-serif;
           }
           
           .invoice-container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 40px 35px;
             background: white;
-            box-shadow: none;
+            border-radius: 16px;
+            box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.15);
+            padding: 35px;
           }
           
+          /* Print styles */
           @media print {
             body {
               margin: 0;
               padding: 0;
+              background: white;
             }
             
             .invoice-container {
-              padding: 0.5cm;
-              margin: 0;
+              margin: 0 auto;
+              padding: 40px 35px;
+              box-shadow: none;
+              border-radius: 0;
               max-width: 100%;
             }
             
-            .status-badge, .invoice-table th {
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
+            /* Keep all colors and backgrounds */
+            .status-badge,
+            .invoice-table th,
+            .invoice-right,
+            .summary-card,
+            .bill-to,
+            .shipping-to,
+            .bank-details,
+            .terms {
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            
+            /* Prevent page breaks inside sections */
+            .invoice-header-wrapper,
+            .bill-section,
+            .summary-wrapper,
+            .invoice-footer {
+              break-inside: avoid;
+              page-break-inside: avoid;
+            }
+            
+            .table-wrapper {
+              overflow-x: visible;
+            }
+            
+            .invoice-table {
+              min-width: auto;
+            }
+            
+            .invoice-table td,
+            .invoice-table th {
+              border: 1px solid #e5e7eb;
             }
           }
           
@@ -251,8 +293,12 @@ export class ViewInvoiceComponent implements OnInit {
 
       printWindow.document.close();
       printWindow.focus();
+      
+      // Print and then close
       printWindow.print();
-      printWindow.close();
+      printWindow.onafterprint = () => {
+        printWindow.close();
+      };
     }
   }
 
