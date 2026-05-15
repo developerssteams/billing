@@ -167,7 +167,7 @@ export class ViewInvoiceComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/sales/invoice']);
+    this.router.navigate(['/sales/add-invoice']);
   }
 
   // FIXED: Print with proper copies and navigation
@@ -314,7 +314,7 @@ export class ViewInvoiceComponent implements OnInit {
       // After print dialog closes, navigate back to invoice list
       printWindow.onafterprint = () => {
         printWindow.close();
-        this.router.navigate(['/sales/invoice']);
+        this.router.navigate(['/sales/add-invoice']);
       };
       
       printWindow.print();
