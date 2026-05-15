@@ -170,14 +170,16 @@ export class ViewInvoiceComponent implements OnInit {
     this.router.navigate(['/sales/invoice']);
   }
 
-  // 🔥 FIXED: Single print - No extra blank page
+  // FIXED: Print with proper copies and navigation
   printInvoice() {
     const printContent = document.querySelector('.invoice-container') as HTMLElement;
     if (!printContent) return;
 
+    // Create two copies
     const originalClone = printContent.cloneNode(true) as HTMLElement;
     const duplicateClone = printContent.cloneNode(true) as HTMLElement;
 
+    // Add copy type headers
     this.addCopyTypeToClone(originalClone, 'ORIGINAL', 'ORIGINAL FOR RECIPIENT', 'This is a system generated invoice and does not require physical signature.');
     this.addCopyTypeToClone(duplicateClone, 'DUPLICATE', 'DUPLICATE FOR RECORDS', 'This is a copy for your records. Please retain for future reference.');
 
@@ -192,17 +194,17 @@ export class ViewInvoiceComponent implements OnInit {
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
           font-family: Arial, Helvetica, sans-serif; 
-          padding: 0; 
-          margin: 0;
           background: white;
+          margin: 0;
+          padding: 0;
         }
         .invoice-copy { 
           max-width: 1200px; 
           margin: 0 auto; 
           background: white; 
           padding: 40px 35px !important;
-          border: none;
           page-break-after: always;
+          position: relative;
         }
         .copy-header { 
           text-align: center; 
@@ -220,6 +222,19 @@ export class ViewInvoiceComponent implements OnInit {
           color: #6b7280; 
           margin-top: 5px; 
           font-style: italic;
+        }
+        .watermark {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%) rotate(-45deg);
+          font-size: 70px;
+          font-weight: bold;
+          color: rgba(0,0,0,0.08);
+          white-space: nowrap;
+          pointer-events: none;
+          z-index: 1000;
+          font-family: Arial, sans-serif;
         }
         .invoice-header-wrapper { 
           display: flex; 
@@ -295,11 +310,26 @@ export class ViewInvoiceComponent implements OnInit {
 
       printWindow.document.close();
       printWindow.focus();
+      
+      // After print dialog closes, navigate back to invoice list
+      printWindow.onafterprint = () => {
+        printWindow.close();
+        this.router.navigate(['/sales/invoice']);
+      };
+      
       printWindow.print();
     }
   }
 
   addCopyTypeToClone(clone: HTMLElement, type: string, title: string, subtitle: string) {
+    // Add watermark
+    const watermark = document.createElement('div');
+    watermark.className = 'watermark';
+    watermark.innerText = type;
+    clone.style.position = 'relative';
+    clone.appendChild(watermark);
+    
+    // Add copy header
     const copyHeader = document.createElement('div');
     copyHeader.className = 'copy-header';
     copyHeader.innerHTML = `
@@ -308,15 +338,18 @@ export class ViewInvoiceComponent implements OnInit {
     `;
     clone.insertBefore(copyHeader, clone.firstChild);
 
+    // Update the "For Receipt" text
     const forReceiptText = clone.querySelector('.for-receipt-text');
     if (forReceiptText) {
       forReceiptText.innerHTML = `<span class="light-gray">For ${this.companyName}</span>`;
     }
+    
+    // Add class for styling
+    clone.classList.add('invoice-copy');
   }
 
   cancel() {
-    if (confirm('Are you sure you want to go back?')) {
-      this.router.navigate(['/sales/invoice']);
-    }
+    // Navigate back to the same view-invoice page with the same ID
+    this.router.navigate(['/sales/view-invoice'], { queryParams: { id: this.invoiceId } });
   }
 }
