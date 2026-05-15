@@ -25,7 +25,7 @@
     <button class="back-btn-error" (click)="goBack()">Go Back</button>
 </div>
 
-<!-- Invoice Container -->
+<!-- Invoice Container (for display only - print uses clone) -->
 <div class="invoice-container" *ngIf="!isLoading && !errorMessage && invoiceData">
 
     <!-- Invoice Header -->

@@ -170,141 +170,186 @@ export class ViewInvoiceComponent implements OnInit {
     this.router.navigate(['/sales/invoice']);
   }
 
-  // PERFECT PRINT - Exact same design as view page
+  // FIXED: Print with proper copies and navigation
   printInvoice() {
     const printContent = document.querySelector('.invoice-container') as HTMLElement;
     if (!printContent) return;
 
-    // Clone the content
-    const clone = printContent.cloneNode(true) as HTMLElement;
-    
+    // Create two copies
+    const originalClone = printContent.cloneNode(true) as HTMLElement;
+    const duplicateClone = printContent.cloneNode(true) as HTMLElement;
+
+    // Add copy type headers
+    this.addCopyTypeToClone(originalClone, 'ORIGINAL', 'ORIGINAL FOR RECIPIENT', 'This is a system generated invoice and does not require physical signature.');
+    this.addCopyTypeToClone(duplicateClone, 'DUPLICATE', 'DUPLICATE FOR RECORDS', 'This is a copy for your records. Please retain for future reference.');
+
     const printWindow = window.open('', '_blank');
     if (printWindow) {
       printWindow.document.write('<!DOCTYPE html>');
       printWindow.document.write('<html>');
       printWindow.document.write('<head>');
       printWindow.document.write('<title>Invoice - ' + this.invoiceNumber + '</title>');
-      
-      // Copy all styles from the page
-      const allStyles = document.querySelectorAll('style, link[rel="stylesheet"]');
-      allStyles.forEach((style: any) => {
-        if (style.tagName === 'STYLE') {
-          printWindow.document.write(style.outerHTML);
-        } else if (style.tagName === 'LINK' && style.href) {
-          printWindow.document.write('<link href="' + style.href + '" rel="stylesheet">');
-        }
-      });
-      
-      // Add print-specific styles to maintain exact design
+      printWindow.document.write('<style>');
       printWindow.document.write(`
-        <style>
-          /* Hide non-print elements */
-          .header,
-          .loading-overlay,
-          .error-container,
-          .right-box-actions,
-          .cancel-btn,
-          .print-btn,
-          .back-btn {
-            display: none !important;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+          font-family: Arial, Helvetica, sans-serif; 
+          background: white;
+          margin: 0;
+          padding: 0;
+        }
+        .invoice-copy { 
+          max-width: 1200px; 
+          margin: 0 auto; 
+          background: white; 
+          padding: 40px 35px !important;
+          page-break-after: always;
+          position: relative;
+        }
+        .copy-header { 
+          text-align: center; 
+          margin-bottom: 25px; 
+          padding-top: 10px;
+        }
+        .copy-title { 
+          font-size: 20px; 
+          font-weight: bold; 
+          letter-spacing: 2px;
+          color: #1f2937;
+        }
+        .copy-subtitle { 
+          font-size: 11px; 
+          color: #6b7280; 
+          margin-top: 5px; 
+          font-style: italic;
+        }
+        .watermark {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%) rotate(-45deg);
+          font-size: 70px;
+          font-weight: bold;
+          color: rgba(0,0,0,0.08);
+          white-space: nowrap;
+          pointer-events: none;
+          z-index: 1000;
+          font-family: Arial, sans-serif;
+        }
+        .invoice-header-wrapper { 
+          display: flex; 
+          justify-content: space-between; 
+          margin-bottom: 35px; 
+          padding-bottom: 25px; 
+          border-bottom: 2px dashed #e5e7eb; 
+          flex-wrap: wrap; 
+          gap: 30px; 
+        }
+        .invoice-left { flex: 1; }
+        .company-logo-img { max-width: 150px; max-height: 80px; object-fit: contain; margin-bottom: 15px; }
+        .company-logo h2 { font-size: 34px; font-weight: 800; margin: 0 0 15px 0; }
+        .company-details h3 { font-size: 20px; font-weight: 700; margin: 0 0 8px 0; color: #1f2937; }
+        .company-details p { font-size: 13px; color: #6b7280; margin: 5px 0; }
+        .invoice-right { background: #f8fafc; padding: 20px 28px; border-radius: 14px; min-width: 280px; }
+        .invoice-right > div { display: flex; justify-content: space-between; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0; }
+        .label { font-weight: 600; color: #475569; font-size: 13px; }
+        .value { color: #1e293b; font-weight: 600; font-size: 14px; }
+        .status-badge { padding: 5px 14px; border-radius: 30px; font-size: 12px; font-weight: 700; }
+        .status-paid { background: #d1fae5; color: #065f46; }
+        .status-partial { background: #fef3c7; color: #92400e; }
+        .status-unpaid { background: #fee2e2; color: #991b1b; }
+        .bill-section { display: flex; gap: 40px; margin-bottom: 35px; flex-wrap: wrap; }
+        .bill-to, .shipping-to { flex: 1; background: #fafbff; padding: 20px 24px; border-radius: 12px; border-left: 4px solid #165a50; }
+        .bill-to h4, .shipping-to h4 { font-size: 14px; font-weight: 700; color: #165a50; margin: 0 0 14px 0; text-transform: uppercase; }
+        .customer-name { font-weight: 700; color: #1f2937; font-size: 15px; margin-bottom: 10px; }
+        .table-wrapper { overflow-x: auto; margin-bottom: 30px; }
+        .invoice-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 800px; }
+        .invoice-table th { background: #f8fafc; padding: 14px 12px; text-align: center; font-weight: 700; border-bottom: 2px solid #e5e7eb; }
+        .invoice-table td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .summary-wrapper { display: flex; gap: 40px; margin-bottom: 30px; flex-wrap: wrap; }
+        .bank-terms { flex: 1; }
+        .bank-details, .terms { background: #fafbff; padding: 16px 20px; border-radius: 10px; margin-bottom: 15px; }
+        .bank-details h5, .terms h5 { font-size: 13px; font-weight: 700; color: #165a50; margin: 0 0 10px 0; }
+        .bank-details p, .terms p { font-size: 12px; color: #6b7280; margin: 5px 0; }
+        .summary-card { width: 340px; background: #f8fafc; padding: 20px 24px; border-radius: 14px; border: 1px solid #e5e7eb; }
+        .summary-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+        .summary-row.grand-total { font-size: 17px; font-weight: 800; border-top: 2px solid #e5e7eb; margin-top: 8px; padding-top: 14px; }
+        .invoice-footer { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 25px; border-top: 2px dashed #e5e7eb; flex-wrap: wrap; }
+        .signature-line { width: 180px; height: 1px; background: #cbd5e1; margin-bottom: 8px; }
+        .for-receipt-text { text-align: right; margin-top: 20px; padding-top: 15px; border-top: 1px dashed #e5e7eb; }
+        .light-gray { font-size: 12px; color: #9ca3af; font-style: italic; }
+        .product-name { font-weight: 600; color: #1e293b; font-size: 14px; margin-bottom: 4px; }
+        
+        @media print {
+          body { margin: 0; padding: 0; }
+          .invoice-copy { 
+            page-break-after: always; 
+            margin: 0; 
+            padding: 40px 35px !important;
+            break-inside: avoid;
           }
-          
-          /* Ensure invoice container looks exactly like view */
-          body {
-            margin: 0;
-            padding: 20px;
-            background: #f3f4f6;
-            font-family: Arial, Helvetica, sans-serif;
+          .status-badge, .invoice-table th {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
           }
-          
-          .invoice-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.15);
-            padding: 35px;
-          }
-          
-          /* Print styles */
-          @media print {
-            body {
-              margin: 0;
-              padding: 0;
-              background: white;
-            }
-            
-            .invoice-container {
-              margin: 0 auto;
-              padding: 40px 35px;
-              box-shadow: none;
-              border-radius: 0;
-              max-width: 100%;
-            }
-            
-            /* Keep all colors and backgrounds */
-            .status-badge,
-            .invoice-table th,
-            .invoice-right,
-            .summary-card,
-            .bill-to,
-            .shipping-to,
-            .bank-details,
-            .terms {
-              -webkit-print-color-adjust: exact !important;
-              print-color-adjust: exact !important;
-            }
-            
-            /* Prevent page breaks inside sections */
-            .invoice-header-wrapper,
-            .bill-section,
-            .summary-wrapper,
-            .invoice-footer {
-              break-inside: avoid;
-              page-break-inside: avoid;
-            }
-            
-            .table-wrapper {
-              overflow-x: visible;
-            }
-            
-            .invoice-table {
-              min-width: auto;
-            }
-            
-            .invoice-table td,
-            .invoice-table th {
-              border: 1px solid #e5e7eb;
-            }
-          }
-          
-          @page {
-            margin: 1.5cm;
-            size: A4;
-          }
-        </style>
+        }
+        @page { 
+          margin: 1.2cm; 
+          size: A4;
+        }
       `);
-      
+      printWindow.document.write('</style>');
       printWindow.document.write('</head>');
       printWindow.document.write('<body>');
-      printWindow.document.write(clone.outerHTML);
+      printWindow.document.write(originalClone.outerHTML);
+      printWindow.document.write(duplicateClone.outerHTML);
       printWindow.document.write('</body>');
       printWindow.document.write('</html>');
 
       printWindow.document.close();
       printWindow.focus();
       
-      // Print and then close
-      printWindow.print();
+      // After print dialog closes, navigate back to invoice list
       printWindow.onafterprint = () => {
         printWindow.close();
+        this.router.navigate(['/sales/invoice']);
       };
+      
+      printWindow.print();
     }
   }
 
-  cancel() {
-    if (confirm('Are you sure you want to go back?')) {
-      this.router.navigate(['/sales/invoice']);
+  addCopyTypeToClone(clone: HTMLElement, type: string, title: string, subtitle: string) {
+    // Add watermark
+    const watermark = document.createElement('div');
+    watermark.className = 'watermark';
+    watermark.innerText = type;
+    clone.style.position = 'relative';
+    clone.appendChild(watermark);
+    
+    // Add copy header
+    const copyHeader = document.createElement('div');
+    copyHeader.className = 'copy-header';
+    copyHeader.innerHTML = `
+      <div class="copy-title">${title}</div>
+      <div class="copy-subtitle">${subtitle}</div>
+    `;
+    clone.insertBefore(copyHeader, clone.firstChild);
+
+    // Update the "For Receipt" text
+    const forReceiptText = clone.querySelector('.for-receipt-text');
+    if (forReceiptText) {
+      forReceiptText.innerHTML = `<span class="light-gray">For ${this.companyName}</span>`;
     }
+    
+    // Add class for styling
+    clone.classList.add('invoice-copy');
+  }
+
+  cancel() {
+    // Navigate back to the same view-invoice page with the same ID
+    this.router.navigate(['/sales/view-invoice'], { queryParams: { id: this.invoiceId } });
   }
 }
