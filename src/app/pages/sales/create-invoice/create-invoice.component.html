@@ -297,10 +297,19 @@
                 <span>₹{{ getTaxableAmount() | number:'1.2-2' }}</span>
             </div>
             <div class="summary-row" *ngIf="getTotalTaxAmount() > 0">
-                <span *ngIf="isInterState">IGST ({{ igstRate }}%):</span>
-                <span *ngIf="!isInterState">CGST + SGST ({{ cgstRate }}% + {{ sgstRate }}%):</span>
+                <!-- For InterState: Show IGST with full rate -->
+                <span *ngIf="isInterState">
+                    IGST ({{ getProductGSTRate() }}%):
+                </span>
+
+                <!-- For IntraState: Show CGST + SGST with half rates -->
+                <span *ngIf="!isInterState">
+                    CGST ({{ getDisplayCGSTRate() }}%) + SGST ({{ getDisplaySGSTRate() }}%):
+                </span>
+
                 <span>₹{{ getTotalTaxAmount() | number:'1.2-2' }}</span>
             </div>
+
             <div class="summary-row">
                 <span>Additional Charges:</span>
                 <span>

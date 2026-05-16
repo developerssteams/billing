@@ -139,7 +139,7 @@ export class CreateInvoiceComponent implements OnInit {
     this.getCategories();
     this.getProducts();
     this.setDefaultDates();
-    
+
     // Check if we are in edit mode
     this.route.queryParams.subscribe(params => {
       const invoiceId = params['id'];
@@ -183,7 +183,7 @@ export class CreateInvoiceComponent implements OnInit {
     this.paidAmount = parseFloat(data.Paid_Amount) || 0;
     this.additionalCharges = parseFloat(data.Additional_Charges) || 0;
     this.roundOff = data.Round_Off_Enabled === 1 || data.Round_Off_Enabled === true;
-    
+
     // Set customer
     if (data.customer_id) {
       // Find customer in the list or create a temp object
@@ -212,13 +212,13 @@ export class CreateInvoiceComponent implements OnInit {
         this.checkGSTType();
       }
     }
-    
+
     // Set bill items
     let products = data.Product_Items;
     if (typeof products === 'string') {
-      try { products = JSON.parse(products); } catch(e) { products = []; }
+      try { products = JSON.parse(products); } catch (e) { products = []; }
     }
-    
+
     if (products && products.length > 0) {
       this.billItems = products.map((item: any, index: number) => ({
         id: Date.now() + index,
@@ -243,17 +243,17 @@ export class CreateInvoiceComponent implements OnInit {
         category: item.category,
         unit: item.unit
       }));
-      
+
       // Check if any product has been loaded and update tax rates
       this.calculateTaxRatesForAllItems();
     }
-    
+
     // Check if full payment
     const grandTotal = parseFloat(data.Grand_Total) || 0;
     if (this.paidAmount >= grandTotal && grandTotal > 0) {
       this.isFullPaymentChecked = true;
     }
-    
+
     this.refreshCalculations();
   }
 
@@ -415,7 +415,22 @@ export class CreateInvoiceComponent implements OnInit {
     this.showDropdown = true;
     this.filteredCustomers = [...this.customers];
   }
+  getProductGSTRate(): number {
+    if (this.billItems.length === 0) return 0;
+    return this.billItems[0]?.gstRate || 0;
+  }
 
+  // Get CGST rate (half of GST) for display
+  getDisplayCGSTRate(): number {
+    const gstRate = this.getProductGSTRate();
+    return gstRate / 2;
+  }
+
+  // Get SGST rate (half of GST) for display
+  getDisplaySGSTRate(): number {
+    const gstRate = this.getProductGSTRate();
+    return gstRate / 2;
+  }
   searchCustomer() {
     const searchValue = this.searchText.toLowerCase();
     this.filteredCustomers = this.customers.filter(customer =>
