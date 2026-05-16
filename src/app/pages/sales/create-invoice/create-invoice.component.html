@@ -297,7 +297,8 @@
                 <span>₹{{ getTaxableAmount() | number:'1.2-2' }}</span>
             </div>
             <div class="summary-row" *ngIf="getTotalTaxAmount() > 0">
-                <span>Total Tax (CGST + SGST + IGST):</span>
+                <span *ngIf="isInterState">IGST ({{ igstRate }}%):</span>
+                <span *ngIf="!isInterState">CGST + SGST ({{ cgstRate }}% + {{ sgstRate }}%):</span>
                 <span>₹{{ getTotalTaxAmount() | number:'1.2-2' }}</span>
             </div>
             <div class="summary-row">
