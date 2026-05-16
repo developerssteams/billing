@@ -25,8 +25,10 @@
                     (focus)="openDropdown()" (input)="searchCustomer()" />
                 <span class="clear-btn" *ngIf="selectedCustomer" (click)="clearCustomer()">✖</span>
                 <div class="dropdown" *ngIf="showDropdown">
-                    <div class="vendor-item" *ngFor="let customer of filteredCustomers" (click)="selectCustomer(customer)">
-                        <div class="avatar green">{{ customer.company_name?.split(' ').map(word => word.charAt(0)).join('').substring(0,2).toUpperCase() }}</div>
+                    <div class="vendor-item" *ngFor="let customer of filteredCustomers"
+                        (click)="selectCustomer(customer)">
+                        <div class="avatar green">{{ customer.company_name?.split(' ').map(word =>
+                            word.charAt(0)).join('').substring(0,2).toUpperCase() }}</div>
                         <div class="vendor-info">
                             <div class="vendor-name">{{ customer.company_name }}</div>
                             <div class="vendor-sub">{{ customer.name }}</div>
@@ -86,34 +88,41 @@
                 <div class="edit-address-form">
                     <div class="form-group">
                         <label>Address Line 1</label>
-                        <input type="text" [(ngModel)]="editDeliveryAddress.address_line1" class="edit-input" placeholder="Street address">
+                        <input type="text" [(ngModel)]="editDeliveryAddress.address_line1" class="edit-input"
+                            placeholder="Street address">
                     </div>
                     <div class="form-group">
                         <label>Address Line 2</label>
-                        <input type="text" [(ngModel)]="editDeliveryAddress.address_line2" class="edit-input" placeholder="Apartment, suite, etc.">
+                        <input type="text" [(ngModel)]="editDeliveryAddress.address_line2" class="edit-input"
+                            placeholder="Apartment, suite, etc.">
                     </div>
                     <div class="form-row-2">
                         <div class="form-group">
                             <label>City</label>
-                            <input type="text" [(ngModel)]="editDeliveryAddress.city" class="edit-input" placeholder="City">
+                            <input type="text" [(ngModel)]="editDeliveryAddress.city" class="edit-input"
+                                placeholder="City">
                         </div>
                         <div class="form-group">
                             <label>State</label>
-                            <input type="text" [(ngModel)]="editDeliveryAddress.state" class="edit-input" placeholder="State">
+                            <input type="text" [(ngModel)]="editDeliveryAddress.state" class="edit-input"
+                                placeholder="State">
                         </div>
                     </div>
                     <div class="form-row-2">
                         <div class="form-group">
                             <label>Pincode</label>
-                            <input type="text" [(ngModel)]="editDeliveryAddress.pincode" class="edit-input" placeholder="Pincode">
+                            <input type="text" [(ngModel)]="editDeliveryAddress.pincode" class="edit-input"
+                                placeholder="Pincode">
                         </div>
                         <div class="form-group">
                             <label>Country</label>
-                            <input type="text" [(ngModel)]="editDeliveryAddress.country" class="edit-input" placeholder="Country">
+                            <input type="text" [(ngModel)]="editDeliveryAddress.country" class="edit-input"
+                                placeholder="Country">
                         </div>
                     </div>
                     <div class="edit-actions">
-                        <button class="save-address-btn" (click)="saveDeliveryAddress()" [disabled]="isSaving">{{ isSaving ? 'Saving...' : 'Save' }}</button>
+                        <button class="save-address-btn" (click)="saveDeliveryAddress()" [disabled]="isSaving">{{
+                            isSaving ? 'Saving...' : 'Save' }}</button>
                         <button class="cancel-edit-btn" (click)="cancelEditDeliveryAddress()">Cancel</button>
                     </div>
                 </div>
@@ -142,11 +151,13 @@
         </div>
         <div class="product-search-box">
             <div class="product-input-wrapper">
-                <input type="text" placeholder="Search Product" [(ngModel)]="productSearchText" (focus)="openProductDropdown()" (input)="searchProducts()" />
+                <input type="text" placeholder="Search Product" [(ngModel)]="productSearchText"
+                    (focus)="openProductDropdown()" (input)="searchProducts()" />
                 <span class="clear-btn" *ngIf="selectedProduct" (click)="clearProduct()">✖</span>
                 <div class="dropdown" *ngIf="showProductDropdown">
                     <div class="vendor-item" *ngFor="let product of filteredProducts" (click)="selectProduct(product)">
-                        <div class="avatar green">{{ product.name?.split(' ').map(word => word.charAt(0)).join('').substring(0,2).toUpperCase() }}</div>
+                        <div class="avatar green">{{ product.name?.split(' ').map(word =>
+                            word.charAt(0)).join('').substring(0,2).toUpperCase() }}</div>
                         <div class="vendor-info">
                             <div class="vendor-name">{{ product.name }}</div>
                             <div class="vendor-sub">{{ product.category }}</div>
@@ -197,15 +208,19 @@
                         </div>
                     </td>
                     <td class="text-center">
-                        <input type="number" class="qty-input" [(ngModel)]="item.quantity" (change)="updateQuantity(item, item.quantity)" min="1" />
+                        <input type="number" class="qty-input" [(ngModel)]="item.quantity"
+                            (change)="updateQuantity(item, item.quantity)" min="1" />
                     </td>
                     <td class="text-right">
-                        <input type="number" class="unit-price-edit-input" [(ngModel)]="item.unitPrice" (change)="updateItemUnitPrice(item, item.unitPrice)" step="any" />
+                        <input type="number" class="unit-price-edit-input" [(ngModel)]="item.unitPrice"
+                            (change)="updateItemUnitPrice(item, item.unitPrice)" step="any" />
                     </td>
                     <td class="discount-cell">
                         <div class="discount-wrapper">
-                            <input type="number" class="discount-input" [(ngModel)]="item.discountValue" (change)="onDiscountValueChange(item)" placeholder="0" step="any" />
-                            <select class="discount-type-select" [(ngModel)]="item.discountType" (change)="onDiscountTypeChange(item)">
+                            <input type="number" class="discount-input" [(ngModel)]="item.discountValue"
+                                (change)="onDiscountValueChange(item)" placeholder="0" step="any" />
+                            <select class="discount-type-select" [(ngModel)]="item.discountType"
+                                (change)="onDiscountTypeChange(item)">
                                 <option value="percentage">%</option>
                                 <option value="fixed">₹</option>
                             </select>
@@ -233,11 +248,14 @@
                 <tr class="table-footer">
                     <td colspan="5" class="text-right"><strong>Total:</strong></td>
                     <td class="text-right"><strong>₹{{ getTotalTaxableAmount() | number:'1.2-2' }}</strong></td>
-                    <td class="text-right" *ngIf="!isInterState"><strong>₹{{ getTotalCGSTAmount() | number:'1.2-2' }}</strong></td>
+                    <td class="text-right" *ngIf="!isInterState"><strong>₹{{ getTotalCGSTAmount() | number:'1.2-2'
+                            }}</strong></td>
                     <td class="text-right" *ngIf="isInterState">-</td>
-                    <td class="text-right" *ngIf="!isInterState"><strong>₹{{ getTotalSGSTAmount() | number:'1.2-2' }}</strong></td>
+                    <td class="text-right" *ngIf="!isInterState"><strong>₹{{ getTotalSGSTAmount() | number:'1.2-2'
+                            }}</strong></td>
                     <td class="text-right" *ngIf="isInterState">-</td>
-                    <td class="text-right" *ngIf="isInterState"><strong>₹{{ getTotalIGSTAmount() | number:'1.2-2' }}</strong></td>
+                    <td class="text-right" *ngIf="isInterState"><strong>₹{{ getTotalIGSTAmount() | number:'1.2-2'
+                            }}</strong></td>
                     <td class="text-right" *ngIf="!isInterState">-</td>
                     <td class="text-right"><strong>₹{{ getTotalAmount() | number:'1.2-2' }}</strong></td>
                     <td></td>
@@ -278,26 +296,15 @@
                 <span>Taxable Amount:</span>
                 <span>₹{{ getTaxableAmount() | number:'1.2-2' }}</span>
             </div>
-            <ng-container *ngIf="!isInterState">
-                <div class="summary-row" *ngIf="cgstRate > 0">
-                    <span>CGST ({{ cgstRate }}%):</span>
-                    <span>₹{{ getTotalCGSTAmount() | number:'1.2-2' }}</span>
-                </div>
-                <div class="summary-row" *ngIf="sgstRate > 0">
-                    <span>SGST ({{ sgstRate }}%):</span>
-                    <span>₹{{ getTotalSGSTAmount() | number:'1.2-2' }}</span>
-                </div>
-            </ng-container>
-            <ng-container *ngIf="isInterState">
-                <div class="summary-row" *ngIf="igstRate > 0">
-                    <span>IGST ({{ igstRate }}%):</span>
-                    <span>₹{{ getTotalIGSTAmount() | number:'1.2-2' }}</span>
-                </div>
-            </ng-container>
+            <div class="summary-row" *ngIf="getTotalTaxAmount() > 0">
+                <span>Total Tax (CGST + SGST + IGST):</span>
+                <span>₹{{ getTotalTaxAmount() | number:'1.2-2' }}</span>
+            </div>
             <div class="summary-row">
                 <span>Additional Charges:</span>
                 <span>
-                    <input type="number" class="additional-charges-input" [(ngModel)]="additionalCharges" (change)="onAdditionalChargesChange()" />
+                    <input type="number" class="additional-charges-input" [(ngModel)]="additionalCharges"
+                        (change)="onAdditionalChargesChange()" />
                 </span>
             </div>
             <div class="summary-row round-off">
@@ -330,7 +337,8 @@
             </div>
             <div class="payment-amount">
                 <label>Amount Paid (₹):</label>
-                <input type="number" class="payment-amount-input" [(ngModel)]="paidAmount" (change)="onPaidAmountChange()" [disabled]="isFullPaymentChecked" />
+                <input type="number" class="payment-amount-input" [(ngModel)]="paidAmount"
+                    (change)="onPaidAmountChange()" [disabled]="isFullPaymentChecked" />
             </div>
             <div class="full-payment-checkbox">
                 <label>
