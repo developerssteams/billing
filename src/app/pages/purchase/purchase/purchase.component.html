@@ -64,7 +64,7 @@
             </span>
             <span class="remaining">{{formatAmount(item.Remaining_Amount)}}</span>
             <span class="action-buttons">
-                <button (click)="openInvoiceForm(item)" class="edit">Edit</button>
+                <button (click)="editInvoice(item)" class="edit">Edit</button>
                 <button 
                     class="cancel-btn" 
                     [class.disabled]="isCancelDisabled(item.Status)"

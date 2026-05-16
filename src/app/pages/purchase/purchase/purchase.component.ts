@@ -223,8 +223,9 @@ export class PurchaseComponent implements OnInit {
     }
   }
 
-  openInvoiceForm(invoice: any) {
-    this.selectedInvoice = invoice;
+
+  editInvoice(id: number) {
+    this.router.navigate(['/sales/create-invoice'], { queryParams: { id: id } });
   }
 
   closeInvoiceForm() {
