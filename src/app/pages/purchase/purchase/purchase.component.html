@@ -64,7 +64,7 @@
             </span>
             <span class="remaining">{{formatAmount(item.Remaining_Amount)}}</span>
             <span class="action-buttons">
-                <button (click)="editPurchase(item.ID)" class="edit-btn">Edit</button>
+                <button (click)="editPurchase(item.ID)" class="edit">Edit</button>
                 <button 
                     class="cancel-btn" 
                     [class.disabled]="isCancelDisabled(item.Status)"
@@ -74,6 +74,12 @@
                 </button>
             </span>
         </div>
+
+        <!-- Invoice Form Component -->
+        <app-invoice-form [isVisible]="selectedInvoice != null" 
+                          [invoiceData]="selectedInvoice"
+                          (formClosed)="closeInvoiceForm()">
+        </app-invoice-form>
     </div>
 
     <!-- Footer -->
