@@ -72,7 +72,7 @@ export class CreatePurchaseComponent implements OnInit {
     this.getCategories();
     this.getProducts();
     
-    // 🔥 Check if we are in edit mode - CRITICAL FIX
+    // Check if we are in edit mode
     this.route.queryParams.subscribe(params => {
       const purchaseId = params['id'];
       console.log("Query params:", params);
@@ -82,15 +82,12 @@ export class CreatePurchaseComponent implements OnInit {
         this.isEditMode = true;
         this.editPurchaseId = purchaseId;
         console.log("Edit mode enabled for ID:", this.editPurchaseId);
-        // Wait for vendors to load before fetching purchase
         this.waitForDataAndFetch();
       }
     });
   }
 
-  // 🔥 Wait for vendors and products to load before fetching purchase
   waitForDataAndFetch() {
-    // Check if vendors and products are loaded
     const checkInterval = setInterval(() => {
       if (this.vendors.length > 0 && this.products.length > 0) {
         clearInterval(checkInterval);
@@ -98,7 +95,6 @@ export class CreatePurchaseComponent implements OnInit {
       }
     }, 500);
     
-    // Timeout after 10 seconds
     setTimeout(() => {
       clearInterval(checkInterval);
       if (this.vendors.length === 0 || this.products.length === 0) {
@@ -108,7 +104,6 @@ export class CreatePurchaseComponent implements OnInit {
     }, 10000);
   }
 
-  // ================= FETCH PURCHASE FOR EDIT =================
   fetchPurchaseForEdit(purchaseId: number) {
     this.isLoading = true;
     console.log("Fetching purchase ID:", purchaseId);
@@ -139,21 +134,16 @@ export class CreatePurchaseComponent implements OnInit {
   populatePurchaseData(data: any) {
     console.log("Populating purchase data:", data);
     
-    // Set basic purchase info
     this.purchaseDate = data.invoice_date ? this.formatDateForInput(data.invoice_date) : this.purchaseDate;
     this.paymentDate = data.payment_date ? this.formatDateForInput(data.payment_date) : this.paymentDate;
     this.referenceNumber = data.reference_number || '';
     this.paymentMethod = data.payment_option || 'Cash';
     this.paidAmount = parseFloat(data.paid_amount) || 0;
     
-    console.log("Dates set:", this.purchaseDate, this.paymentDate);
-    
-    // 🔥 Set vendor - CRITICAL: Find vendor in the list
+    // Set vendor
     if (data.vendor_id || data.vendor_name) {
-      // Try to find vendor by ID first
       let foundVendor = this.vendors.find(v => v.id == data.vendor_id);
       
-      // If not found by ID, try by name
       if (!foundVendor && data.vendor_name) {
         foundVendor = this.vendors.find(v => 
           v.name === data.vendor_name || 
@@ -162,11 +152,8 @@ export class CreatePurchaseComponent implements OnInit {
       }
       
       if (foundVendor) {
-        console.log("Found vendor in list:", foundVendor);
         this.selectVendor(foundVendor);
       } else if (data.vendor_name) {
-        // Create vendor object from purchase data
-        console.log("Creating vendor from data:", data);
         this.selectedVendor = {
           id: data.vendor_id || 0,
           name: data.vendor_name,
@@ -180,19 +167,16 @@ export class CreatePurchaseComponent implements OnInit {
           pincode: data.vendor_pincode || ''
         };
         this.searchText = this.selectedVendor.company_name;
-        console.log("Created vendor object:", this.selectedVendor);
       }
     }
     
-    // 🔥 Set bill items - Parse product items
+    // Set bill items
     let products = data.product_items;
     if (typeof products === 'string') {
       try { 
         products = JSON.parse(products); 
-        console.log("Parsed products:", products);
       } catch(e) { 
         products = []; 
-        console.error("Parse error:", e);
       }
     }
     
@@ -211,22 +195,12 @@ export class CreatePurchaseComponent implements OnInit {
         category: item.category,
         unit: item.unit
       }));
-      console.log("Bill items set:", this.billItems);
     }
     
-    // Check if full payment
     const totalAmount = this.getTotalAmount();
     if (this.paidAmount >= totalAmount && totalAmount > 0) {
       this.isFullPaymentChecked = true;
     }
-    
-    // Refresh calculations
-    this.refreshCalculations();
-  }
-
-  refreshCalculations() {
-    // This will trigger template updates
-    setTimeout(() => {}, 100);
   }
 
   formatDateForInput(dateStr: string): string {
@@ -249,7 +223,6 @@ export class CreatePurchaseComponent implements OnInit {
         if (response.status === true) {
           this.vendors = response.data || [];
           this.filteredVendors = [...this.vendors];
-          console.log("Vendors loaded:", this.vendors.length);
         }
       },
       error: (err) => console.error('Error fetching vendors:', err)
@@ -325,7 +298,6 @@ export class CreatePurchaseComponent implements OnInit {
         if (response.status === true) {
           this.products = response.data || [];
           this.filteredProducts = [...this.products];
-          console.log("Products loaded:", this.products.length);
         }
       },
       error: (err) => console.error('Error fetching products:', err)
