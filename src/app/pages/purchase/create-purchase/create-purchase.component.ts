@@ -1,6 +1,6 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { AuthService } from 'src/app/services/auth.service';
@@ -13,6 +13,11 @@ import { AuthService } from 'src/app/services/auth.service';
   styleUrls: ['./create-purchase.component.scss'],
 })
 export class CreatePurchaseComponent implements OnInit {
+
+  // Edit Mode Properties
+  isEditMode: boolean = false;
+  editPurchaseId: number = 0;
+  isLoading: boolean = false;
 
   vendors: any[] = [];
   filteredVendors: any[] = [];
@@ -40,10 +45,13 @@ export class CreatePurchaseComponent implements OnInit {
   paymentDate: string = '';
   referenceNumber: string = '';
 
+  // API URLs
   vendorApiUrl = 'https://billsezy.com/Api/get_vendor.php';
   categoryApiUrl = 'https://billsezy.com/Api/get_category.php';
   productApiUrl = 'https://billsezy.com/Api/get_product.php';
   saveApiUrl = 'https://billsezy.com/Api/purchase.php';
+  updateApiUrl = 'https://billsezy.com/Api/update-purchase.php';
+  getPurchaseApiUrl = 'https://billsezy.com/Api/getview-purchase.php';
 
   get userId(): number {
     const userId = this.authService.getUserId();
@@ -52,6 +60,7 @@ export class CreatePurchaseComponent implements OnInit {
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private http: HttpClient,
     private authService: AuthService
   ) { }
@@ -62,6 +71,149 @@ export class CreatePurchaseComponent implements OnInit {
     this.getVendors();
     this.getCategories();
     this.getProducts();
+    
+    // Check if we are in edit mode
+    this.route.queryParams.subscribe(params => {
+      const purchaseId = params['id'];
+      console.log("Query params:", params);
+      console.log("Purchase ID from URL:", purchaseId);
+      
+      if (purchaseId && purchaseId > 0) {
+        this.isEditMode = true;
+        this.editPurchaseId = purchaseId;
+        console.log("Edit mode enabled for ID:", this.editPurchaseId);
+        this.waitForDataAndFetch();
+      }
+    });
+  }
+
+  // Wait for vendors and products to load before fetching purchase
+  waitForDataAndFetch() {
+    const checkInterval = setInterval(() => {
+      if (this.vendors.length > 0 && this.products.length > 0) {
+        clearInterval(checkInterval);
+        this.fetchPurchaseForEdit(this.editPurchaseId);
+      }
+    }, 500);
+    
+    setTimeout(() => {
+      clearInterval(checkInterval);
+      if (this.vendors.length === 0 || this.products.length === 0) {
+        console.log("Timeout: Fetching purchase anyway");
+        this.fetchPurchaseForEdit(this.editPurchaseId);
+      }
+    }, 10000);
+  }
+
+  // ================= FETCH PURCHASE FOR EDIT =================
+  fetchPurchaseForEdit(purchaseId: number) {
+    this.isLoading = true;
+    console.log("Fetching purchase ID:", purchaseId);
+    
+    this.http.get<any>(`${this.getPurchaseApiUrl}?user_id=${this.userId}&id=${purchaseId}`).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        console.log("API Response:", response);
+        
+        if (response.status === true) {
+          const data = response.data;
+          console.log("Purchase data received:", data);
+          this.populatePurchaseData(data);
+        } else {
+          alert('Error: ' + (response.message || 'Failed to load purchase'));
+          this.router.navigate(['/purchase/add-purchase']);
+        }
+      },
+      error: (err) => {
+        this.isLoading = false;
+        console.error('Error fetching purchase:', err);
+        alert('Error loading purchase for editing: ' + (err.message || 'Connection failed'));
+        this.router.navigate(['/purchase/add-purchase']);
+      }
+    });
+  }
+
+  populatePurchaseData(data: any) {
+    console.log("Populating purchase data:", data);
+    
+    // Set basic purchase info
+    this.purchaseDate = data.invoice_date ? this.formatDateForInput(data.invoice_date) : this.purchaseDate;
+    this.paymentDate = data.payment_date ? this.formatDateForInput(data.payment_date) : this.paymentDate;
+    this.referenceNumber = data.reference_number || '';
+    this.paymentMethod = data.payment_option || 'Cash';
+    this.paidAmount = parseFloat(data.paid_amount) || 0;
+    
+    // Set vendor
+    if (data.vendor_id || data.vendor_name) {
+      let foundVendor = this.vendors.find(v => v.id == data.vendor_id);
+      
+      if (!foundVendor && data.vendor_name) {
+        foundVendor = this.vendors.find(v => 
+          v.name === data.vendor_name || 
+          v.company_name === data.vendor_name
+        );
+      }
+      
+      if (foundVendor) {
+        this.selectVendor(foundVendor);
+      } else if (data.vendor_name) {
+        this.selectedVendor = {
+          id: data.vendor_id || 0,
+          name: data.vendor_name,
+          company_name: data.vendor_name,
+          gstin: data.vendor_gstin || '',
+          phone: data.vendor_phone || '',
+          email: data.vendor_email || '',
+          address_line1: data.vendor_address || '',
+          city: data.vendor_city || '',
+          state: data.vendor_state || '',
+          pincode: data.vendor_pincode || ''
+        };
+        this.searchText = this.selectedVendor.company_name;
+      }
+    }
+    
+    // Set bill items
+    let products = data.product_items;
+    if (typeof products === 'string') {
+      try { 
+        products = JSON.parse(products); 
+      } catch(e) { 
+        products = []; 
+      }
+    }
+    
+    if (products && products.length > 0) {
+      this.billItems = products.map((item: any, index: number) => ({
+        id: Date.now() + index,
+        productId: item.id,
+        productName: item.name,
+        hsnCode: item.hsn || 'N/A',
+        quantity: item.quantity,
+        unitPrice: item.unit_price,
+        discountValue: item.discount_value,
+        discountType: item.discount_type || 'percentage',
+        discountAmount: item.discount_amount,
+        totalAmount: item.total_amount,
+        category: item.category,
+        unit: item.unit
+      }));
+    }
+    
+    // Check if full payment
+    const totalAmount = this.getTotalAmount();
+    if (this.paidAmount >= totalAmount && totalAmount > 0) {
+      this.isFullPaymentChecked = true;
+    }
+  }
+
+  formatDateForInput(dateStr: string): string {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   setDefaultDates() {
@@ -75,6 +227,7 @@ export class CreatePurchaseComponent implements OnInit {
         if (response.status === true) {
           this.vendors = response.data || [];
           this.filteredVendors = [...this.vendors];
+          console.log("Vendors loaded:", this.vendors.length);
         }
       },
       error: (err) => console.error('Error fetching vendors:', err)
@@ -150,6 +303,7 @@ export class CreatePurchaseComponent implements OnInit {
         if (response.status === true) {
           this.products = response.data || [];
           this.filteredProducts = [...this.products];
+          console.log("Products loaded:", this.products.length);
         }
       },
       error: (err) => console.error('Error fetching products:', err)
@@ -324,10 +478,7 @@ export class CreatePurchaseComponent implements OnInit {
       return;
     }
 
-    // 🔥 Calculate total amount
     const totalAmount = this.getTotalAmount();
-
-    // 🔥 Calculate remaining and status
     const remainingAmount = totalAmount - this.paidAmount;
     let purchaseStatus = 'Unpaid';
 
@@ -339,7 +490,6 @@ export class CreatePurchaseComponent implements OnInit {
       purchaseStatus = 'Unpaid';
     }
 
-    // Product Items
     const productItems = this.billItems.map((item: any) => ({
       id: item.productId,
       name: item.productName,
@@ -354,35 +504,48 @@ export class CreatePurchaseComponent implements OnInit {
       unit: item.unit
     }));
 
-    // FINAL PAYLOAD
-    const payload = {
+    const payload: any = {
       user_id: this.userId,
+      vendor_id: this.selectedVendor?.id || 0,
       vendor_name: this.selectedVendor?.company_name || this.selectedVendor?.name,
+      vendor_gstin: this.selectedVendor?.gstin || '',
+      vendor_phone: this.selectedVendor?.phone || '',
+      vendor_email: this.selectedVendor?.email || '',
+      vendor_address: this.getVendorAddress(),
+      vendor_city: this.selectedVendor?.city || '',
+      vendor_state: this.selectedVendor?.state || '',
+      vendor_pincode: this.selectedVendor?.pincode || '',
       invoice_date: this.purchaseDate,
       payment_date: this.paymentDate,
-      purchase_price: this.getSubTotal(),  // Original price before discount
+      reference_number: this.referenceNumber || '',
+      purchase_price: this.getSubTotal(),
       discount: this.getTotalDiscount(),
       additional_charges: 0,
-      payable_amount: this.paidAmount,
+      total_amount: totalAmount,
+      payment_option: this.paymentMethod,
+      paid_amount: this.paidAmount,
       remaining_amount: remainingAmount,
       status: purchaseStatus,
       product_items: JSON.stringify(productItems)
     };
 
+    // Add id for edit mode
+    if (this.isEditMode) {
+      payload.id = this.editPurchaseId;
+    }
+
     console.log('Saving Purchase Payload:', payload);
 
-    // Save Button
     const saveBtn = document.querySelector('.save-btn-bottom') as HTMLButtonElement;
     if (saveBtn) {
       saveBtn.innerText = 'Saving...';
       saveBtn.disabled = true;
     }
 
-    // API CALL
-    this.http.post(this.saveApiUrl, payload, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
+    const apiUrl = this.isEditMode ? this.updateApiUrl : this.saveApiUrl;
+
+    this.http.post(apiUrl, payload, {
+      headers: { 'Content-Type': 'application/json' }
     }).subscribe({
       next: (response: any) => {
         if (saveBtn) {
@@ -393,11 +556,11 @@ export class CreatePurchaseComponent implements OnInit {
         console.log('Server Response:', response);
 
         if (response.status === true || response.success === true) {
-          alert('Purchase Created Successfully!\nBill No: ' + response.bill_no);
+          alert(this.isEditMode ? 'Purchase Updated Successfully!' : 'Purchase Created Successfully!');
           this.resetForm();
           this.router.navigate(['/purchase/add-purchase']);
         } else {
-          alert(response.message || 'Failed to create purchase');
+          alert(response.message || 'Failed to save purchase');
         }
       },
       error: (err) => {
@@ -406,7 +569,7 @@ export class CreatePurchaseComponent implements OnInit {
           saveBtn.disabled = false;
         }
         console.error('Save Error:', err);
-        alert('Server Error.\nPlease check console for details.');
+        alert('Server Error: ' + (err.message || 'Connection failed'));
       }
     });
   }
@@ -424,6 +587,8 @@ export class CreatePurchaseComponent implements OnInit {
     this.selectedQty = 1;
     this.discountPercent = 0;
     this.referenceNumber = '';
+    this.isEditMode = false;
+    this.editPurchaseId = 0;
     this.setDefaultDates();
   }
 
@@ -450,4 +615,3 @@ export class CreatePurchaseComponent implements OnInit {
     }
   }
 }
-
