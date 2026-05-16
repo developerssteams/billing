@@ -225,7 +225,7 @@ export class PurchaseComponent implements OnInit {
 
 
   editInvoice(id: number) {
-    this.router.navigate(['/sales/create-invoice'], { queryParams: { id: id } });
+    this.router.navigate(['/purchase/create-purchase'], { queryParams: { id: id } });
   }
 
   closeInvoiceForm() {
