@@ -1,6 +1,6 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CustomerFormComponent } from '../../../components/customer-form/customer-form.component';
@@ -19,6 +19,11 @@ import { AuthService } from 'src/app/services/auth.service';
   styleUrls: ['./create-invoice.component.scss'],
 })
 export class CreateInvoiceComponent implements OnInit {
+
+  // Edit Mode Properties
+  isEditMode: boolean = false;
+  editInvoiceId: number = 0;
+  isLoading: boolean = false;
 
   // Customer
   customers: any[] = [];
@@ -110,6 +115,8 @@ export class CreateInvoiceComponent implements OnInit {
   categoryApiUrl = 'https://billsezy.com/Api/get_category.php';
   productApiUrl = 'https://billsezy.com/Api/get_product.php';
   saveApiUrl = 'https://billsezy.com/Api/add-invoice.php';
+  updateApiUrl = 'https://billsezy.com/Api/update-invoice.php';
+  getInvoiceApiUrl = 'https://billsezy.com/Api/getview-invoice.php';
   companyApiUrl = 'https://billsezy.com/Api/get_company_details.php';
   updateCustomerApiUrl = 'https://billsezy.com/Api/update_customer_address.php';
 
@@ -120,6 +127,7 @@ export class CreateInvoiceComponent implements OnInit {
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private http: HttpClient,
     private authService: AuthService
   ) { }
@@ -131,6 +139,128 @@ export class CreateInvoiceComponent implements OnInit {
     this.getCategories();
     this.getProducts();
     this.setDefaultDates();
+    
+    // Check if we are in edit mode
+    this.route.queryParams.subscribe(params => {
+      const invoiceId = params['id'];
+      if (invoiceId && invoiceId > 0) {
+        this.isEditMode = true;
+        this.editInvoiceId = invoiceId;
+        this.fetchInvoiceForEdit(invoiceId);
+      }
+    });
+  }
+
+  // ================= FETCH INVOICE FOR EDIT =================
+  fetchInvoiceForEdit(invoiceId: number) {
+    this.isLoading = true;
+    this.http.get<any>(`${this.getInvoiceApiUrl}?user_id=${this.userId}&id=${invoiceId}`).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        if (response.status === true) {
+          const data = response.data;
+          this.populateInvoiceData(data);
+        } else {
+          alert('Error: ' + (response.message || 'Failed to load invoice'));
+          this.router.navigate(['/sales/add-invoice']);
+        }
+      },
+      error: (err) => {
+        this.isLoading = false;
+        console.error('Error fetching invoice:', err);
+        alert('Error loading invoice for editing');
+        this.router.navigate(['/sales/add-invoice']);
+      }
+    });
+  }
+
+  populateInvoiceData(data: any) {
+    // Set basic invoice info
+    this.invoiceDate = data.Invoice_Date ? this.formatDateForInput(data.Invoice_Date) : this.invoiceDate;
+    this.dueDate = data.Due_Date ? this.formatDateForInput(data.Due_Date) : this.dueDate;
+    this.referenceNumber = data.Reference_Number || '';
+    this.paymentMethod = data.Payment_Option || 'Cash';
+    this.paidAmount = parseFloat(data.Paid_Amount) || 0;
+    this.additionalCharges = parseFloat(data.Additional_Charges) || 0;
+    this.roundOff = data.Round_Off_Enabled === 1 || data.Round_Off_Enabled === true;
+    
+    // Set customer
+    if (data.customer_id) {
+      // Find customer in the list or create a temp object
+      const existingCustomer = this.customers.find(c => c.id == data.customer_id);
+      if (existingCustomer) {
+        this.selectCustomer(existingCustomer);
+      } else {
+        // Create customer object from invoice data
+        this.selectedCustomer = {
+          id: data.customer_id,
+          name: data.Customer_Name,
+          company_name: data.Customer_Name,
+          gstin: data.customer_gstin,
+          phone: data.customer_phone,
+          email: data.customer_email,
+          address_line1: data.customer_address,
+          city: data.customer_city,
+          state: data.customer_state,
+          pincode: data.customer_pincode,
+          delivery_address_line1: data.shipping_address || data.customer_address,
+          delivery_city: data.shipping_city || data.customer_city,
+          delivery_state: data.shipping_state || data.customer_state,
+          delivery_pincode: data.shipping_pincode || data.customer_pincode
+        };
+        this.searchText = this.selectedCustomer.company_name;
+        this.checkGSTType();
+      }
+    }
+    
+    // Set bill items
+    let products = data.Product_Items;
+    if (typeof products === 'string') {
+      try { products = JSON.parse(products); } catch(e) { products = []; }
+    }
+    
+    if (products && products.length > 0) {
+      this.billItems = products.map((item: any, index: number) => ({
+        id: Date.now() + index,
+        productId: item.id,
+        productName: item.name,
+        hsnCode: item.hsn || 'N/A',
+        quantity: item.quantity,
+        unitPrice: item.unit_price,
+        discountValue: item.discount_value,
+        discountType: item.discount_type || 'percentage',
+        discountAmount: item.discount_amount,
+        subtotal: item.unit_price * item.quantity,
+        taxableValue: item.taxable_value,
+        gstRate: item.gst_rate,
+        cgstRate: item.cgst_rate,
+        sgstRate: item.sgst_rate,
+        igstRate: item.igst_rate,
+        cgstAmount: item.cgst_amount,
+        sgstAmount: item.sgst_amount,
+        igstAmount: item.igst_amount,
+        totalAmount: item.total_amount,
+        category: item.category,
+        unit: item.unit
+      }));
+      
+      // Check if any product has been loaded and update tax rates
+      this.calculateTaxRatesForAllItems();
+    }
+    
+    // Check if full payment
+    const grandTotal = parseFloat(data.Grand_Total) || 0;
+    if (this.paidAmount >= grandTotal && grandTotal > 0) {
+      this.isFullPaymentChecked = true;
+    }
+    
+    this.refreshCalculations();
+  }
+
+  formatDateForInput(dateStr: string): string {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toISOString().split('T')[0];
   }
 
   // ================= FULL PAYMENT TOGGLE =================
@@ -152,7 +282,6 @@ export class CreateInvoiceComponent implements OnInit {
     }
     this.paidAmount = this.roundToTwoDecimals(this.paidAmount);
 
-    // Uncheck full payment checkbox if amount is not equal to total
     if (this.paidAmount !== totalAmount) {
       this.isFullPaymentChecked = false;
     } else if (this.paidAmount === totalAmount && this.paidAmount > 0) {
@@ -252,10 +381,6 @@ export class CreateInvoiceComponent implements OnInit {
 
   roundToTwoDecimals(value: number): number {
     return Math.round(value * 100) / 100;
-  }
-
-  updatePaidAmount() {
-    // Handled by onFullPaymentToggle
   }
 
   refreshCalculations() {
@@ -759,7 +884,6 @@ export class CreateInvoiceComponent implements OnInit {
     }
   }
 
-  // Update the save() method - redirect to invoice list after save
   save() {
     if (this.billItems.length === 0) {
       alert('Please add at least one product!');
@@ -795,9 +919,8 @@ export class CreateInvoiceComponent implements OnInit {
       unit: item.unit
     }));
 
-    const payload = {
-      user_id: this.userId,  // ✅ Make sure this is included
-      bill_no: 'INV-' + Date.now(),
+    const payload: any = {
+      user_id: this.userId,
       invoice_date: this.invoiceDate,
       due_date: this.dueDate,
       reference_number: this.referenceNumber || '',
@@ -837,6 +960,13 @@ export class CreateInvoiceComponent implements OnInit {
       total_items: this.getTotalItemsCount()
     };
 
+    // Add bill_no for create mode, or id for update mode
+    if (this.isEditMode) {
+      payload.id = this.editInvoiceId;
+    } else {
+      payload.bill_no = 'INV-' + Date.now();
+    }
+
     console.log('Saving invoice payload:', payload);
 
     const saveBtn = document.querySelector('.save-btn-bottom') as HTMLButtonElement;
@@ -845,19 +975,19 @@ export class CreateInvoiceComponent implements OnInit {
       saveBtn.disabled = true;
     }
 
-    this.http.post(this.saveApiUrl, payload).subscribe({
+    const apiUrl = this.isEditMode ? this.updateApiUrl : this.saveApiUrl;
+
+    this.http.post(apiUrl, payload).subscribe({
       next: (response: any) => {
         if (saveBtn) {
           saveBtn.innerText = 'Save Invoice';
           saveBtn.disabled = false;
         }
-        if (response.status === 'success' || response.success === true) {
-          alert('Invoice Created Successfully!\nBill No: ' + (response.bill_no || payload.bill_no));
-          this.resetForm();
-          // ✅ Redirect to invoice list page
+        if (response.status === 'success' || response.success === true || response.status === true) {
+          alert(this.isEditMode ? 'Invoice Updated Successfully!' : 'Invoice Created Successfully!\nBill No: ' + (response.bill_no || payload.bill_no));
           this.router.navigate(['/sales/add-invoice']);
         } else {
-          alert('Error: ' + (response.message || 'Failed to create invoice'));
+          alert('Error: ' + (response.message || 'Failed to save invoice'));
         }
       },
       error: (err) => {
