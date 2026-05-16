@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { InvoiceFormComponent } from '../../../invoice-form/invoice-form.component';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
@@ -10,7 +9,7 @@ import { AuthService } from 'src/app/services/auth.service';
 @Component({
   selector: 'app-purchase',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule, PageHeaderComponent, InvoiceFormComponent],
+  imports: [CommonModule, FormsModule, HttpClientModule, PageHeaderComponent],
   templateUrl: './purchase.component.html',
   styleUrls: ['./purchase.component.scss'],
 })
@@ -33,7 +32,6 @@ export class PurchaseComponent implements OnInit {
 
   currentPage = 1;
   itemsPerPage = 10;
-  selectedInvoice: any = null;
 
   constructor(
     private router: Router,
@@ -93,14 +91,14 @@ export class PurchaseComponent implements OnInit {
     });
   }
 
-  // 🔥 SUMMARY - Cancelled purchases are EXCLUDED
+  // SUMMARY - Cancelled purchases are EXCLUDED
   calculateSummary() {
     this.totalAmount = 0;
     this.paidAmount = 0;
     this.pendingAmount = 0;
 
     this.filteredPurchases.forEach(purchase => {
-      // ✅ CRITICAL: Skip cancelled purchases from all totals
+      // Skip cancelled purchases from all totals
       if (purchase.Status === 'Cancelled') {
         console.log('Skipping cancelled purchase:', purchase.Bill_no);
         return;
@@ -174,12 +172,9 @@ export class PurchaseComponent implements OnInit {
     return this.pendingAmount;
   }
 
-  // 🔥 View Purchase (if needed)
-  viewPurchase(id: number) {
-    this.router.navigate(['purchase/view-purchase'], { queryParams: { id: id } });
-  }
-
+  // Edit Purchase - Redirect to create-purchase page with ID
   editPurchase(id: number) {
+    console.log("Editing purchase with ID:", id);
     this.router.navigate(['/purchase/create-purchase'], { queryParams: { id: id } });
   }
 
@@ -221,16 +216,6 @@ export class PurchaseComponent implements OnInit {
         }
       });
     }
-  }
-
-
-  editInvoice(id: number) {
-    this.router.navigate(['/purchase/create-purchase'], { queryParams: { id: id } });
-  }
-
-  closeInvoiceForm() {
-    this.selectedInvoice = null;
-    this.fetchPurchases();
   }
 
   goToCreatePurchasePage() {
