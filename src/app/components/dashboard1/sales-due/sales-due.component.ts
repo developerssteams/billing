@@ -12,6 +12,7 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 })
 export class SalesDueComponent {
   @Input() value: number = 12560;
+  @Input() growth: number = 7.95;
   @Input() dueDays: number = 15;
   @Input() dueCount: number = 8;
   @Input() percentage: number = 25;
