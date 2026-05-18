@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { TablerIconsModule } from 'angular-tabler-icons';
-import { HttpClientModule } from '@angular/common/http'; // ✅ YEH ADD KAR
+import { HttpClientModule } from '@angular/common/http';
 
 // Import components
 import { TotalSalesComponent } from 'src/app/components/dashboard1/total-sales/total-sales.component';
@@ -20,7 +20,7 @@ import { SuppliersComponent } from 'src/app/components/dashboard1/supliers/supli
     CommonModule,
     MatCardModule,
     TablerIconsModule,
-    HttpClientModule, 
+    HttpClientModule,
     TotalSalesComponent,
     TotalPurchaseComponent,
     PurchaseDueComponent,
@@ -34,6 +34,7 @@ import { SuppliersComponent } from 'src/app/components/dashboard1/supliers/supli
 })
 export class AppDashboard1Component {
   activeTab = 'today';
+  userId = 1; // ✅ Add this - user ID from login
 
   tabs = [
     { label: 'Today', value: 'today' },
