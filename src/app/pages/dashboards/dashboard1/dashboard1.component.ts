@@ -12,7 +12,8 @@ import { AppTrafficDataComponent } from 'src/app/components/dashboard1/traffic-d
 import { AppViewFullReportComponent } from 'src/app/components/dashboard1/view-full-report/view-full-report.component';
 import { AppVisitorComponent } from 'src/app/components/dashboard1/visitor/visitor.component';
 import { AppWebsiteVisitsComponent } from 'src/app/components/dashboard1/website-visits/website-visits.component';
-
+import { PurchaseComponent } from "../../purchase/purchase/purchase.component";
+import { PurchaseDueComponent } from 'src/app/components/dashboard1/purchase-due/purchase-due.component';
 
 
 @Component({
@@ -31,7 +32,8 @@ import { AppWebsiteVisitsComponent } from 'src/app/components/dashboard1/website
     AppAdCampaignClicksComponent,
     AppCampaignPerformanceComponent,
     AppTrafficDataComponent,
-
+    PurchaseComponent,
+    PurchaseDueComponent,
   ],
   templateUrl: './dashboard1.component.html',
 })
