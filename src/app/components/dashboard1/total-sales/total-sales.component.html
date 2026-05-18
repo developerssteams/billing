@@ -1,23 +1,35 @@
 <mat-card class="p-4 hover:shadow-lg transition-shadow">
-  <div class="flex items-center justify-between mb-3">
-    <div>
-      <p class="text-gray-500 text-sm mb-1">Total Sales</p>
-      <h3 class="text-2xl font-bold text-green-600">${{ value | number }}</h3>
-      <p class="text-green-500 text-xs mt-1">
-        <i-tabler name="trending-up" class="w-3 h-3 inline"></i-tabler>
-        +{{ growth }}% from last month
-      </p>
-    </div>
-    <div class="bg-green-100 p-3 rounded-full">
-      <i-tabler name="shopping-cart" class="w-6 h-6 text-green-600"></i-tabler>
-    </div>
+  <div *ngIf="isLoading" class="flex justify-center items-center h-32">
+    <div class="text-green-500">Loading...</div>
   </div>
-
   
-  <div class="mt-3 pt-2 border-t border-gray-100">
-    <button class="w-full text-green-600 text-sm font-medium hover:text-green-700 transition flex items-center justify-center gap-1">
-      <i-tabler name="report" class="w-4 h-4"></i-tabler>
-      View Sales Report
-    </button>
+  <div *ngIf="!isLoading">
+    <div class="flex items-center justify-between mb-3">
+      <div>
+        <p class="text-gray-500 text-sm mb-1">Total Sales</p>
+        <h3 class="text-2xl font-bold text-green-600">${{ value | number }}</h3>
+        <p class="text-green-500 text-xs mt-1">
+          <i-tabler name="trending-up" class="w-3 h-3 inline"></i-tabler>
+          +{{ growth }}% from last month
+        </p>
+      </div>
+      <div class="bg-green-100 p-3 rounded-full">
+        <i-tabler name="shopping-cart" class="w-6 h-6 text-green-600"></i-tabler>
+      </div>
+    </div>
+
+    <div class="mt-3 pt-2 border-t border-gray-100">
+      <div class="flex justify-between text-xs mb-2">
+        <span class="text-gray-500">Orders: {{ orders }}</span>
+        <span class="text-green-600">Target: {{ percentage }}%</span>
+      </div>
+      <div class="w-full bg-gray-200 rounded-full h-1.5 mb-3">
+        <div class="bg-green-500 h-1.5 rounded-full" [style.width.%]="percentage"></div>
+      </div>
+      <button class="w-full text-green-600 text-sm font-medium hover:text-green-700 transition flex items-center justify-center gap-1">
+        <i-tabler name="report" class="w-4 h-4"></i-tabler>
+        View Sales Report
+      </button>
+    </div>
   </div>
 </mat-card>

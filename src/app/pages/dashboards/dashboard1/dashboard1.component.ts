@@ -2,8 +2,9 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { TablerIconsModule } from 'angular-tabler-icons';
+import { HttpClientModule } from '@angular/common/http'; // ✅ YEH ADD KAR
 
-// Import new components
+// Import components
 import { TotalSalesComponent } from 'src/app/components/dashboard1/total-sales/total-sales.component';
 import { TotalPurchaseComponent } from 'src/app/components/dashboard1/total-purchase/total-purchase.component';
 import { PurchaseDueComponent } from 'src/app/components/dashboard1/purchase-due/purchase-due.component';
@@ -19,7 +20,7 @@ import { SuppliersComponent } from 'src/app/components/dashboard1/supliers/supli
     CommonModule,
     MatCardModule,
     TablerIconsModule,
-    // New components
+    HttpClientModule, 
     TotalSalesComponent,
     TotalPurchaseComponent,
     PurchaseDueComponent,

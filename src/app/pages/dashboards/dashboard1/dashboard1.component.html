@@ -2,9 +2,8 @@
   <!-- Tabs Section -->
   <div class="col-span-12">
     <mat-card class="p-4">
-      <!-- Tabs - Center on mobile, Right on desktop -->
       <div class="flex justify-center lg:justify-end">
-        <div class="flex flex-wrap justify-center  border-b border-gray-200">
+        <div class="flex flex-wrap justify-center border-b border-gray-200">
           <button *ngFor="let tab of tabs" (click)="activeTab = tab.value"
             [class]="activeTab === tab.value ? 'px-3 md:px-4 py-2 text-blue-600 border-b-2 border-blue-600 font-medium text-sm md:text-base' : 'px-3 md:px-4 py-2 text-gray-500 hover:text-gray-700 text-sm md:text-base'">
             {{ tab.label }}
@@ -16,28 +15,7 @@
 
   <!-- Stats Cards Row 1 -->
   <div class="col-span-12 sm:col-span-6 lg:col-span-3">
-    <app-total-sales></app-total-sales>
+    <app-total-sales [period]="activeTab"></app-total-sales>
   </div>
-  <div class="col-span-12 sm:col-span-6 lg:col-span-3">
-    <app-total-purchase></app-total-purchase>
-  </div>
-  <div class="col-span-12 sm:col-span-6 lg:col-span-3">
-    <app-purchase-due></app-purchase-due>
-  </div>
-  <div class="col-span-12 sm:col-span-6 lg:col-span-3">
-    <app-sales-due></app-sales-due>
-  </div>
-
-  <!-- Stats Cards Row 2 -->
-  <div class="col-span-12 sm:col-span-6 lg:col-span-3">
-    <app-expense></app-expense>
-  </div>
-  <div class="col-span-12 sm:col-span-6 lg:col-span-3">
-    <app-customers></app-customers>
-  </div>
-  <div class="col-span-12 sm:col-span-6 lg:col-span-3">
-    <app-suppliers></app-suppliers>
-  </div>
-
 
 </div>
