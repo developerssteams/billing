@@ -3,40 +3,41 @@ import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { TablerIconsModule } from 'angular-tabler-icons';
 
-import { AppAdCampaignClicksComponent } from 'src/app/components/dashboard1/ad-campaign-clicks/ad-campaign-clicks.component';
-import { AppCampaignPerformanceComponent } from 'src/app/components/dashboard1/campaign-performance/campaign-performance.component';
-import { AppConversionRateComponent } from 'src/app/components/dashboard1/conversion-rate/conversion-rate.component';
-import { AppCurrentVisitsComponent } from 'src/app/components/dashboard1/current-visits/current-visits.component';
-import { AppKeyInsightsComponent } from 'src/app/components/dashboard1/key-insights/key-insights.component';
-import { AppTrafficDataComponent } from 'src/app/components/dashboard1/traffic-data/traffic-data.component';
-import { AppViewFullReportComponent } from 'src/app/components/dashboard1/view-full-report/view-full-report.component';
-import { AppVisitorComponent } from 'src/app/components/dashboard1/visitor/visitor.component';
-import { AppWebsiteVisitsComponent } from 'src/app/components/dashboard1/website-visits/website-visits.component';
-import { PurchaseComponent } from "../../purchase/purchase/purchase.component";
+// Import new components
+import { TotalSalesComponent } from 'src/app/components/dashboard1/total-sales/total-sales.component';
+import { TotalPurchaseComponent } from 'src/app/components/dashboard1/total-purchase/total-purchase.component';
 import { PurchaseDueComponent } from 'src/app/components/dashboard1/purchase-due/purchase-due.component';
-
+import { SalesDueComponent } from 'src/app/components/dashboard1/sales-due/sales-due.component';
+import { ExpenseComponent } from 'src/app/components/dashboard1/expense/expense.component';
+import { CustomersComponent } from 'src/app/components/dashboard1/customers/customers.component';
+import { SuppliersComponent } from 'src/app/components/dashboard1/supliers/supliers.component';
 
 @Component({
   selector: 'app-dashboard1',
   standalone: true,
   imports: [
-    TablerIconsModule,
     CommonModule,
     MatCardModule,
-    AppViewFullReportComponent,
-    AppKeyInsightsComponent,
-    AppWebsiteVisitsComponent,
-    AppCurrentVisitsComponent,
-    AppVisitorComponent,
-    AppConversionRateComponent,
-    AppAdCampaignClicksComponent,
-    AppCampaignPerformanceComponent,
-    AppTrafficDataComponent,
-    PurchaseComponent,
+    TablerIconsModule,
+    // New components
+    TotalSalesComponent,
+    TotalPurchaseComponent,
     PurchaseDueComponent,
+    SalesDueComponent,
+    ExpenseComponent,
+    CustomersComponent,
+    SuppliersComponent,
   ],
   templateUrl: './dashboard1.component.html',
 })
 export class AppDashboard1Component {
-
+  activeTab = 'today';
+  
+  tabs = [
+    { label: 'Today', value: 'today' },
+    { label: 'Weekly', value: 'weekly' },
+    { label: 'Monthly', value: 'monthly' },
+    { label: 'Yearly', value: 'yearly' },
+    { label: 'All', value: 'all' }
+  ];
 }
