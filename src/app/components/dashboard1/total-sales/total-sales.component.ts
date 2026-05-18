@@ -14,7 +14,7 @@ import { SalesService } from '../services/sales.service';
 export class TotalSalesComponent implements OnChanges {
   @Input() period: string = 'monthly';
   @Input() userId: number = 1;
-  
+
   value: number = 0;
   growth: number = 0;
   orders: number = 0;
@@ -24,7 +24,7 @@ export class TotalSalesComponent implements OnChanges {
   percentage: number = 0;
   isLoading: boolean = true;
 
-  constructor(private salesService: SalesService) {}
+  constructor(private salesService: SalesService) { }
 
   ngOnChanges() {
     this.loadData();
@@ -52,7 +52,15 @@ export class TotalSalesComponent implements OnChanges {
       }
     });
   }
-
+  getPeriodText(): string {
+    switch (this.period) {
+      case 'today': return 'day';
+      case 'weekly': return 'week';
+      case 'monthly': return 'month';
+      case 'yearly': return 'year';
+      default: return 'period';
+    }
+  }
   setDummyData() {
     const dummy: any = {
       today: { value: 4580, growth: 8.5, orders: 12, paid: 3500, pending: 1080, percentage: 9 },
