@@ -29,10 +29,11 @@ import { SuppliersComponent } from 'src/app/components/dashboard1/supliers/supli
     SuppliersComponent,
   ],
   templateUrl: './dashboard1.component.html',
+  styleUrls: ['./dashboard1.component.scss']
 })
 export class AppDashboard1Component {
   activeTab = 'today';
-  
+
   tabs = [
     { label: 'Today', value: 'today' },
     { label: 'Weekly', value: 'weekly' },

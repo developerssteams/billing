@@ -2,12 +2,11 @@
   <!-- Tabs Section -->
   <div class="col-span-12">
     <mat-card class="p-4">
-      <div class="flex justify-end">
-        <div class="flex gap-2 border-b border-gray-200">
-          <button 
-            *ngFor="let tab of tabs" 
-            (click)="activeTab = tab.value"
-            [class]="activeTab === tab.value ? 'px-4 py-2 text-blue-600 border-b-2 border-blue-600 font-medium' : 'px-4 py-2 text-gray-500 hover:text-gray-700'">
+      <!-- Tabs - Center on mobile, Right on desktop -->
+      <div class="flex justify-center lg:justify-end">
+        <div class="flex flex-wrap justify-center gap-2 border-b border-gray-200">
+          <button *ngFor="let tab of tabs" (click)="activeTab = tab.value"
+            [class]="activeTab === tab.value ? 'px-3 md:px-4 py-2 text-blue-600 border-b-2 border-blue-600 font-medium text-sm md:text-base' : 'px-3 md:px-4 py-2 text-gray-500 hover:text-gray-700 text-sm md:text-base'">
             {{ tab.label }}
           </button>
         </div>
@@ -40,5 +39,5 @@
     <app-suppliers></app-suppliers>
   </div>
 
- 
+
 </div>
