@@ -1,16 +1,19 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
+import { TablerIconsModule } from 'angular-tabler-icons';
 
 @Component({
   selector: 'app-purchase-due',
-  standalone: true, // ✅ Add this - it's required for standalone component
-  imports: [CommonModule, MatCardModule], // ✅ Add required imports
+  standalone: true,
+  imports: [CommonModule, MatCardModule, TablerIconsModule],
   templateUrl: './purchase-due.component.html',
-  styleUrl: './purchase-due.component.scss',
+  styleUrls: ['./purchase-due.component.scss']
 })
 export class PurchaseDueComponent {
-  purchaseAmount = 1234;
-  dueDate = '30 May 2026';
-  progressPercentage = 65;
+  @Input() amount: number = 28450;
+  @Input() growth: number = 5.2;
+  @Input() duePercentage: number = 65;
+  @Input() pendingInvoices: number = 24;
+  @Input() dueDate: string = '30 May 2026';
 }
