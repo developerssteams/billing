@@ -1,73 +1,138 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnChanges,
+  SimpleChanges
+} from '@angular/core';
+
 import { CommonModule } from '@angular/common';
+
 import { MatCardModule } from '@angular/material/card';
+
 import { TablerIconsModule } from 'angular-tabler-icons';
-import { SalesService, SalesData } from '../services/sales.service';
+
+import {
+  SalesService
+} from '../services/sales.service';
 
 @Component({
   selector: 'app-total-sales',
   standalone: true,
-  imports: [CommonModule, MatCardModule, TablerIconsModule],
+  imports: [
+    CommonModule,
+    MatCardModule,
+    TablerIconsModule
+  ],
   templateUrl: './total-sales.component.html',
   styleUrls: ['./total-sales.component.scss']
 })
-export class TotalSalesComponent implements OnChanges {
+
+export class TotalSalesComponent
+implements OnChanges {
+
   @Input() period: string = 'today';
+
   @Input() userId: number = 1;
 
-  value: number = 0;
-  growth: number = 0;
-  orders: number = 0;
-  paid: number = 0;
-  pending: number = 0;
-  target: number = 0;
-  percentage: number = 0;
-  isLoading: boolean = true;
+  value = 0;
+  growth = 0;
+  orders = 0;
+  paid = 0;
+  pending = 0;
+  target = 0;
+  percentage = 0;
 
-  constructor(private salesService: SalesService) { }
+  isLoading = true;
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['period'] || changes['userId']) {
+  constructor(
+    private salesService: SalesService
+  ) { }
+
+  ngOnChanges(
+    changes: SimpleChanges
+  ): void {
+
+    if (
+      changes['period'] ||
+      changes['userId']
+    ) {
+
       this.loadData();
     }
   }
 
   loadData(): void {
+
     this.isLoading = true;
-    console.log(`Loading data for period: ${this.period}, userId: ${this.userId}`);
-    
-    this.salesService.getDashboardData(this.userId, this.period).subscribe({
-      next: (response) => {
-        console.log('API Response:', response);
-        if (response.status === 'success') {
-          this.value = response.data.total_sales.value;
-          this.growth = response.data.total_sales.growth;
-          this.orders = response.data.total_sales.orders;
-          this.paid = response.data.total_sales.paid;
-          this.pending = response.data.total_sales.pending;
-          this.target = response.data.total_sales.target;
-          this.percentage = response.data.total_sales.percentage;
+
+    this.salesService
+      .getDashboardData(
+        this.userId,
+        this.period
+      )
+
+      .subscribe({
+
+        next: (response) => {
+
+          console.log(response);
+
+          if (
+            response.status === 'success'
+          ) {
+
+            this.value =
+              response.data.total_sales.value;
+
+            this.growth =
+              response.data.total_sales.growth;
+
+            this.orders =
+              response.data.total_sales.orders;
+
+            this.paid =
+              response.data.total_sales.paid;
+
+            this.pending =
+              response.data.total_sales.pending;
+
+            this.target =
+              response.data.total_sales.target;
+
+            this.percentage =
+              response.data.total_sales.percentage;
+          }
+
+          this.isLoading = false;
+        },
+
+        error: (error) => {
+
+          console.log(error);
+
+          this.isLoading = false;
         }
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error fetching sales data:', error);
-        this.isLoading = false;
-        // Show error in UI
-        this.value = 0;
-        this.growth = 0;
-      }
-    });
+      });
   }
 
   getPeriodText(): string {
+
     switch (this.period) {
-      case 'today': return 'day';
-      case 'weekly': return 'week';
-      case 'monthly': return 'month';
-      case 'yearly': return 'year';
-      case 'all': return 'all time';
-      default: return 'period';
+
+      case 'today':
+        return 'day';
+
+      case 'weekly':
+        return 'week';
+
+      case 'monthly':
+        return 'month';
+
+      case 'yearly':
+        return 'year';
+
+      default:
+        return 'time';
     }
   }
 }
