@@ -1,6 +1,9 @@
 <mat-card class="p-4 hover:shadow-lg transition-shadow">
   <div *ngIf="isLoading" class="flex justify-center items-center h-32">
-    <div class="text-green-500">Loading...</div>
+    <div class="text-green-500">
+      <i-tabler name="loader" class="w-6 h-6 animate-spin"></i-tabler>
+      Loading...
+    </div>
   </div>
 
   <div *ngIf="!isLoading">
@@ -8,10 +11,26 @@
       <div>
         <p class="text-gray-500 text-sm mb-1">Total Sales</p>
         <h3 class="text-2xl font-bold text-green-600">₹{{ value | number }}</h3>
-        <p class="text-green-500 text-xs mt-1">
-          <i-tabler name="trending-up" class="w-3 h-3 inline"></i-tabler>
-          +{{ growth }}% from last {{ getPeriodText() }}
-        </p>
+        
+        <!-- Growth with dynamic icon and sign -->
+        <div class="flex items-center gap-1 mt-1">
+          <!-- Up Arrow for Positive Growth -->
+          <i-tabler *ngIf="growth > 0" name="trending-up" class="w-4 h-4 text-green-500"></i-tabler>
+          
+          <!-- Down Arrow for Negative Growth -->
+          <i-tabler *ngIf="growth < 0" name="trending-down" class="w-4 h-4 text-red-500"></i-tabler>
+          
+          <!-- Tilde (~) for Zero Growth -->
+          <span *ngIf="growth === 0" class="text-gray-400 text-sm">~</span>
+          
+          <!-- Growth Percentage with sign -->
+          <span class="text-sm font-medium"
+                [class.text-green-500]="growth > 0"
+                [class.text-red-500]="growth < 0"
+                [class.text-gray-400]="growth === 0">
+            <span *ngIf="growth > 0">+</span>{{ growth }}% from last {{ getComparisonText() }}
+          </span>
+        </div>
       </div>
       <div class="bg-green-100 p-3 rounded-full">
         <i-tabler name="shopping-cart" class="w-6 h-6 text-green-600"></i-tabler>
@@ -19,8 +38,7 @@
     </div>
 
     <div class="mt-3 pt-2 border-t border-gray-100">
-      <button
-        class="w-full text-green-600 text-sm font-medium hover:text-green-700 transition flex items-center justify-center gap-1">
+      <button class="w-full text-green-600 text-sm font-medium hover:text-green-700 transition flex items-center justify-center gap-1">
         <i-tabler name="report" class="w-4 h-4"></i-tabler>
         View Sales Report
       </button>
