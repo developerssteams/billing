@@ -2,18 +2,20 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+export interface SalesData {
+  value: number;
+  growth: number;
+  orders: number;
+  paid: number;
+  pending: number;
+  target: number;
+  percentage: number;
+}
+
 export interface DashboardResponse {
   status: string;
   data: {
-    total_sales: {
-      value: number;
-      growth: number;
-      orders: number;
-      paid: number;
-      pending: number;
-      target: number;
-      percentage: number;
-    };
+    total_sales: SalesData;
   };
 }
 
@@ -21,7 +23,7 @@ export interface DashboardResponse {
   providedIn: 'root'
 })
 export class SalesService {
-  private apiUrl = 'https://billsezy.com/Api/Dashboard-Data.php';
+  private apiUrl = 'https://billsezy.com/Api/Dashboard-Data.php'; // Change this to your actual API URL
 
   constructor(private http: HttpClient) { }
 

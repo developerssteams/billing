@@ -2,7 +2,7 @@ import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { TablerIconsModule } from 'angular-tabler-icons';
-import { SalesService } from '../services/sales.service';
+import { SalesService, SalesData } from '../services/sales.service';
 
 @Component({
   selector: 'app-total-sales',
@@ -26,65 +26,38 @@ export class TotalSalesComponent implements OnChanges {
 
   constructor(private salesService: SalesService) { }
 
-  ngOnChanges(changes: SimpleChanges) {
+  ngOnChanges(changes: SimpleChanges): void {
     if (changes['period'] || changes['userId']) {
       this.loadData();
     }
   }
 
-  loadData() {
+  loadData(): void {
     this.isLoading = true;
+    console.log(`Loading data for period: ${this.period}, userId: ${this.userId}`);
+    
     this.salesService.getDashboardData(this.userId, this.period).subscribe({
-      next: (res) => {
-        if (res.status === 'success') {
-          this.value = res.data.total_sales.value;
-          this.growth = res.data.total_sales.growth;
-          this.orders = res.data.total_sales.orders;
-          this.paid = res.data.total_sales.paid;
-          this.pending = res.data.total_sales.pending;
-          this.target = res.data.total_sales.target;
-          this.percentage = res.data.total_sales.percentage;
+      next: (response) => {
+        console.log('API Response:', response);
+        if (response.status === 'success') {
+          this.value = response.data.total_sales.value;
+          this.growth = response.data.total_sales.growth;
+          this.orders = response.data.total_sales.orders;
+          this.paid = response.data.total_sales.paid;
+          this.pending = response.data.total_sales.pending;
+          this.target = response.data.total_sales.target;
+          this.percentage = response.data.total_sales.percentage;
         }
         this.isLoading = false;
       },
-      error: (err) => {
-        console.error('Error loading sales data:', err);
+      error: (error) => {
+        console.error('Error fetching sales data:', error);
         this.isLoading = false;
-        // Fallback to dummy data if API fails
-        this.setFallbackData();
+        // Show error in UI
+        this.value = 0;
+        this.growth = 0;
       }
     });
-  }
-
-  setFallbackData() {
-    // This will use your existing sales_invoices table data
-    // API should work, this is just backup
-    const dummyData = {
-      value: 0,
-      growth: 0,
-      orders: 0,
-      paid: 0,
-      pending: 0,
-      target: this.getTargetForPeriod(),
-      percentage: 0
-    };
-    this.value = dummyData.value;
-    this.growth = dummyData.growth;
-    this.orders = dummyData.orders;
-    this.paid = dummyData.paid;
-    this.pending = dummyData.pending;
-    this.percentage = dummyData.percentage;
-  }
-
-  getTargetForPeriod(): number {
-    const targets: Record<string, number> = {
-      'today': 10000,
-      'weekly': 50000,
-      'monthly': 200000,
-      'yearly': 1500000,
-      'all': 2000000
-    };
-    return targets[this.period] || 50000;
   }
 
   getPeriodText(): string {
@@ -93,6 +66,7 @@ export class TotalSalesComponent implements OnChanges {
       case 'weekly': return 'week';
       case 'monthly': return 'month';
       case 'yearly': return 'year';
+      case 'all': return 'all time';
       default: return 'period';
     }
   }
