@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-export interface DashboardData {
+export interface DashboardResponse {
   status: string;
-  period: string;
   data: {
     total_sales: {
       value: number;
@@ -24,9 +23,13 @@ export interface DashboardData {
 export class SalesService {
   private apiUrl = 'https://billsezy.com/Api/Dashboard-Data.php';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-  getDashboardData(userId: number, period: string): Observable<DashboardData> {
-    return this.http.get<DashboardData>(`${this.apiUrl}?user_id=${userId}&period=${period}`);
+  getDashboardData(userId: number, period: string): Observable<DashboardResponse> {
+    const params = new HttpParams()
+      .set('user_id', userId.toString())
+      .set('period', period);
+    
+    return this.http.get<DashboardResponse>(this.apiUrl, { params });
   }
 }

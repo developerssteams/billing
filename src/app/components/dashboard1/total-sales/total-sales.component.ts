@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -12,7 +12,7 @@ import { SalesService } from '../services/sales.service';
   styleUrls: ['./total-sales.component.scss']
 })
 export class TotalSalesComponent implements OnChanges {
-  @Input() period: string = 'monthly';
+  @Input() period: string = 'today';
   @Input() userId: number = 1;
 
   value: number = 0;
@@ -20,14 +20,16 @@ export class TotalSalesComponent implements OnChanges {
   orders: number = 0;
   paid: number = 0;
   pending: number = 0;
-  target: number = 50000;
+  target: number = 0;
   percentage: number = 0;
   isLoading: boolean = true;
 
   constructor(private salesService: SalesService) { }
 
-  ngOnChanges() {
-    this.loadData();
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['period'] || changes['userId']) {
+      this.loadData();
+    }
   }
 
   loadData() {
@@ -46,12 +48,45 @@ export class TotalSalesComponent implements OnChanges {
         this.isLoading = false;
       },
       error: (err) => {
-        console.error('Error:', err);
+        console.error('Error loading sales data:', err);
         this.isLoading = false;
-        this.setDummyData();
+        // Fallback to dummy data if API fails
+        this.setFallbackData();
       }
     });
   }
+
+  setFallbackData() {
+    // This will use your existing sales_invoices table data
+    // API should work, this is just backup
+    const dummyData = {
+      value: 0,
+      growth: 0,
+      orders: 0,
+      paid: 0,
+      pending: 0,
+      target: this.getTargetForPeriod(),
+      percentage: 0
+    };
+    this.value = dummyData.value;
+    this.growth = dummyData.growth;
+    this.orders = dummyData.orders;
+    this.paid = dummyData.paid;
+    this.pending = dummyData.pending;
+    this.percentage = dummyData.percentage;
+  }
+
+  getTargetForPeriod(): number {
+    const targets: Record<string, number> = {
+      'today': 10000,
+      'weekly': 50000,
+      'monthly': 200000,
+      'yearly': 1500000,
+      'all': 2000000
+    };
+    return targets[this.period] || 50000;
+  }
+
   getPeriodText(): string {
     switch (this.period) {
       case 'today': return 'day';
@@ -60,21 +95,5 @@ export class TotalSalesComponent implements OnChanges {
       case 'yearly': return 'year';
       default: return 'period';
     }
-  }
-  setDummyData() {
-    const dummy: any = {
-      today: { value: 4580, growth: 8.5, orders: 12, paid: 3500, pending: 1080, percentage: 9 },
-      weekly: { value: 28500, growth: 12.3, orders: 78, paid: 21000, pending: 7500, percentage: 57 },
-      monthly: { value: 45680, growth: 15.2, orders: 342, paid: 38000, pending: 7680, percentage: 91 },
-      yearly: { value: 425000, growth: 18.5, orders: 2850, paid: 380000, pending: 45000, percentage: 100 },
-      all: { value: 1250000, growth: 25.5, orders: 8500, paid: 1100000, pending: 150000, percentage: 100 }
-    };
-    const data = dummy[this.period] || dummy.monthly;
-    this.value = data.value;
-    this.growth = data.growth;
-    this.orders = data.orders;
-    this.paid = data.paid;
-    this.pending = data.pending;
-    this.percentage = data.percentage;
   }
 }
